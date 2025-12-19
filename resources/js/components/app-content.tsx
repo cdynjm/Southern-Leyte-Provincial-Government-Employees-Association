@@ -1,52 +1,62 @@
 import { SidebarInset } from '@/components/ui/sidebar';
-import * as React from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { Home, Search, User } from 'lucide-react';
+import { Home } from 'lucide-react';
+import * as React from 'react';
 
 interface AppContentProps extends React.ComponentProps<'main'> {
     variant?: 'header' | 'sidebar';
 }
 
+interface NavItem {
+    label: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+}
+
+function normalizeToPathname(href: string): string {
+    try {
+        const url = new URL(href, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+        return url.pathname.replace(/\/+$/, '');
+    } catch {
+        return href.split(/[?#]/)[0].replace(/\/+$/, '');
+    }
+}
+
 export function AppContent({ variant = 'header', children, ...props }: AppContentProps) {
     const { url } = usePage();
+
+    const navItems: NavItem[] = [
+        { label: 'Home', href: route('admin.dashboard'), icon: Home },
+        
+    ];
+
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname.replace(/\/+$/, '') : normalizeToPathname(String(url || ''));
 
     if (variant === 'sidebar') {
         return (
             <SidebarInset {...props}>
-                <div className="flex flex-col h-full">
-                    <div className="flex-1 overflow-auto">{children}</div>
+                <div className="flex h-full flex-col">
+                    <div className="mb-15 flex-1 overflow-auto">{children}</div>
 
-                    {/* Fixed bottom navbar inside sidebar variant */}
-                    <nav className="flex h-13 w-full items-center justify-around border-t border-t-gray-200 bg-white md:hidden">
-                        <Link
-                            href="/dashboard"
-                            className={`flex flex-col items-center text-sm ${
-                                url === '/dashboard' ? 'text-blue-500' : 'text-gray-600'
-                            }`}
-                        >
-                            <Home className={`h-5 w-5 ${url === '/dashboard' ? 'text-blue-500' : 'text-gray-600'}`} />
-                            <span className="text-[10px]">Home</span>
-                        </Link>
+                    {/* Bottom Nav */}
+                    <nav className="fixed bottom-0 left-0 z-50 flex h-13 w-full items-center justify-around border-t border-gray-200 bg-white shadow-lg md:hidden">
+                        {navItems.map((item) => {
+                            const Icon = item.icon;
+                            const itemPath = normalizeToPathname(item.href);
 
-                        <Link
-                            href="/search"
-                            className={`flex flex-col items-center text-sm ${
-                                url === '/search' ? 'text-blue-500' : 'text-gray-600'
-                            }`}
-                        >
-                            <Search className={`h-5 w-5 ${url === '/search' ? 'text-blue-500' : 'text-gray-600'}`} />
-                            <span className="text-[10px]">Search</span>
-                        </Link>
+                            const isActive = currentPath === itemPath || (itemPath !== '' && currentPath.startsWith(itemPath + '/'));
 
-                        <Link
-                            href="/profile"
-                            className={`flex flex-col items-center text-sm ${
-                                url === '/profile' ? 'text-blue-500' : 'text-gray-600'
-                            }`}
-                        >
-                            <User className={`h-5 w-5 ${url === '/profile' ? 'text-blue-500' : 'text-gray-600'}`} />
-                            <span className="text-[10px]">Profile</span>
-                        </Link>
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={`flex flex-col items-center text-sm ${isActive ? 'text-blue-500' : 'text-gray-600'}`}
+                                >
+                                    <Icon className={`h-5 w-5 ${isActive ? 'text-blue-500' : 'text-gray-600'}`} />
+                                    <span className="text-[10px]">{item.label}</span>
+                                </Link>
+                            );
+                        })}
                     </nav>
                 </div>
             </SidebarInset>
