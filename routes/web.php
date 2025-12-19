@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\EmployeesController;
+
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
 
 Route::get('/', function () {
@@ -28,6 +31,11 @@ Route::middleware(['auth'])->group(function () {
         ->group(function () {
 
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+
+            Route::get('/employees', [EmployeesController::class, 'index'])->name('admin.employees');
+            Route::post('/employees', [EmployeesController::class, 'store'])->name('admin.employee.store');
+            Route::put('/employees', [EmployeesController::class, 'update'])->name('admin.employee.update');
+            Route::delete('/employees', [EmployeesController::class, 'destroy'])->name('admin.employee.destroy');
 
         });
 

@@ -41,3 +41,12 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface Employees {
+    id: number;
+    encrypted_id: string;
+    name: string;
+    position: string;
+    email: string;
+    created_at: string;
+}

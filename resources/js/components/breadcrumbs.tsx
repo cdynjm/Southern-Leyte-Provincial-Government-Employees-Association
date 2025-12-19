@@ -1,7 +1,7 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
 import { Link } from '@inertiajs/react';
-import { HomeIcon } from 'lucide-react';
+import { Layers2Icon } from 'lucide-react';
 import { Fragment } from 'react';
 import AppLogoIcon from './app-logo-icon';
 
@@ -19,7 +19,7 @@ export function Breadcrumbs({ breadcrumbs }: { breadcrumbs: BreadcrumbItemType[]
                                         {isLast ? (
                                             <BreadcrumbPage>
                                                 <div className="hidden items-center gap-1 md:flex">
-                                                    <HomeIcon className="mr-1 inline h-4 w-4" />
+                                                    <Layers2Icon className="mr-1 inline h-4 w-4" />
                                                     <span>{item.title}</span>
                                                 </div>
                                                 <div className="md:hidden">
