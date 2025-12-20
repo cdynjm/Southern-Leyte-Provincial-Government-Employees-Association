@@ -13,11 +13,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Employees, type User } from '@/types';
+import { type BreadcrumbItem, type Employees, type User, type Paginated } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Eye, EyeOff, PencilIcon, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import Pagination from '@/components/pagination';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -29,7 +30,7 @@ interface EmployeesProps {
     auth: {
         user: User;
     };
-    employees: Employees[];
+    employees: Paginated<Employees>;
 }
 
 export default function Employees({ auth, employees }: EmployeesProps) {
@@ -322,16 +323,16 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {employees.length === 0 ? (
+                        {employees.data.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="text-center text-[13px] text-gray-500">
                                     No Data Found
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            employees.map((emp, index) => (
+                            employees.data.map((emp, index) => (
                                 <TableRow key={emp.encrypted_id}>
-                                    <TableCell className="py-[6px] text-center">{index + 1}</TableCell>
+                                    <TableCell className="py-[6px] text-center">{index + 1 + (employees.current_page - 1) * employees.per_page}</TableCell>
                                     <TableCell className="py-[6px] text-nowrap">{emp.name}</TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">{emp.position}</TableCell>
                                     <TableCell className='py-[6px]'>
@@ -349,6 +350,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                         )}
                     </TableBody>
                 </Table>
+                <Pagination links={employees.links} />
             </div>
         </AppLayout>
     );
