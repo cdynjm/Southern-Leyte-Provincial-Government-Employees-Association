@@ -335,7 +335,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                     <TableCell className="py-[6px] text-nowrap">{emp.name}</TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">{emp.position}</TableCell>
                                     <TableCell className='py-[6px]'>
-                                        <div className="flex items-center gap-2 ">
+                                        <div className="flex items-center gap-2 justify-center">
                                             <Button variant="outline" className="text-[11px]" size="icon" onClick={() => editEmployee(emp)}>
                                                 <PencilIcon />
                                             </Button>
