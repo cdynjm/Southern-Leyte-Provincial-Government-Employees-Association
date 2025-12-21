@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EmployeesController;
+use App\Http\Controllers\Admin\ContributionsController;
 
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
 
@@ -36,6 +37,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/employees', [EmployeesController::class, 'store'])->name('admin.employee.store');
             Route::put('/employees', [EmployeesController::class, 'update'])->name('admin.employee.update');
             Route::delete('/employees', [EmployeesController::class, 'destroy'])->name('admin.employee.destroy');
+
+            Route::get('/contributions', [ContributionsController::class, 'index'])->name('admin.contributions');
 
         });
 

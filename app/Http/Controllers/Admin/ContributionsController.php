@@ -22,7 +22,7 @@ class ContributionsController extends Controller
     public function index()
     {
 
-        $employees = User::where('role', 'employee')->orderBy('name', 'asc')->get()->map(function ($employee) {
+        $employees = User::where('role', 'employee')->orderBy('name', 'asc')->paginate(10)->through(function ($employee) {
             $employee->encrypted_id = $this->aes->encrypt($employee->id);
             return $employee;
         });
