@@ -6,8 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Employees, type Paginated, type User } from '@/types';
-import { Head } from '@inertiajs/react';
-import { CheckIcon, SearchIcon } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
+import { CheckIcon, SearchIcon, EraserIcon, LoaderCircle } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,9 +20,10 @@ interface ContributionsProps {
         user: User;
     };
     employees: Paginated<Employees>;
+    search: string;
 }
 
-export default function Contributions({ auth, employees }: ContributionsProps) {
+export default function Contributions({ auth, employees, search }: ContributionsProps) {
     const generateYears = () => {
         const startYear = 2023;
         const currentYear = new Date().getFullYear();
@@ -55,7 +56,24 @@ export default function Contributions({ auth, employees }: ContributionsProps) {
 
         return months;
     };
+
     const months = generateMonths();
+
+    const searchEmployeeForm = useForm({
+        search: search || '',
+    });
+
+    const searchEmployee = () => {
+        searchEmployeeForm.post(route('admin.contributions.search'));
+    };
+
+    const clearSearch = () => {
+        searchEmployeeForm.post(route('admin.contributions.clear-search'), {
+            onSuccess: () => {
+                searchEmployeeForm.setData('search', '');
+            }
+        });
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
@@ -66,9 +84,18 @@ export default function Contributions({ auth, employees }: ContributionsProps) {
                         <Label className="text-sm font-bold text-gray-500">Employees Contributions</Label>
                     </div>
                     <div className="flex w-full max-w-sm items-center gap-2">
-                        <Input id="search" type="text" placeholder="Search employees..." className="flex-1" />
-                        <Button className="whitespace-nowrap" size="icon">
-                            <SearchIcon />
+                        <Button size="icon" variant="secondary" onClick={clearSearch} disabled={searchEmployeeForm.processing} className={search === null ? 'hidden' : 'text-red-600'}>
+                            {searchEmployeeForm.processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <EraserIcon className="h-4 w-4" />}
+                        </Button>
+                        <Input
+                            type="text"
+                            placeholder="Search employees..."
+                            onChange={(e) => searchEmployeeForm.setData('search', e.target.value)}
+                            value={searchEmployeeForm.data.search}
+                            className="flex-1"
+                        />
+                        <Button size="icon" onClick={searchEmployee} disabled={searchEmployeeForm.processing}>
+                            {searchEmployeeForm.processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <SearchIcon className="h-4 w-4" />}
                         </Button>
                     </div>
                 </div>

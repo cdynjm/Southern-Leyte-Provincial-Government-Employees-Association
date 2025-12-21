@@ -39,6 +39,8 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/employees', [EmployeesController::class, 'destroy'])->name('admin.employee.destroy');
 
             Route::get('/contributions', [ContributionsController::class, 'index'])->name('admin.contributions');
+            Route::post('/contributions/search', [ContributionsController::class, 'search'])->name('admin.contributions.search');
+            Route::post('/contributions/clear-search', [ContributionsController::class, 'clearSearch'])->name('admin.contributions.clear-search');
 
         });
 
