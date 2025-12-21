@@ -25,7 +25,7 @@ class ContributionsController extends Controller
         $search = session('search');
 
         $employees = User::where('role', 'employee')
-        ->where('name', 'like', "{$search}%")
+        ->where('name', 'like', "%{$search}%")
         ->orderBy('name', 'asc')->paginate(10)->through(function ($employee) {
             $employee->encrypted_id = $this->aes->encrypt($employee->id);
             return $employee;
