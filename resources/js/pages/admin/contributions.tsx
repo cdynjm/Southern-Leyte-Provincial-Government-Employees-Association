@@ -79,8 +79,8 @@ export default function Contributions({ auth, employees, search }: Contributions
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="Employees" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex flex-col gap-1">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
+                    <div className="">
                         <Label className="text-sm font-bold text-gray-500">Employees Contributions</Label>
                     </div>
                     <div className="flex w-full max-w-sm items-center gap-2">
