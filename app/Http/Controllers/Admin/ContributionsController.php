@@ -10,6 +10,7 @@ use App\Http\Controllers\Security\AESCipher;
 use Session;
 
 use App\Models\User;
+use App\Models\Contributions;
 
 class ContributionsController extends Controller
 {
@@ -34,6 +35,18 @@ class ContributionsController extends Controller
         return Inertia::render('admin/contributions', [
             'employees' => $employees,
             'search' => $search,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $id = $this->aes->decrypt($request->encrypted_id);
+
+        Contributions::create([
+            'users_id' => $id,
+            'year' => $request->year,
+            'month' => $request->month,
+            'amount' => $request->amount,
         ]);
     }
 

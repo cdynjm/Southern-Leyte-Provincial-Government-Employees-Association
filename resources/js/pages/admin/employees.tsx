@@ -337,11 +337,11 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                     <TableCell className="py-[6px] text-center text-nowrap">{emp.position}</TableCell>
                                     <TableCell className='py-[6px]'>
                                         <div className="flex items-center gap-2 justify-center">
-                                            <Button variant="outline" className="text-[11px]" size="icon" onClick={() => editEmployee(emp)}>
-                                                <PencilIcon />
+                                            <Button variant="secondary" className="text-[11px]" size="icon" onClick={() => editEmployee(emp)}>
+                                                <PencilIcon className='text-gray-600' />
                                             </Button>
-                                            <Button variant="destructive" className="text-[11px]" size="icon" onClick={() => deleteEmployee(emp.encrypted_id)}>
-                                                <Trash2Icon />
+                                            <Button variant="secondary" className="text-[11px]" size="icon" onClick={() => deleteEmployee(emp.encrypted_id)}>
+                                                <Trash2Icon className='text-red-600' />
                                             </Button>
                                         </div>
                                     </TableCell>

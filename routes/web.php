@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/contributions', [ContributionsController::class, 'index'])->name('admin.contributions');
             Route::post('/contributions/search', [ContributionsController::class, 'search'])->name('admin.contributions.search');
             Route::post('/contributions/clear-search', [ContributionsController::class, 'clearSearch'])->name('admin.contributions.clear-search');
+            Route::post('/contributions/store', [ContributionsController::class, 'store'])->name('admin.contributions.store');
 
         });
 

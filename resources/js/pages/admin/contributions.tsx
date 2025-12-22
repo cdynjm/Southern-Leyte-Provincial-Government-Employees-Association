@@ -5,9 +5,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Employees, type Paginated, type User } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
-import { CheckIcon, SearchIcon, EraserIcon, LoaderCircle } from 'lucide-react';
+import { type BreadcrumbItem, type ContributionRow, type Employees, type Paginated, type User } from '@/types';
+import { Head, router, useForm } from '@inertiajs/react';
+import { CheckIcon, EraserIcon, LoaderCircle, SearchIcon } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -71,20 +73,87 @@ export default function Contributions({ auth, employees, search }: Contributions
         searchEmployeeForm.post(route('admin.contributions.clear-search'), {
             onSuccess: () => {
                 searchEmployeeForm.setData('search', '');
-            }
+            },
         });
-    }
+    };
+
+    const [rowValues, setRowValues] = useState<Record<string, ContributionRow>>({});
+    const [rowLoading, setRowLoading] = useState<Record<string, boolean>>({});
+
+    const submitContribution = (emp: Employees) => {
+        const row = rowValues[emp.encrypted_id];
+
+        if (!row?.year || !row?.month || !row?.amount) {
+            toast('Opss, Error', {
+                description: 'Please fill in all fields before submitting.',
+                action: {
+                    label: 'Close',
+                    onClick: () => console.log(''),
+                },
+            });
+            return;
+        }
+
+        setRowLoading((prev) => ({ ...prev, [emp.encrypted_id]: true }));
+
+        router.post(
+            route('admin.contributions.store'),
+            {
+                encrypted_id: emp.encrypted_id,
+                year: row.year,
+                month: row.month,
+                amount: row.amount,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast('Contribution Added', {
+                        description: 'The contribution has been successfully added.',
+                        action: {
+                            label: 'Close',
+                            onClick: () => console.log(''),
+                        },
+                    });
+
+                    setRowValues((prev) => {
+                        const copy = { ...prev };
+                        delete copy[emp.encrypted_id];
+                        return copy;
+                    });
+
+                    setRowLoading((prev) => {
+                        const copy = { ...prev };
+                        delete copy[emp.encrypted_id];
+                        return copy;
+                    });
+                },
+                onError: () => {
+                    setRowLoading((prev) => {
+                        const copy = { ...prev };
+                        delete copy[emp.encrypted_id];
+                        return copy;
+                    });
+                },
+            },
+        );
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="Employees" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
+                <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
                     <div className="">
                         <Label className="text-sm font-bold text-gray-500">Employees Contributions</Label>
                     </div>
                     <div className="flex w-full max-w-sm items-center gap-2">
-                        <Button size="icon" variant="secondary" onClick={clearSearch} disabled={searchEmployeeForm.processing} className={search === null ? 'hidden' : 'text-red-600'}>
+                        <Button
+                            size="icon"
+                            variant="secondary"
+                            onClick={clearSearch}
+                            disabled={searchEmployeeForm.processing}
+                            className={search === null ? 'hidden' : 'text-red-600'}
+                        >
                             {searchEmployeeForm.processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <EraserIcon className="h-4 w-4" />}
                         </Button>
                         <Input
@@ -133,9 +202,26 @@ export default function Contributions({ auth, employees, search }: Contributions
                                         <div>{emp.name}</div>
                                         <small>{emp.position}</small>
                                     </TableCell>
-                                    <TableCell className="py-[6px] text-center font-bold text-nowrap">0</TableCell>
+                                    <TableCell className="py-[6px] text-center font-bold text-nowrap">
+                                        ₱
+                                        {emp.contributions && emp.contributions.length > 0
+                                            ? emp.contributions.reduce((total, contribution) => total + contribution.amount, 0).toLocaleString()
+                                            : '0'}
+                                    </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
-                                        <Select>
+                                        <Select
+                                            key={rowValues[emp.encrypted_id]?.year ? rowValues[emp.encrypted_id]?.year : emp.encrypted_id + '-year'}
+                                            value={rowValues[emp.encrypted_id]?.year ?? undefined}
+                                            onValueChange={(value) =>
+                                                setRowValues((prev) => ({
+                                                    ...prev,
+                                                    [emp.encrypted_id]: {
+                                                        ...prev[emp.encrypted_id],
+                                                        year: value,
+                                                    },
+                                                }))
+                                            }
+                                        >
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Year" />
                                             </SelectTrigger>
@@ -149,7 +235,21 @@ export default function Contributions({ auth, employees, search }: Contributions
                                         </Select>
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
-                                        <Select>
+                                        <Select
+                                            key={
+                                                rowValues[emp.encrypted_id]?.month ? rowValues[emp.encrypted_id]?.month : emp.encrypted_id + '-month'
+                                            }
+                                            value={rowValues[emp.encrypted_id]?.month ?? undefined}
+                                            onValueChange={(value) =>
+                                                setRowValues((prev) => ({
+                                                    ...prev,
+                                                    [emp.encrypted_id]: {
+                                                        ...prev[emp.encrypted_id],
+                                                        month: value,
+                                                    },
+                                                }))
+                                            }
+                                        >
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Month" />
                                             </SelectTrigger>
@@ -164,13 +264,38 @@ export default function Contributions({ auth, employees, search }: Contributions
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
                                         <div className="flex justify-center">
-                                            <Input type="number" placeholder="₱0" className="max-w-[200px] min-w-[120px]" min={0} />
+                                            <Input
+                                                type="number"
+                                                placeholder="₱0"
+                                                className="max-w-[100px] min-w-[100px] text-center"
+                                                min={0}
+                                                value={rowValues[emp.encrypted_id]?.amount ?? ''}
+                                                onChange={(e) =>
+                                                    setRowValues((prev) => ({
+                                                        ...prev,
+                                                        [emp.encrypted_id]: {
+                                                            ...prev[emp.encrypted_id],
+                                                            amount: Number(e.target.value),
+                                                        },
+                                                    }))
+                                                }
+                                            />
                                         </div>
                                     </TableCell>
                                     <TableCell className="py-[6px]">
                                         <div className="flex items-center justify-center gap-2">
-                                            <Button size="sm" variant="secondary" className="text-[12px]">
-                                                <CheckIcon className="font-bold text-green-600" />
+                                            <Button
+                                                size="sm"
+                                                variant="secondary"
+                                                className="text-[12px]"
+                                                onClick={() => submitContribution(emp)}
+                                                disabled={!!rowLoading[emp.encrypted_id]}
+                                            >
+                                                {rowLoading[emp.encrypted_id] ? (
+                                                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                                                ) : (
+                                                    <CheckIcon className="h-4 w-4 text-green-600" />
+                                                )}
                                             </Button>
                                         </div>
                                     </TableCell>
