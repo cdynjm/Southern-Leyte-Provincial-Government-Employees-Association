@@ -64,6 +64,7 @@ export interface Employees {
     name: string;
     position: string;
     email: string;
+    totalContribution: number;
     created_at: string;
     contributions?: Contributions[];
 }

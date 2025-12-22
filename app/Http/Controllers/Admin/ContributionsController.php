@@ -48,6 +48,8 @@ class ContributionsController extends Controller
             'month' => $request->month,
             'amount' => $request->amount,
         ]);
+
+        User::where('id', $id)->increment('totalContribution', $request->amount);
     }
 
     public function search(Request $request)

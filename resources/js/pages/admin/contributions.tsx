@@ -203,10 +203,7 @@ export default function Contributions({ auth, employees, search }: Contributions
                                         <small>{emp.position}</small>
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center font-bold text-nowrap">
-                                        ₱
-                                        {emp.contributions && emp.contributions.length > 0
-                                            ? emp.contributions.reduce((total, contribution) => total + contribution.amount, 0).toLocaleString()
-                                            : '0'}
+                                        ₱ {emp.totalContribution === 0 ? 0 : emp.totalContribution}
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
                                         <Select
