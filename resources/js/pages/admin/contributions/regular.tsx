@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Contributions',
-        href: route('admin.contributions'),
+        href: route('admin.contributions.regulars'),
     },
 ];
 interface ContributionsProps {
@@ -25,7 +25,7 @@ interface ContributionsProps {
     search: string;
 }
 
-export default function Contributions({ auth, employees, search }: ContributionsProps) {
+export default function RegularContributions({ auth, employees, search }: ContributionsProps) {
     const generateYears = () => {
         const startYear = 2023;
         const currentYear = new Date().getFullYear();
@@ -144,7 +144,7 @@ export default function Contributions({ auth, employees, search }: Contributions
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
                     <div className="">
-                        <Label className="text-sm font-bold text-gray-500">Employees Contributions</Label>
+                        <Label className="text-sm font-bold text-gray-500">Regular Employees</Label>
                     </div>
                     <div className="flex w-full max-w-sm items-center gap-2">
                         <Button

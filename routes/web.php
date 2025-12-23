@@ -38,7 +38,8 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/employees/update', [EmployeesController::class, 'update'])->name('admin.employee.update');
             Route::delete('/employees/destroy', [EmployeesController::class, 'destroy'])->name('admin.employee.destroy');
 
-            Route::get('/contributions', [ContributionsController::class, 'index'])->name('admin.contributions');
+            Route::get('/contributions/regulars', [ContributionsController::class, 'regulars'])->name('admin.contributions.regulars');
+            Route::get('/contributions/job-orders', [ContributionsController::class, 'jobOrders'])->name('admin.contributions.job-orders');
             Route::get('/contributions/{encrypted_id}', [ContributionsController::class, 'viewContributions'])->name('admin.contributions.view');
             Route::post('/contributions/search', [ContributionsController::class, 'search'])->name('admin.contributions.search');
             Route::post('/contributions/clear-search', [ContributionsController::class, 'clearSearch'])->name('admin.contributions.clear-search');
