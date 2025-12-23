@@ -99,18 +99,16 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
 
                 <Card className="rounded-md shadow-none">
                     <CardContent className="flex flex-col md:flex-row justify-center items-center gap-4">
-                        {/* Avatar */}
+                        
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-xl font-semibold">
                             {employee.name.charAt(0)}
                         </div>
 
-                        {/* Info */}
                         <div className="flex-1 text-center md:text-start">
                             <h2 className="text-lg leading-tight font-semibold">{employee.name}</h2>
                             <p className="text-sm text-muted-foreground">{employee.position}</p>
                         </div>
 
-                        {/* Total Contribution */}
                         <div className="text-center md:text-right">
                             <p className="text-xs text-muted-foreground">Total Contributions</p>
                             <p className="text-xl font-bold text-green-600">₱{employee.totalContribution}</p>
