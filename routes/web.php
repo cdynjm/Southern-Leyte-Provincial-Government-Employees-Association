@@ -39,10 +39,11 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/employees', [EmployeesController::class, 'destroy'])->name('admin.employee.destroy');
 
             Route::get('/contributions', [ContributionsController::class, 'index'])->name('admin.contributions');
+            Route::get('/contributions/{encrypted_id}', [ContributionsController::class, 'viewContributions'])->name('admin.contributions.view');
             Route::post('/contributions/search', [ContributionsController::class, 'search'])->name('admin.contributions.search');
             Route::post('/contributions/clear-search', [ContributionsController::class, 'clearSearch'])->name('admin.contributions.clear-search');
             Route::post('/contributions/store', [ContributionsController::class, 'store'])->name('admin.contributions.store');
-
+            
         });
 
     Route::prefix('employee')

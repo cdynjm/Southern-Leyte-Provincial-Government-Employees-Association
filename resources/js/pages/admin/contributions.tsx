@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type ContributionRow, type Employees, type Paginated, type User } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { CheckIcon, EraserIcon, LoaderCircle, SearchIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -199,12 +199,12 @@ export default function Contributions({ auth, employees, search }: Contributions
                                         {index + 1 + (employees.current_page - 1) * employees.per_page}
                                     </TableCell>
                                     <TableCell className="py-[6px] text-nowrap">
-                                        <div>{emp.name}</div>
-                                        <small>{emp.position}</small>
+                                        <Link href={route('admin.contributions.view', { encrypted_id: emp.encrypted_id })}>
+                                            <div>{emp.name}</div>
+                                            <small>{emp.position}</small>
+                                        </Link>
                                     </TableCell>
-                                    <TableCell className="py-[6px] text-center font-bold text-nowrap">
-                                        ₱ {emp.totalContribution === 0 ? 0 : emp.totalContribution}
-                                    </TableCell>
+                                    <TableCell className="py-[6px] text-center font-bold text-nowrap">₱{emp.totalContribution}</TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
                                         <Select
                                             key={rowValues[emp.encrypted_id]?.year ? rowValues[emp.encrypted_id]?.year : emp.encrypted_id + '-year'}

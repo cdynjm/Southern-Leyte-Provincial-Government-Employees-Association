@@ -32,7 +32,7 @@ export default function Footer({ className, year = new Date().getFullYear() }: F
                     <a
                         href="https://www.facebook.com/jemuel.cadayona.94"
                         target="_blank"
-                        className="mt-2 inline-block rounded bg-primary px-3 py-1 text-[11px] text-white uppercase hover:bg-green-700"
+                        className="mt-2 inline-block rounded bg-primary px-3 py-1 text-[11px] text-white uppercase"
                     >
                         Click to Chat
                     </a>

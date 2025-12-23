@@ -52,6 +52,27 @@ class ContributionsController extends Controller
         User::where('id', $id)->increment('totalContribution', $request->amount);
     }
 
+    public function viewContributions(Request $request)
+    {
+        $id = $this->aes->decrypt($request->encrypted_id);
+
+       $employee = User::findOrFail($id);
+
+        $contributions = $employee->contributions()
+            ->orderBy('year', 'desc')
+            ->orderBy('month', 'desc')
+            ->paginate(20)->through(function ($contribution) {
+                $contribution->encrypted_id = $this->aes->encrypt($contribution->id);
+                return $contribution;
+        })->withQueryString();
+
+        return Inertia::render('admin/view-contributions', [
+            'employee' => $employee,
+            'contributions' => $contributions,
+            'encrypted_id' => $request->encrypted_id,
+        ]);
+    }
+
     public function search(Request $request)
     {
         Session::put('search', $request->search);
