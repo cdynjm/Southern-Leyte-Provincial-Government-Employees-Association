@@ -1,12 +1,25 @@
 import FormattedDate from '@/components/formatted-date';
 import { MonthLabel } from '@/components/month-label';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import Pagination from '@/components/pagination';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Contributions, type Employees, type Paginated, type User } from '@/types';
 import { Head } from '@inertiajs/react';
-
+import { useForm } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
+import { Trash2Icon } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 interface ViewContributionsProps {
     auth: {
         user: User;
@@ -25,11 +38,65 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
         },
     ];
 
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+    const deleteContributionForm = useForm({
+        encrypted_id: '',
+    });
+
+    const deleteContribution = (encrypted_id: string) => {
+        deleteContributionForm.setData('encrypted_id', encrypted_id);
+        setOpenDeleteDialog(true);
+    }
+
+    const removeContribution = () => {
+        deleteContributionForm.delete(route('admin.contribution.destroy'), {
+            onSuccess: () => {
+                toast('Deleted', {
+                    description: 'Contribution was removed successfully.',
+                    action: {
+                        label: 'Close',
+                        onClick: () => console.log(''),
+                    },
+                });
+                setOpenDeleteDialog(false);
+            },
+            onError: () => {
+                toast('Failed', {
+                    description: 'Unable to remove contribution. Please try again.',
+                    action: {
+                        label: 'Close',
+                        onClick: () => console.log(''),
+                    },
+                });
+            },
+        });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="View Contributions" />
-
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                
+                <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Remove Contribution</DialogTitle>
+                                <DialogDescription>Are you sure you want to remove this contribution? This action cannot be undone.</DialogDescription>
+                            </DialogHeader>
+
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button variant="outline">Cancel</Button>
+                                </DialogClose>
+
+                                <Button variant="destructive" onClick={removeContribution} disabled={deleteContributionForm.processing}>
+                                    {deleteContributionForm.processing ? 'Removing...' : 'Remove'}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
                 <Card className="rounded-md shadow-none">
                     <CardContent className="flex flex-col md:flex-row justify-center items-center gap-4">
                         {/* Avatar */}
@@ -82,7 +149,11 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
                                     <TableCell className="py-[6px] text-center text-[13px] text-nowrap text-blue-600">
                                         <FormattedDate date={con.updated_at} />
                                     </TableCell>
-                                    <TableCell className="py-[6px] text-center text-[13px] text-nowrap text-blue-600"></TableCell>
+                                    <TableCell className="py-[6px] text-center text-[13px] text-nowrap text-blue-600">
+                                        <Button variant="secondary" size="icon" onClick={() => deleteContribution(con.encrypted_id)}>
+                                            <Trash2Icon className="h-4 w-4 text-red-500" />
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
                             ))
                         )}

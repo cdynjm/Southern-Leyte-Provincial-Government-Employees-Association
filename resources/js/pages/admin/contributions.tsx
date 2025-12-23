@@ -97,7 +97,7 @@ export default function Contributions({ auth, employees, search }: Contributions
         setRowLoading((prev) => ({ ...prev, [emp.encrypted_id]: true }));
 
         router.post(
-            route('admin.contributions.store'),
+            route('admin.contribution.store'),
             {
                 encrypted_id: emp.encrypted_id,
                 year: row.year,

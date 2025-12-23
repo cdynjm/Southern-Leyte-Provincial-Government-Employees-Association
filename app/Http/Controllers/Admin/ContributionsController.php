@@ -73,6 +73,17 @@ class ContributionsController extends Controller
         ]);
     }
 
+    public function destroy(Request $request)
+    {
+        $id = $this->aes->decrypt($request->encrypted_id);
+
+        $contribution = Contributions::findOrFail($id);
+
+        User::where('id', $contribution->users_id)->decrement('totalContribution', $contribution->amount);
+
+        $contribution->delete();
+    }
+
     public function search(Request $request)
     {
         Session::put('search', $request->search);

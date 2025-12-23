@@ -1,18 +1,19 @@
+import { Card, CardContent } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type User } from '@/types';
 import { Head } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Users, Wallet } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
-        href: route('admin.dashboard')
+        href: route('admin.dashboard'),
     },
 ];
 interface DashboardProps {
     auth: {
         user: User;
-    }
+    };
     employees: number;
 }
 
@@ -20,32 +21,39 @@ export default function Dashboard({ auth, employees }: DashboardProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
-                <div className="grid grid-cols-1 gap-6 p-4 lg:grid-cols-2 xl:grid-cols-2">
-                    {/* Total Sales (Yearly) */}
-                    <Card className="rounded-xl border bg-white shadow-none border-b-3 border-b-primary">
-                        <CardHeader>
-                            <CardTitle className="text-md font-semibold text-primary">Employees</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">
-                                {employees}
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2">
+                    <Card className="relative border bg-white shadow-none">
+                        <CardContent className="flex items-center justify-between">
+                            {/* Left content */}
+                            <div>
+                                <p className="text-sm font-medium text-gray-500">Employees</p>
+                                <h2 className="mt-1 text-2xl font-bold text-gray-900">{employees}</h2>
+                                <p className="mt-1 text-[13px] text-gray-500">Total Employees</p>
                             </div>
-                            <p className="mt-1 text-gray-500 text-[13px]"> Total Employees</p>
+
+                            {/* Right icon */}
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                                <Users className="h-6 w-6 text-primary" />
+                            </div>
                         </CardContent>
                     </Card>
 
-                    {/* Total Items Sold (Yearly) */}
-                    <Card className="rounded-xl border bg-white shadow-none border-b-3 border-b-green-600">
-                        <CardHeader>
-                            <CardTitle className="text-md font-semibold text-primary">Current Balance</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">₱0</div>
-                            <p className="mt-1 text-gray-500 text-[13px]">Total Current Balance</p>
+                    <Card className="relative border bg-white shadow-none">
+                        <CardContent className="flex items-center justify-between">
+                            {/* Left content */}
+                            <div>
+                                <p className="text-sm font-medium text-gray-500">Current Balance</p>
+                                <h2 className="mt-1 text-2xl font-bold text-gray-900">₱0</h2>
+                                <p className="mt-1 text-[13px] text-gray-500">Total Current Balance</p>
+                            </div>
+
+                            {/* Right icon */}
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-600/10">
+                                <Wallet className="h-6 w-6 text-green-600" />
+                            </div>
                         </CardContent>
                     </Card>
-
                 </div>
             </div>
         </AppLayout>
