@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type ContributionRow, type Employees, type Paginated, type User } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { CheckIcon, EraserIcon, LoaderCircle, SearchIcon } from 'lucide-react';
+import { CheckIcon, EraserIcon, EyeIcon, LoaderCircle, SearchIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -294,6 +294,11 @@ export default function Contributions({ auth, employees, search }: Contributions
                                                     <CheckIcon className="h-4 w-4 text-green-600" />
                                                 )}
                                             </Button>
+                                            <Link href={route('admin.contributions.view', { encrypted_id: emp.encrypted_id })}>
+                                                <Button variant="secondary" size="sm" className="text-[12px]">
+                                                    <EyeIcon className="h-4 w-4" />
+                                                </Button>
+                                            </Link>
                                         </div>
                                     </TableCell>
                                 </TableRow>
