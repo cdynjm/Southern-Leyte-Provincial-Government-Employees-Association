@@ -345,7 +345,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
 
                                     <Select
                                         value={updateForm.data.employmentType}
-                                        onValueChange={(value) => createForm.setData('employmentType', value)}
+                                        onValueChange={(value) => updateForm.setData('employmentType', value)}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select employment type" />
