@@ -1,6 +1,6 @@
 import { SidebarInset } from '@/components/ui/sidebar';
 import { Link, usePage } from '@inertiajs/react';
-import { Home, UserCheck, UserMinus, UsersIcon } from 'lucide-react';
+import { Home, UsersIcon, Wallet2Icon } from 'lucide-react';
 import * as React from 'react';
 
 interface AppContentProps extends React.ComponentProps<'main'> {
@@ -28,8 +28,7 @@ export function AppContent({ variant = 'header', children, ...props }: AppConten
     const navItems: NavItem[] = [
         { label: 'Home', href: route('admin.dashboard'), icon: Home },
         { label: 'Employees', href: route('admin.employees'), icon: UsersIcon },
-        { label: 'Regulars', href: route('admin.contributions.regulars'), icon: UserCheck },
-        { label: 'Job Orders', href: route('admin.contributions.job-orders'), icon: UserMinus },
+        { label: 'Contributions', href: route('admin.contributions'), icon: Wallet2Icon },
     ];
 
     const currentPath = typeof window !== 'undefined' ? window.location.pathname.replace(/\/+$/, '') : normalizeToPathname(String(url || ''));

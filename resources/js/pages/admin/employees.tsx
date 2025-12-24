@@ -1,3 +1,5 @@
+import FormattedDate from '@/components/formatted-date';
+import Pagination from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -11,19 +13,19 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Employees, type User, type Paginated } from '@/types';
+import { type BreadcrumbItem, type Employees, type Paginated, type User } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Eye, EyeOff, PencilIcon, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import Pagination from '@/components/pagination';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Employees',
-        href: route('admin.employees')
+        href: route('admin.employees'),
     },
 ];
 interface EmployeesProps {
@@ -42,6 +44,10 @@ export default function Employees({ auth, employees }: EmployeesProps) {
     const createForm = useForm({
         name: '',
         position: '',
+        contactNumber: '',
+        startDate: '',
+        endDate: '',
+        employmentType: '',
         email: '',
         password: '',
     });
@@ -71,6 +77,10 @@ export default function Employees({ auth, employees }: EmployeesProps) {
         encrypted_id: '',
         name: '',
         position: '',
+        contactNumber: '',
+        startDate: '',
+        endDate: '',
+        employmentType: '',
         email: '',
         password: '',
     });
@@ -80,8 +90,12 @@ export default function Employees({ auth, employees }: EmployeesProps) {
             encrypted_id: String(employee.encrypted_id),
             name: String(employee.name),
             position: String(employee.position),
+            contactNumber: String(employee.contactNumber),
+            startDate: String(employee.startDate),
+            endDate: String(employee.endDate),
+            employmentType: String(employee.employmentType),
             email: String(employee.email),
-            password: ''
+            password: '',
         });
         setOpenEditDialog(true);
     };
@@ -108,7 +122,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
     };
 
     const deleteForm = useForm({
-        encrypted_id: ''
+        encrypted_id: '',
     });
 
     const deleteEmployee = (encrypted_id: string) => {
@@ -182,6 +196,52 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                     />
                                 </div>
                                 <div className="flex flex-col gap-2">
+                                    <Label>Contact Number</Label>
+                                    <Input
+                                        value={createForm.data.contactNumber}
+                                        onChange={(e) => createForm.setData('contactNumber', e.target.value)}
+                                        placeholder="Enter Contact Number"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label>Start Date</Label>
+                                    <Input
+                                        value={createForm.data.startDate}
+                                        type="date"
+                                        onChange={(e) => createForm.setData('startDate', e.target.value)}
+                                        placeholder="Enter Start Date"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label>End Date</Label>
+                                    <Input
+                                        value={createForm.data.endDate}
+                                        type="date"
+                                        onChange={(e) => createForm.setData('endDate', e.target.value)}
+                                        placeholder="Enter End Date"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label>Employment Type</Label>
+
+                                    <Select
+                                        value={createForm.data.employmentType}
+                                        onValueChange={(value) => createForm.setData('employmentType', value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select employment type" />
+                                        </SelectTrigger>
+
+                                        <SelectContent>
+                                            <SelectItem value="regular">Regular</SelectItem>
+                                            <SelectItem value="job order">Job Order</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
                                     <Label>Username</Label>
                                     <Input
                                         value={createForm.data.email}
@@ -252,6 +312,52 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                     />
                                 </div>
                                 <div className="flex flex-col gap-2">
+                                    <Label>Contact Number</Label>
+                                    <Input
+                                        value={updateForm.data.contactNumber}
+                                        onChange={(e) => updateForm.setData('contactNumber', e.target.value)}
+                                        placeholder="Update Contact Number"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label>Start Date</Label>
+                                    <Input
+                                        value={updateForm.data.startDate}
+                                        type='date'
+                                        onChange={(e) => updateForm.setData('startDate', e.target.value)}
+                                        placeholder="Update Start Date"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label>End Date</Label>
+                                    <Input
+                                        value={updateForm.data.endDate}
+                                        type='date'
+                                        onChange={(e) => updateForm.setData('endDate', e.target.value)}
+                                        placeholder="Update End Date"
+                                        
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label>Employment Type</Label>
+
+                                    <Select
+                                        value={updateForm.data.employmentType}
+                                        onValueChange={(value) => createForm.setData('employmentType', value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select employment type" />
+                                        </SelectTrigger>
+
+                                        <SelectContent>
+                                            <SelectItem value="regular">Regular</SelectItem>
+                                            <SelectItem value="job order">Job Order</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex flex-col gap-2">
                                     <Label>Username</Label>
                                     <Input
                                         value={updateForm.data.email}
@@ -318,7 +424,10 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                         <TableRow className="">
                             <TableHead className="w-[50px] text-center">#</TableHead>
                             <TableHead className="text-start text-nowrap">Name</TableHead>
-                            <TableHead className="text-center text-nowrap">Position</TableHead>
+                            <TableHead className="text-center text-nowrap">Contact No.</TableHead>
+                            <TableHead className="text-center text-nowrap">Start Date</TableHead>
+                            <TableHead className="text-center text-nowrap">End Date</TableHead>
+                            <TableHead className="text-center text-nowrap">Type</TableHead>
                             <TableHead className="w-[200px] text-center text-nowrap">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -332,16 +441,37 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                         ) : (
                             employees.data.map((emp, index) => (
                                 <TableRow key={emp.encrypted_id}>
-                                    <TableCell className="py-[6px] text-center">{index + 1 + (employees.current_page - 1) * employees.per_page}</TableCell>
-                                    <TableCell className="py-[6px] text-nowrap">{emp.name}</TableCell>
-                                    <TableCell className="py-[6px] text-center text-nowrap">{emp.position}</TableCell>
-                                    <TableCell className='py-[6px]'>
-                                        <div className="flex items-center gap-2 justify-center">
+                                    <TableCell className="py-[6px] text-center">
+                                        {index + 1 + (employees.current_page - 1) * employees.per_page}
+                                    </TableCell>
+                                    <TableCell className="py-[6px] text-nowrap">
+                                        <div>{emp.name}</div>
+                                            <small>{emp.position}</small>
+                                    </TableCell>
+                                    <TableCell className="py-[6px] text-center text-nowrap">
+                                        {emp.contactNumber}
+                                    </TableCell>
+                                    <TableCell className="py-[6px] text-center text-nowrap">
+                                        <FormattedDate date={emp.startDate} variant='date' />
+                                    </TableCell>
+                                    <TableCell className="py-[6px] text-center text-nowrap">
+                                        {emp.endDate ? <FormattedDate date={emp.endDate} variant='date' /> : '-'}
+                                    </TableCell>
+                                    <TableCell className="py-[6px] text-center text-nowrap">
+                                        {emp.employmentType === 'regular' ? 'Regular' : 'Job Order'}
+                                    </TableCell>
+                                    <TableCell className="py-[6px]">
+                                        <div className="flex items-center justify-center gap-2">
                                             <Button variant="secondary" className="text-[11px]" size="icon" onClick={() => editEmployee(emp)}>
-                                                <PencilIcon className='text-gray-600' />
+                                                <PencilIcon className="text-gray-600" />
                                             </Button>
-                                            <Button variant="secondary" className="text-[11px]" size="icon" onClick={() => deleteEmployee(emp.encrypted_id)}>
-                                                <Trash2Icon className='text-red-600' />
+                                            <Button
+                                                variant="secondary"
+                                                className="text-[11px]"
+                                                size="icon"
+                                                onClick={() => deleteEmployee(emp.encrypted_id)}
+                                            >
+                                                <Trash2Icon className="text-red-600" />
                                             </Button>
                                         </div>
                                     </TableCell>

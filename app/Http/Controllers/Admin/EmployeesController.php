@@ -38,6 +38,9 @@ class EmployeesController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'position' => ['required', 'string', 'max:255'],
+            'contactNumber' => ['required', 'string', 'max:255'],
+            'startDate' => ['required', 'date'],
+            'employmentType' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'max:255',
@@ -49,6 +52,10 @@ class EmployeesController extends Controller
         User::create([
             'name' => strtoupper($validated['name']),
             'position' => ucwords($validated['position']),
+            'contactNumber' => $validated['contactNumber'],
+            'startDate' => $validated['startDate'],
+            'endDate' => $validated['endDate'] ?? null,
+            'employmentType' => $validated['employmentType'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => 'employee',
@@ -62,6 +69,9 @@ class EmployeesController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'position' => ['required', 'string', 'max:255'],
+            'contactNumber' => ['required', 'string', 'max:255'],
+            'startDate' => ['required', 'date'],
+            'employmentType' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'max:255',
@@ -72,7 +82,11 @@ class EmployeesController extends Controller
         $data = [
             'name' => strtoupper($validated['name']),
             'position' => ucwords($validated['position']),
-            'email' => $validated['email'],
+            'contactNumber' => $validated['contactNumber'],
+            'startDate' => $validated['startDate'],
+            'endDate' => $validated['endDate'] ?? null,
+            'employmentType' => $validated['employmentType'],
+            'email' => $validated['email']
         ];
 
         if (!empty($validated['password'])) {

@@ -21,7 +21,7 @@ class ContributionsController extends Controller
         $this->aes = $aes;
     }
 
-    public function regulars(Request $request)
+    public function index(Request $request)
     {
         $search = session('search');
 
@@ -32,7 +32,7 @@ class ContributionsController extends Controller
             return $employee;
         });
 
-        return Inertia::render('admin/contributions/regular', [
+        return Inertia::render('admin/contributions', [
             'employees' => $employees,
             'search' => $search,
         ]);

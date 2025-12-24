@@ -50,6 +50,14 @@ export interface Paginated<T> {
 export interface User {
     id: number;
     name: string;
+    position: string;
+    contactNumber: string;
+    startDate: string;
+    endDate: string;
+    employmentType: string;
+    email: string;
+    totalContribution: number;
+    role: string;
     email: string;
     avatar?: string;
     email_verified_at: string | null;
@@ -64,8 +72,13 @@ export interface Employees {
     encrypted_id: string;
     name: string;
     position: string;
+    contactNumber: string;
+    startDate: string;
+    endDate: string;
+    employmentType: string;
     email: string;
     totalContribution: number;
+    role: string;
     created_at: string;
     contributions?: Contributions[];
 }
