@@ -79,7 +79,7 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 
                 <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-                        <DialogContent>
+                        <DialogContent className='sm:max-w-lg'>
                             <DialogHeader>
                                 <DialogTitle>Remove Contribution</DialogTitle>
                                 <DialogDescription>Are you sure you want to remove this contribution? This action cannot be undone.</DialogDescription>

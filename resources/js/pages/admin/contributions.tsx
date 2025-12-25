@@ -65,12 +65,16 @@ export default function Contributions({ auth, employees, search }: Contributions
         search: search || '',
     });
 
+    const clearEmployeeForm = useForm({
+        search: '',
+    });
+
     const searchEmployee = () => {
         searchEmployeeForm.post(route('admin.contributions.search'));
     };
 
     const clearSearch = () => {
-        searchEmployeeForm.post(route('admin.contributions.clear-search'), {
+        clearEmployeeForm.post(route('admin.contributions.clear-search'), {
             onSuccess: () => {
                 searchEmployeeForm.setData('search', '');
             },
@@ -154,7 +158,7 @@ export default function Contributions({ auth, employees, search }: Contributions
                             disabled={searchEmployeeForm.processing}
                             className={search === null ? 'hidden' : 'text-red-600'}
                         >
-                            {searchEmployeeForm.processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <EraserIcon className="h-4 w-4" />}
+                            {clearEmployeeForm.processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <EraserIcon className="h-4 w-4" />}
                         </Button>
                         <Input
                             type="text"

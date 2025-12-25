@@ -170,105 +170,109 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                             </Button>
                         </DialogTrigger>
 
-                        <DialogContent>
+                        <DialogContent className="sm:max-w-[800px]">
                             <DialogHeader>
                                 <DialogTitle>Add New Employee</DialogTitle>
                                 <DialogDescription>Fill in the details below to add a new employee.</DialogDescription>
                             </DialogHeader>
 
-                            <div className="grid gap-4 py-4">
-                                <div className="flex flex-col gap-2">
-                                    <Label>Name</Label>
-                                    <Input
-                                        value={createForm.data.name}
-                                        onChange={(e) => createForm.setData('name', e.target.value)}
-                                        placeholder="Enter Full Name"
-                                        required
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>Position</Label>
-                                    <Input
-                                        value={createForm.data.position}
-                                        onChange={(e) => createForm.setData('position', e.target.value)}
-                                        placeholder="Enter Position"
-                                        required
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>Contact Number</Label>
-                                    <Input
-                                        value={createForm.data.contactNumber}
-                                        onChange={(e) => createForm.setData('contactNumber', e.target.value)}
-                                        placeholder="Enter Contact Number"
-                                        required
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>Start Date</Label>
-                                    <Input
-                                        value={createForm.data.startDate}
-                                        type="date"
-                                        onChange={(e) => createForm.setData('startDate', e.target.value)}
-                                        placeholder="Enter Start Date"
-                                        required
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>End Date</Label>
-                                    <Input
-                                        value={createForm.data.endDate}
-                                        type="date"
-                                        onChange={(e) => createForm.setData('endDate', e.target.value)}
-                                        placeholder="Enter End Date"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>Employment Type</Label>
-
-                                    <Select
-                                        value={createForm.data.employmentType}
-                                        onValueChange={(value) => createForm.setData('employmentType', value)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select employment type" />
-                                        </SelectTrigger>
-
-                                        <SelectContent>
-                                            <SelectItem value="regular">Regular</SelectItem>
-                                            <SelectItem value="job order">Job Order</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <Label>Username</Label>
-                                    <Input
-                                        value={createForm.data.email}
-                                        onChange={(e) => createForm.setData('email', e.target.value)}
-                                        placeholder="Enter Username"
-                                        required
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>Password</Label>
-                                    <div className="relative">
+                            <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
+                                <div className="grid gap-4">
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Name</Label>
                                         <Input
-                                            value={createForm.data.password}
-                                            type={showPassword ? 'text' : 'password'}
-                                            onChange={(e) => createForm.setData('password', e.target.value)}
-                                            placeholder="Create Password"
+                                            value={createForm.data.name}
+                                            onChange={(e) => createForm.setData('name', e.target.value)}
+                                            placeholder="Enter Full Name"
                                             required
                                         />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Position</Label>
+                                        <Input
+                                            value={createForm.data.position}
+                                            onChange={(e) => createForm.setData('position', e.target.value)}
+                                            placeholder="Enter Position"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Contact Number</Label>
+                                        <Input
+                                            value={createForm.data.contactNumber}
+                                            onChange={(e) => createForm.setData('contactNumber', e.target.value)}
+                                            placeholder="Enter Contact Number"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Start Date</Label>
+                                        <Input
+                                            value={createForm.data.startDate}
+                                            type="date"
+                                            onChange={(e) => createForm.setData('startDate', e.target.value)}
+                                            placeholder="Enter Start Date"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid gap-4">
+                                    <div className="flex flex-col gap-2">
+                                        <Label>End Date</Label>
+                                        <Input
+                                            value={createForm.data.endDate}
+                                            type="date"
+                                            onChange={(e) => createForm.setData('endDate', e.target.value)}
+                                            placeholder="Enter End Date"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Employment Type</Label>
 
-                                        <button
-                                            type="button"
-                                            className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
-                                            onClick={() => setShowPassword((prev) => !prev)}
-                                            tabIndex={-1}
+                                        <Select
+                                            value={createForm.data.employmentType}
+                                            onValueChange={(value) => createForm.setData('employmentType', value)}
                                         >
-                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                        </button>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select employment type" />
+                                            </SelectTrigger>
+
+                                            <SelectContent>
+                                                <SelectItem value="regular">Regular</SelectItem>
+                                                <SelectItem value="job order">Job Order</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Username</Label>
+                                        <Input
+                                            value={createForm.data.email}
+                                            onChange={(e) => createForm.setData('email', e.target.value)}
+                                            placeholder="Enter Username"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Password</Label>
+                                        <div className="relative">
+                                            <Input
+                                                value={createForm.data.password}
+                                                type={showPassword ? 'text' : 'password'}
+                                                onChange={(e) => createForm.setData('password', e.target.value)}
+                                                placeholder="Create Password"
+                                                required
+                                            />
+
+                                            <button
+                                                type="button"
+                                                className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                                                onClick={() => setShowPassword((prev) => !prev)}
+                                                tabIndex={-1}
+                                            >
+                                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -286,104 +290,107 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                     </Dialog>
 
                     <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
-                        <DialogContent>
+                        <DialogContent className="sm:max-w-[800px]">
                             <DialogHeader>
                                 <DialogTitle>Edit Employee</DialogTitle>
                                 <DialogDescription>Update the employee details below.</DialogDescription>
                             </DialogHeader>
 
-                            <div className="grid gap-4 py-4">
-                                <div className="flex flex-col gap-2">
-                                    <Label>Name</Label>
-                                    <Input
-                                        value={updateForm.data.name}
-                                        onChange={(e) => updateForm.setData('name', e.target.value)}
-                                        placeholder="Update Full Name"
-                                        required
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>Position</Label>
-                                    <Input
-                                        value={updateForm.data.position}
-                                        onChange={(e) => updateForm.setData('position', e.target.value)}
-                                        placeholder="Update Position"
-                                        required
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>Contact Number</Label>
-                                    <Input
-                                        value={updateForm.data.contactNumber}
-                                        onChange={(e) => updateForm.setData('contactNumber', e.target.value)}
-                                        placeholder="Update Contact Number"
-                                        required
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>Start Date</Label>
-                                    <Input
-                                        value={updateForm.data.startDate}
-                                        type='date'
-                                        onChange={(e) => updateForm.setData('startDate', e.target.value)}
-                                        placeholder="Update Start Date"
-                                        required
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>End Date</Label>
-                                    <Input
-                                        value={updateForm.data.endDate}
-                                        type='date'
-                                        onChange={(e) => updateForm.setData('endDate', e.target.value)}
-                                        placeholder="Update End Date"
-                                        
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>Employment Type</Label>
-
-                                    <Select
-                                        value={updateForm.data.employmentType}
-                                        onValueChange={(value) => updateForm.setData('employmentType', value)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select employment type" />
-                                        </SelectTrigger>
-
-                                        <SelectContent>
-                                            <SelectItem value="regular">Regular</SelectItem>
-                                            <SelectItem value="job order">Job Order</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>Username</Label>
-                                    <Input
-                                        value={updateForm.data.email}
-                                        onChange={(e) => updateForm.setData('email', e.target.value)}
-                                        placeholder="Update Username"
-                                        required
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <Label>Password</Label>
-                                    <div className="relative">
+                            <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
+                                <div className="grid gap-4">
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Name</Label>
                                         <Input
-                                            value={updateForm.data.password}
-                                            type={showPassword ? 'text' : 'password'}
-                                            onChange={(e) => updateForm.setData('password', e.target.value)}
-                                            placeholder="Update Password"
+                                            value={updateForm.data.name}
+                                            onChange={(e) => updateForm.setData('name', e.target.value)}
+                                            placeholder="Update Full Name"
+                                            required
                                         />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Position</Label>
+                                        <Input
+                                            value={updateForm.data.position}
+                                            onChange={(e) => updateForm.setData('position', e.target.value)}
+                                            placeholder="Update Position"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Contact Number</Label>
+                                        <Input
+                                            value={updateForm.data.contactNumber}
+                                            onChange={(e) => updateForm.setData('contactNumber', e.target.value)}
+                                            placeholder="Update Contact Number"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Start Date</Label>
+                                        <Input
+                                            value={updateForm.data.startDate}
+                                            type="date"
+                                            onChange={(e) => updateForm.setData('startDate', e.target.value)}
+                                            placeholder="Update Start Date"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid gap-4">
+                                    <div className="flex flex-col gap-2">
+                                        <Label>End Date</Label>
+                                        <Input
+                                            value={updateForm.data.endDate}
+                                            type="date"
+                                            onChange={(e) => updateForm.setData('endDate', e.target.value)}
+                                            placeholder="Update End Date"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Employment Type</Label>
 
-                                        <button
-                                            type="button"
-                                            className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
-                                            onClick={() => setShowPassword((prev) => !prev)}
-                                            tabIndex={-1}
+                                        <Select
+                                            value={updateForm.data.employmentType}
+                                            onValueChange={(value) => updateForm.setData('employmentType', value)}
                                         >
-                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                        </button>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select employment type" />
+                                            </SelectTrigger>
+
+                                            <SelectContent>
+                                                <SelectItem value="regular">Regular</SelectItem>
+                                                <SelectItem value="job order">Job Order</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Username</Label>
+                                        <Input
+                                            value={updateForm.data.email}
+                                            onChange={(e) => updateForm.setData('email', e.target.value)}
+                                            placeholder="Update Username"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <Label>Password</Label>
+                                        <div className="relative">
+                                            <Input
+                                                value={updateForm.data.password}
+                                                type={showPassword ? 'text' : 'password'}
+                                                onChange={(e) => updateForm.setData('password', e.target.value)}
+                                                placeholder="Update Password"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                                                onClick={() => setShowPassword((prev) => !prev)}
+                                                tabIndex={-1}
+                                            >
+                                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -401,7 +408,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                     </Dialog>
 
                     <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-                        <DialogContent>
+                        <DialogContent className='sm:max-w-lg'>
                             <DialogHeader>
                                 <DialogTitle>Delete Employee</DialogTitle>
                                 <DialogDescription>Are you sure you want to delete this employee? This action cannot be undone.</DialogDescription>
@@ -446,16 +453,14 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                     </TableCell>
                                     <TableCell className="py-[6px] text-nowrap">
                                         <div>{emp.name}</div>
-                                            <small>{emp.position}</small>
+                                        <small>{emp.position}</small>
+                                    </TableCell>
+                                    <TableCell className="py-[6px] text-center text-nowrap">{emp.contactNumber}</TableCell>
+                                    <TableCell className="py-[6px] text-center text-nowrap">
+                                        <FormattedDate date={emp.startDate} variant="date" />
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
-                                        {emp.contactNumber}
-                                    </TableCell>
-                                    <TableCell className="py-[6px] text-center text-nowrap">
-                                        <FormattedDate date={emp.startDate} variant='date' />
-                                    </TableCell>
-                                    <TableCell className="py-[6px] text-center text-nowrap">
-                                        {emp.endDate ? <FormattedDate date={emp.endDate} variant='date' /> : '-'}
+                                        {emp.endDate ? <FormattedDate date={emp.endDate} variant="date" /> : '-'}
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
                                         {emp.employmentType === 'regular' ? 'Regular' : 'Job Order'}
