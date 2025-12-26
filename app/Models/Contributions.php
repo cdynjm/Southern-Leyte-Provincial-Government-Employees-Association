@@ -13,6 +13,7 @@ class Contributions extends Model
 
     protected $fillable = [
         'users_id',
+        'contribution_types_id',
         'month',
         'year',
         'amount',
@@ -21,5 +22,10 @@ class Contributions extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'users_id');
+    }
+
+    public function contributiontype()
+    {
+        return $this->belongsTo(ContributionTypes::class, 'contribution_types_id');
     }
 }

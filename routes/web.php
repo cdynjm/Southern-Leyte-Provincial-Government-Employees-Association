@@ -38,13 +38,18 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/employees/update', [EmployeesController::class, 'update'])->name('admin.employee.update');
             Route::delete('/employees/destroy', [EmployeesController::class, 'destroy'])->name('admin.employee.destroy');
 
-            Route::get('/contributions', [ContributionsController::class, 'index'])->name('admin.contributions');
+            Route::get('/contributions', [ContributionsController::class, 'employeeContributions'])->name('admin.contributions');
             Route::get('/contributions/{encrypted_id}', [ContributionsController::class, 'viewContributions'])->name('admin.contributions.view');
             Route::post('/contributions/search', [ContributionsController::class, 'search'])->name('admin.contributions.search');
             Route::post('/contributions/clear-search', [ContributionsController::class, 'clearSearch'])->name('admin.contributions.clear-search');
             Route::post('/contributions/store', [ContributionsController::class, 'store'])->name('admin.contribution.store');
             Route::delete('/contributions/destroy', [ContributionsController::class, 'destroy'])->name('admin.contribution.destroy');
             
+            Route::get('/contribution-types', [ContributionsController::class, 'contributionTypes'])->name('admin.contribution-types');
+            Route::post('/contribution-types/store', [ContributionsController::class, 'storeContributionType'])->name('admin.contribution-type.store');
+            Route::put('/contribution-types/update', [ContributionsController::class, 'updateContributionType'])->name('admin.contribution-type.update');
+            Route::delete('/contribution-types/destroy', [ContributionsController::class, 'destroyContributionType'])->name('admin.contribution-type.destroy');
+        
         });
 
     Route::prefix('employee')

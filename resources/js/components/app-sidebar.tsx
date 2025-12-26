@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, UsersIcon, Wallet2Icon } from 'lucide-react';
+import { HandCoins, LayoutGrid, UsersIcon, Wallet2Icon } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -20,7 +20,21 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Contributions',
         icon: Wallet2Icon,
-        href: route('admin.contributions'),
+        href: '',
+
+        children: [
+            {
+                title: 'Employee Contributions',
+                icon: Wallet2Icon,
+                href: route('admin.contributions'),
+            },
+            {
+                title: 'Contribution Types',
+                icon: HandCoins,
+                href: route('admin.contribution-types'),
+            }
+        ]
+       
     },
 ];
 

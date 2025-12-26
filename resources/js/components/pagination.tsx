@@ -6,6 +6,7 @@ export default function Pagination({ links }: { links: PaginationLink[] }) {
     if (!links || links.length === 0) return null;
 
     const pages = links.filter((l) => !isNaN(Number(l.label)));
+    if (pages.length <= 1) return null;
     const firstPage = Number(pages[0]?.label);
     const lastPage = Number(pages[pages.length - 1]?.label);
 

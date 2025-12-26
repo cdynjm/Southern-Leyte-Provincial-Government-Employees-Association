@@ -86,16 +86,29 @@ export interface Employees {
 export interface Contributions {
     id: number;
     encrypted_id: string;
-    user_id: number;
+    users_id: number;
+    contribution_types_id: number;
     year: number;
     month: number;
     amount: number;
     created_at: string;
     updated_at: string;
     employee?: Employees;
+    contributiontype?: ContributionTypes;
 }
 
+export interface ContributionTypes {
+    id: number;
+    encrypted_id: string;
+    description: string;
+    contributions?: Contributions[];
+}
+export interface ContributionGroup {
+    type: ContributionTypes;
+    contributions: Paginated<Contributions>;
+}
 export interface ContributionRow {
+    contributionTypes?: string;
     year?: string;
     month?: string;
     amount?: number;

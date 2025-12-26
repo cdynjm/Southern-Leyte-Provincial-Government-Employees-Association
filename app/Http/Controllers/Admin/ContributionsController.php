@@ -11,6 +11,7 @@ use Session;
 
 use App\Models\User;
 use App\Models\Contributions;
+use App\Models\ContributionTypes;
 
 class ContributionsController extends Controller
 {
@@ -21,7 +22,7 @@ class ContributionsController extends Controller
         $this->aes = $aes;
     }
 
-    public function index(Request $request)
+    public function employeeContributions(Request $request)
     {
         $search = session('search');
 
@@ -32,18 +33,26 @@ class ContributionsController extends Controller
             return $employee;
         });
 
-        return Inertia::render('admin/contributions', [
+        $contributionTypes = ContributionTypes::orderBy('description', 'asc')->get()->map(function ($contributionType) {
+            $contributionType->encrypted_id = $this->aes->encrypt($contributionType->id);
+            return $contributionType;
+        });
+
+        return Inertia::render('admin/contributions/employee-contributions', [
             'employees' => $employees,
             'search' => $search,
+            'contributionTypes' => $contributionTypes,
         ]);
     }
 
     public function store(Request $request)
     {
         $id = $this->aes->decrypt($request->encrypted_id);
+        $contributionTypeId = $this->aes->decrypt($request->contribution_type_id);
 
         Contributions::create([
             'users_id' => $id,
+            'contribution_types_id' => $contributionTypeId,
             'year' => $request->year,
             'month' => $request->month,
             'amount' => $request->amount,
@@ -56,22 +65,43 @@ class ContributionsController extends Controller
     {
         $id = $this->aes->decrypt($request->encrypted_id);
 
-       $employee = User::findOrFail($id);
+        $employee = User::findOrFail($id);
 
-        $contributions = $employee->contributions()
-            ->orderBy('year', 'desc')
-            ->orderBy('month', 'desc')
-            ->paginate(20)->through(function ($contribution) {
-                $contribution->encrypted_id = $this->aes->encrypt($contribution->id);
-                return $contribution;
-        })->withQueryString();
+        $contributionTypes = ContributionTypes::orderBy('description', 'asc')->get();
 
-        return Inertia::render('admin/view-contributions', [
+        $contributionsByType = $contributionTypes->map(function ($type) use ($employee, $request) {
+
+            $pageKey = 'page_' . $type->id;
+
+            $paginated = $employee->contributions()
+                ->where('contribution_types_id', $type->id)
+                ->with('contributiontype')
+                ->orderBy('year', 'desc')
+                ->orderBy('month', 'desc')
+                ->paginate(
+                    10,
+                    ['*'],
+                    $pageKey
+                )
+                ->through(function ($contribution) {
+                    $contribution->encrypted_id = $this->aes->encrypt($contribution->id);
+                    return $contribution;
+                })
+                ->withQueryString();
+
+            return [
+                'type' => $type,
+                'contributions' => $paginated,
+            ];
+        });
+
+        return Inertia::render('admin/contributions/view-contributions', [
             'employee' => $employee,
-            'contributions' => $contributions,
+            'contributionsByType' => $contributionsByType,
             'encrypted_id' => $request->encrypted_id,
         ]);
     }
+
 
     public function destroy(Request $request)
     {
@@ -82,6 +112,40 @@ class ContributionsController extends Controller
         User::where('id', $contribution->users_id)->decrement('totalContribution', $contribution->amount);
 
         $contribution->delete();
+    }
+
+    public function contributionTypes()
+    {
+        $contributionTypes = ContributionTypes::orderBy('description', 'asc')->get()->map(function ($contributionType) {
+            $contributionType->encrypted_id = $this->aes->encrypt($contributionType->id);
+            return $contributionType;
+        });
+        return Inertia::render('admin/contributions/contribution-types', [
+            'contributionTypes' => $contributionTypes,
+        ]);
+    }
+
+    public function storeContributionType(Request $request)
+    {
+        ContributionTypes::create([
+            'description' => ucwords($request->description),
+        ]);
+    }
+
+    public function updateContributionType(Request $request)
+    {
+        $id = $this->aes->decrypt($request->encrypted_id);
+
+        ContributionTypes::where('id', $id)->update([
+            'description' => ucwords($request->description)
+        ]);
+    }
+
+    public function destroyContributionType(Request $request)
+    {
+        $id = $this->aes->decrypt($request->encrypted_id);
+
+        ContributionTypes::where('id', $id)->delete();
     }
 
     public function search(Request $request)

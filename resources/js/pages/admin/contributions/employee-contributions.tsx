@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type ContributionRow, type Employees, type Paginated, type User } from '@/types';
+import { type BreadcrumbItem, type ContributionRow, type Employees, type Paginated, type User, type ContributionTypes } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { CheckIcon, EraserIcon, EyeIcon, LoaderCircle, SearchIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -23,9 +23,10 @@ interface ContributionsProps {
     };
     employees: Paginated<Employees>;
     search: string;
+    contributionTypes: ContributionTypes[];
 }
 
-export default function Contributions({ auth, employees, search }: ContributionsProps) {
+export default function Contributions({ auth, employees, search, contributionTypes }: ContributionsProps) {
     const generateYears = () => {
         const startYear = 2023;
         const currentYear = new Date().getFullYear();
@@ -87,9 +88,9 @@ export default function Contributions({ auth, employees, search }: Contributions
     const submitContribution = (emp: Employees) => {
         const row = rowValues[emp.encrypted_id];
 
-        if (!row?.year || !row?.month || !row?.amount) {
+        if (!row?.year || !row?.month || !row?.contributionTypes || !row?.amount) {
             toast('Opss, Error', {
-                description: 'Please fill in all fields before submitting.',
+                description: 'Please fill in required fields before submitting.',
                 action: {
                     label: 'Close',
                     onClick: () => console.log(''),
@@ -104,6 +105,7 @@ export default function Contributions({ auth, employees, search }: Contributions
             route('admin.contribution.store'),
             {
                 encrypted_id: emp.encrypted_id,
+                contribution_type_id: row.contributionTypes,
                 year: row.year,
                 month: row.month,
                 amount: row.amount,
@@ -148,7 +150,7 @@ export default function Contributions({ auth, employees, search }: Contributions
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
                     <div className="">
-                        <Label className="text-sm font-bold text-gray-500">Employees Contributions</Label>
+                        <Label className="text-sm font-bold text-gray-500">Employee Contributions</Label>
                     </div>
                     <div className="flex w-full max-w-sm items-center gap-2">
                         <Button
@@ -183,9 +185,10 @@ export default function Contributions({ auth, employees, search }: Contributions
                                     <small>Contribution</small>
                                 </div>
                             </TableHead>
-                            <TableHead className="text-center text-nowrap">Year</TableHead>
-                            <TableHead className="text-center text-nowrap">Month</TableHead>
-                            <TableHead className="text-center text-nowrap">Amount</TableHead>
+                            <TableHead className="w-[300px] text-center text-nowrap">Type</TableHead>
+                            <TableHead className="w-[300px] text-center text-nowrap">Year</TableHead>
+                            <TableHead className="w-[300px] text-center text-nowrap">Month</TableHead>
+                            <TableHead className="w-[300px] text-center text-nowrap">Amount</TableHead>
                             <TableHead className="w-[100px] text-center text-nowrap">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -209,6 +212,34 @@ export default function Contributions({ auth, employees, search }: Contributions
                                         </Link>
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center font-bold text-nowrap">₱{emp.totalContribution}</TableCell>
+                                    <TableCell className="py-[6px] text-center text-nowrap">
+                                        <Select
+                                            key={
+                                                rowValues[emp.encrypted_id]?.contributionTypes ? rowValues[emp.encrypted_id]?.contributionTypes : emp.encrypted_id + '-type'
+                                            }
+                                            value={rowValues[emp.encrypted_id]?.contributionTypes ?? undefined}
+                                            onValueChange={(value) =>
+                                                setRowValues((prev) => ({
+                                                    ...prev,
+                                                    [emp.encrypted_id]: {
+                                                        ...prev[emp.encrypted_id],
+                                                        contributionTypes: value,
+                                                    },
+                                                }))
+                                            }
+                                        >
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Type" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {contributionTypes.map((ct) => (
+                                                    <SelectItem key={ct.encrypted_id} value={ct.encrypted_id}>
+                                                        {ct.description}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
                                         <Select
                                             key={rowValues[emp.encrypted_id]?.year ? rowValues[emp.encrypted_id]?.year : emp.encrypted_id + '-year'}
@@ -268,7 +299,7 @@ export default function Contributions({ auth, employees, search }: Contributions
                                             <Input
                                                 type="number"
                                                 placeholder="₱0"
-                                                className="max-w-[100px] min-w-[100px] text-center"
+                                                className="min-w-[200px] text-start"
                                                 min={0}
                                                 value={rowValues[emp.encrypted_id]?.amount ?? ''}
                                                 onChange={(e) =>
