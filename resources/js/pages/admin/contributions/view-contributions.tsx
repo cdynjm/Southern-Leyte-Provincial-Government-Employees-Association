@@ -96,6 +96,8 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
                         <div className="flex-1 text-center md:text-start">
                             <h2 className="text-lg leading-tight font-semibold">{employee.name}</h2>
                             <p className="text-sm text-muted-foreground">{employee.position}</p>
+                            <p className="text-sm text-muted-foreground font-bold">{employee.employmentType === 'regular' ? 'Regular' : 'Job Order'}</p>
+                            <p className="text-sm text-muted-foreground">{employee.contactNumber}</p>
                         </div>
 
                         <div className="text-center md:text-right">
