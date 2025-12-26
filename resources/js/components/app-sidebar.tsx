@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { HandCoins, LayoutGrid, UsersIcon, Wallet2Icon } from 'lucide-react';
+import { FileText, FolderIcon, HandCoins, LayoutGrid, UsersIcon, Wallet2Icon } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -36,6 +36,19 @@ const mainNavItems: NavItem[] = [
         ]
        
     },
+    {
+        title: 'Reports',
+        icon: FolderIcon,
+        href: '',
+
+        children: [
+            {
+                title: 'Generate Report',
+                icon: FileText,
+                href: '',
+            },
+        ]
+    }
 ];
 
 
