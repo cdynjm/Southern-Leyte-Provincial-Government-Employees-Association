@@ -33,13 +33,13 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
 
     useEffect(() => {
         setFlipped(true);
-        const timeout = setTimeout(() => setFlipped(false), 500);
+        const timeout = setTimeout(() => setFlipped(false), 1000);
         return () => clearTimeout(timeout);
     }, []);
 
     const handleCardClick = () => {
         setFlipped(true);
-        setTimeout(() => setFlipped(false), 500);
+        setTimeout(() => setFlipped(false), 1000);
     };
 
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
