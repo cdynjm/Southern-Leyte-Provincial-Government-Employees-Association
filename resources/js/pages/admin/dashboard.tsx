@@ -1,8 +1,10 @@
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type User } from '@/types';
+import { type BreadcrumbItem, type Contributions, type User } from '@/types';
 import { Head } from '@inertiajs/react';
-import { Users, Wallet } from 'lucide-react';
+import { CreditCardIcon, Users } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -14,21 +16,74 @@ interface DashboardProps {
     auth: {
         user: User;
     };
-    employees: number;
+    regulars: number;
+    joborders: number;
+    contributions: Contributions[];
+    balance: number;
 }
 
-export default function Dashboard({ auth, employees }: DashboardProps) {
+export default function Dashboard({ auth, regulars, joborders, contributions, balance }: DashboardProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                <div className="card-flip-once flex justify-center">
+                    <Card className="relative w-full max-w-md overflow-hidden rounded-xl bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900 text-white shadow-none">
+                        <div className="pointer-events-none absolute top-1/2 right-[-50px] -translate-y-1/2 overflow-hidden">
+                            <img
+                                src="/img/solepgea-logo.png"
+                                alt="SOLEPGEA Logo"
+                                className="max-w-[350px] object-contain opacity-10 select-none"
+                            />
+                        </div>
+                        {/* Light shine */}
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_40%)]" />
+                        {/* Full-card shine animation */}
+                        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                            <div className="animate-card-glow absolute inset-[-50%] bg-[conic-gradient(from_0deg,transparent,rgba(255,255,255,0.15),transparent)]" />
+                        </div>
+                        <CardContent className="relative flex flex-col gap-6 p-6">
+                            <div className="flex items-center justify-between">
+                                <p className="text-sm tracking-widest text-gray-300 uppercase">Savings</p>
+
+                                <div className="flex h-8 w-12 flex-col items-center justify-center gap-[2px] rounded-md bg-gradient-to-br from-yellow-400 to-yellow-500 opacity-90">
+                                    <span className="h-[2px] w-8 rounded bg-yellow-100" />
+                                    <span className="h-[2px] w-6 rounded bg-yellow-100" />
+                                    <span className="h-[2px] w-8 rounded bg-yellow-100" />
+                                </div>
+                            </div>
+
+                            {/* Balance */}
+                            <h2 className="text-3xl font-bold tracking-tight">
+                                ₱
+                                {Number(balance).toLocaleString('en-PH', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                })}
+                            </h2>
+
+                            {/* Bottom row */}
+                            <div className="flex items-center justify-between pt-4">
+                                <div>
+                                    <p className="text-xs text-gray-400">Available Funds</p>
+                                    <p className="text-sm font-medium">SOLEPGEA</p>
+                                </div>
+
+                                <Button size="sm" className="text-[12px]">
+                                    <CreditCardIcon /> Withdraw
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2">
                     <Card className="relative border bg-white shadow-none">
                         <CardContent className="flex items-center justify-between">
                             {/* Left content */}
                             <div>
-                                <p className="text-sm font-medium text-gray-500">Employees</p>
-                                <h2 className="mt-1 text-2xl font-bold text-gray-900">{employees}</h2>
+                                <p className="text-sm font-medium text-gray-500">Regulars</p>
+                                <h2 className="mt-1 text-2xl font-bold text-gray-900">{regulars}</h2>
                                 <p className="mt-1 text-[13px] text-gray-500">Total Employees</p>
                             </div>
 
@@ -43,17 +98,38 @@ export default function Dashboard({ auth, employees }: DashboardProps) {
                         <CardContent className="flex items-center justify-between">
                             {/* Left content */}
                             <div>
-                                <p className="text-sm font-medium text-gray-500">Current Balance</p>
-                                <h2 className="mt-1 text-2xl font-bold text-gray-900">₱0</h2>
-                                <p className="mt-1 text-[13px] text-gray-500">Total Current Balance</p>
+                                <p className="text-sm font-medium text-gray-500">Job Orders</p>
+                                <h2 className="mt-1 text-2xl font-bold text-gray-900">{joborders}</h2>
+                                <p className="mt-1 text-[13px] text-gray-500">Total Employees</p>
                             </div>
 
                             {/* Right icon */}
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-600/10">
-                                <Wallet className="h-6 w-6 text-green-600" />
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600/10">
+                                <Users className="h-6 w-6 text-red-600" />
                             </div>
                         </CardContent>
                     </Card>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                    {contributions.map((c) => (
+                        <Item variant="outline">
+                            <ItemContent>
+                                <ItemTitle>{c.contributiontype?.description}</ItemTitle>
+                                <ItemDescription className="text-[13px]">Contribution Type</ItemDescription>
+                            </ItemContent>
+                            <ItemActions className="flex flex-col items-end">
+                                <h5 className="text-[13px] font-bold">
+                                    ₱{' '}
+                                    {Number(c.amount).toLocaleString('en-PH', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                    })}
+                                </h5>
+                                <ItemDescription className="text-[12px]">Total</ItemDescription>
+                            </ItemActions>
+                        </Item>
+                    ))}
                 </div>
             </div>
         </AppLayout>

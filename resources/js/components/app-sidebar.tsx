@@ -12,6 +12,7 @@ import {
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
+    CreditCard,
     FileText,
     FolderIcon,
     HandCoins,
@@ -76,6 +77,11 @@ const adminNavItems: NavItem[] = [
             },
         ],
     },
+    {
+        title: 'Withdrawals',
+        icon: CreditCard,
+        href: ''
+    }
 ];
 
 // employee nav
