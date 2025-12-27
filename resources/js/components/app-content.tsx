@@ -12,6 +12,16 @@ interface NavItem {
     href: string;
     icon: React.ComponentType<{ className?: string }>;
 }
+interface AuthUser {
+    role: 'admin' | 'employee';
+}
+
+interface PageProps {
+    auth: {
+        user: AuthUser;
+    };
+    [key: string]: unknown;
+}
 
 function normalizeToPathname(href: string): string {
     try {
@@ -23,14 +33,20 @@ function normalizeToPathname(href: string): string {
 }
 
 export function AppContent({ variant = 'header', children, ...props }: AppContentProps) {
-    const { url } = usePage();
+    const { url, auth } = usePage<PageProps>().props;
 
-    const navItems: NavItem[] = [
+    // admin nav
+    const adminNavItems: NavItem[] = [
         { label: 'Home', href: route('admin.dashboard'), icon: Home },
         { label: 'Employees', href: route('admin.employees'), icon: UsersIcon },
         { label: 'Contributions', href: route('admin.contributions'), icon: Wallet2Icon },
         { label: 'Contribution Types', href: route('admin.contribution-types'), icon: HandCoins },
     ];
+
+    // employee nav
+    const employeeNavItems: NavItem[] = [{ label: 'Home', href: route('employee.dashboard'), icon: Home }];
+
+    const navItems = auth.user.role === 'admin' ? adminNavItems : employeeNavItems;
 
     const currentPath = typeof window !== 'undefined' ? window.location.pathname.replace(/\/+$/, '') : normalizeToPathname(String(url || ''));
 

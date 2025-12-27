@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Controllers\Security\AESCipher;
+use App\Http\Controllers\Security\AESCipher;
 
 class DashboardController extends Controller
 {

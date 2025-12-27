@@ -1,12 +1,42 @@
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { FileText, FolderIcon, HandCoins, LayoutGrid, UsersIcon, Wallet2Icon } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import {
+    FileText,
+    FolderIcon,
+    HandCoins,
+    LayoutGrid,
+    UsersIcon,
+    Wallet2Icon,
+} from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
+interface AuthUser {
+    id: number;
+    name: string;
+    email: string;
+    role: 'admin' | 'employee';
+}
+
+interface PageProps {
+    auth: {
+        user: AuthUser;
+    };
+    [key: string]: unknown;
+}
+
+// admin nav
+const adminNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: route('admin.dashboard'),
@@ -21,7 +51,6 @@ const mainNavItems: NavItem[] = [
         title: 'Contributions',
         icon: Wallet2Icon,
         href: '',
-
         children: [
             {
                 title: 'Employee Contributions',
@@ -32,34 +61,52 @@ const mainNavItems: NavItem[] = [
                 title: 'Contribution Types',
                 icon: HandCoins,
                 href: route('admin.contribution-types'),
-            }
-        ]
-       
+            },
+        ],
     },
     {
         title: 'Reports',
         icon: FolderIcon,
         href: '',
-
         children: [
             {
                 title: 'Generate Report',
                 icon: FileText,
                 href: '',
             },
-        ]
-    }
+        ],
+    },
 ];
 
+// employee nav
+const employeeNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: route('employee.dashboard'),
+        icon: LayoutGrid,
+    },
+];
 
 export function AppSidebar() {
+    const { auth } = usePage<PageProps>().props;
+
+    const navItems: NavItem[] =
+        auth.user.role === 'admin'
+            ? adminNavItems
+            : employeeNavItems;
+
+    const dashboardRoute =
+        auth.user.role === 'admin'
+            ? route('admin.dashboard')
+            : route('employee.dashboard');
+
     return (
-        <Sidebar collapsible="icon" variant="inset" className='border-r border-r-gray-100'>
+        <Sidebar collapsible="icon" variant="inset" className="border-r border-r-gray-100">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
+                            <Link href={dashboardRoute} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -68,8 +115,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
-                
+                <NavMain items={navItems} />
             </SidebarContent>
 
             <SidebarFooter>
