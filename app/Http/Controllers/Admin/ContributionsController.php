@@ -79,7 +79,7 @@ class ContributionsController extends Controller
                 ->orderBy('year', 'desc')
                 ->orderBy('month', 'desc')
                 ->paginate(
-                    10,
+                    12,
                     ['*'],
                     $pageKey
                 )
