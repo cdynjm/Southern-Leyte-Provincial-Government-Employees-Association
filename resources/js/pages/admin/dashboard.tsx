@@ -41,7 +41,7 @@ export default function Dashboard({ auth, regulars, joborders, contributions, ba
                 {/* Flip card with shine */}
                 <div className="flex justify-center perspective" onClick={handleCardClick}>
                     <Card
-                        className={`relative w-full max-w-md overflow-hidden rounded-xl bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900 text-white shadow-none
+                        className={`relative w-full max-w-[400px] p-3 overflow-hidden rounded-xl bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900 text-white shadow-none
                         transition-transform duration-1000 ${flipped ? 'rotate-y-180' : ''}`}
                     >
                         {/* Right-side overlayed SOLEPGEA Logo */}

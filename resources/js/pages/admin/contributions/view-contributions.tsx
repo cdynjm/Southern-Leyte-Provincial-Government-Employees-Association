@@ -8,8 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type ContributionGroup, type Employees, type User } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { HandCoins, Trash2Icon } from 'lucide-react';
-import React, { useState } from 'react';
+import { CreditCardIcon, HandCoins, Trash2Icon } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface ViewContributionsProps {
@@ -28,6 +28,19 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
             href: route('admin.contributions.view', { encrypted_id }),
         },
     ];
+
+    const [flipped, setFlipped] = useState(false);
+
+    useEffect(() => {
+        setFlipped(true);
+        const timeout = setTimeout(() => setFlipped(false), 1000);
+        return () => clearTimeout(timeout);
+    }, []);
+
+    const handleCardClick = () => {
+        setFlipped(true);
+        setTimeout(() => setFlipped(false), 1000);
+    };
 
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
@@ -88,24 +101,78 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
                 </Dialog>
 
                 <Card className="mb-4 rounded-md shadow-none">
-                    <CardContent className="flex flex-col items-center justify-center gap-4 md:flex-row">
+                    <CardContent className="flex flex-col items-center gap-4">
+                        {/* Left avatar */}
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-xl font-semibold">
                             {employee.name.charAt(0)}
                         </div>
 
-                        <div className="flex-1 text-center md:text-start">
+                        {/* Middle info */}
+                        <div className="flex-1 text-center">
                             <h2 className="text-lg leading-tight font-semibold">{employee.name}</h2>
                             <p className="text-sm text-muted-foreground">{employee.position}</p>
-                            <p className="text-sm text-muted-foreground font-bold">{employee.employmentType === 'regular' ? 'Regular' : 'Job Order'}</p>
-                            <p className="text-sm text-muted-foreground">{employee.contactNumber}</p>
+                            <p className="text-sm font-bold text-muted-foreground">
+                                {employee.employmentType === 'regular' ? 'Regular' : 'Job Order'}
+                            </p>
                         </div>
 
-                        <div className="text-center md:text-right">
-                            <p className="text-xs text-muted-foreground">Total Contributions</p>
-                            <p className="text-xl font-bold text-green-600">₱{employee.totalContribution}</p>
+                        {/* Right card */}
+                        <div className="perspective w-full flex-shrink-0 cursor-pointer md:mt-0 md:ml-4 md:w-[400px]" onClick={handleCardClick}>
+                            <Card
+                                className={`relative w-full overflow-hidden rounded-xl p-3 bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900 text-white shadow-none transition-transform duration-1000 ${
+                                    flipped ? 'rotate-y-180' : ''
+                                }`}
+                            >
+                                {/* Right-side overlayed logo */}
+                                <div className="pointer-events-none absolute top-1/2 right-[-50px] -translate-y-1/2 overflow-hidden">
+                                    <img
+                                        src="/img/solepgea-logo.png"
+                                        alt="SOLEPGEA Logo"
+                                        className="max-w-[350px] object-contain opacity-10 select-none"
+                                    />
+                                </div>
+
+                                {/* Light shine */}
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_40%)]" />
+                                <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                                    <div className="animate-card-glow absolute inset-[-50%] bg-[conic-gradient(from_0deg,transparent,rgba(255,255,255,0.15),transparent)]" />
+                                </div>
+
+                                <CardContent className="relative flex flex-col gap-6 p-6">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-sm tracking-widest text-gray-300 uppercase">Contributions</p>
+                                        <div className="flex h-8 w-12 flex-col items-center justify-center gap-[2px] rounded-md bg-gradient-to-br from-yellow-400 to-yellow-500 opacity-90">
+                                            <span className="h-[2px] w-8 rounded bg-yellow-100" />
+                                            <span className="h-[2px] w-6 rounded bg-yellow-100" />
+                                            <span className="h-[2px] w-8 rounded bg-yellow-100" />
+                                        </div>
+                                    </div>
+
+                                    {/* Balance */}
+                                    <h2 className="text-3xl font-bold tracking-tight">
+                                        ₱
+                                        {Number(employee.totalContribution).toLocaleString('en-PH', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2,
+                                        })}
+                                    </h2>
+
+                                    {/* Bottom row */}
+                                    <div className="flex items-center justify-between pt-4">
+                                        <div>
+                                            <p className="text-xs text-gray-400">{employee.contactNumber}</p>
+                                            <p className="text-sm font-medium">{employee.name}</p>
+                                        </div>
+                                        <Button size="sm" className="text-[12px]">
+                                            <CreditCardIcon /> SOLEPGEA
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
                     </CardContent>
                 </Card>
+
                 <Table>
                     {/* TABLE HEADER — ONLY ONCE */}
                     <TableHeader className="bg-green-50">

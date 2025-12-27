@@ -27,12 +27,18 @@ class DashboardController extends Controller
         $joborders = User::where('employmentType', 'job order')->count(); 
 
         $contributions = Contributions::select(
-                'contribution_types_id',
-                DB::raw('SUM(amount) as amount')
-            )
-            ->groupBy('contribution_types_id')
-            ->with('contributiontype')
-            ->get();
+            'contribution_types_id',
+            DB::raw('SUM(amount) as amount')
+        )
+        ->groupBy('contribution_types_id')
+        ->with(['contributiontype' => function($query) {
+            $query->orderBy('description', 'asc');
+        }])
+        ->get()
+        ->sortBy(function ($contribution) {
+            return $contribution->contributiontype->description ?? '';
+        })
+        ->values();
         
         $balance = $contributions->sum('amount');
 
