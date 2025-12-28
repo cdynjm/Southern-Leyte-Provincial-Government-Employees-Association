@@ -65,7 +65,7 @@ export default function Dashboard({ auth, regulars, joborders, contributions, ba
 
                                 <CardContent className="relative flex flex-col gap-6 p-6">
                                     <div className="flex items-center justify-between">
-                                        <p className="text-sm tracking-widest text-gray-300 uppercase">Balance</p>
+                                        <p className="text-sm tracking-widest text-gray-300 uppercase">DEPOSITED</p>
 
                                         <div className="flex h-8 w-12 flex-col items-center justify-center gap-[2px] rounded-md bg-gradient-to-br from-yellow-400 to-yellow-500 opacity-90">
                                             <span className="h-[2px] w-8 rounded bg-yellow-100" />
