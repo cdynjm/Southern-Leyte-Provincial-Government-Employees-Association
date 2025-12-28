@@ -90,7 +90,13 @@ export default function Dashboard({ auth, regulars, joborders, contributions, ba
                                             <p className="text-sm font-medium">SOLEPGEA</p>
                                         </div>
 
-                                        <Button size="sm" className="text-[12px]">
+                                        <Button
+                                            size="sm"
+                                            className="text-[12px]"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                            }}
+                                        >
                                             <CreditCardIcon /> Withdraw
                                         </Button>
                                     </div>
