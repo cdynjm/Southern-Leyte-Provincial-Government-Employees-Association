@@ -100,7 +100,18 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
                     </DialogContent>
                 </Dialog>
 
-                <Card className="mb-4 rounded-md shadow-none">
+                <Card className="relative mb-4 overflow-hidden rounded-md shadow-none border-none">
+                    {/* Overlay background logo */}
+                    {/* Left overlay logo */}
+                    <div className="pointer-events-none absolute top-1/2 left-[-120px] -translate-y-1/2 opacity-[0.07]">
+                        <img src="/img/province-logo-official.png" alt="SOLEPGEA" className="w-[600px] max-w-none select-none" />
+                    </div>
+
+                    {/* Right overlay logo */}
+                    <div className="pointer-events-none absolute top-1/2 right-[-120px] -translate-y-1/2 opacity-[0.07]">
+                        <img src="/img/solepgea-logo.png" alt="SOLEPGEA" className="w-[600px] max-w-none select-none" />
+                    </div>
+
                     <CardContent className="flex flex-col items-center gap-4">
                         {/* Left avatar */}
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-xl font-semibold">
@@ -119,7 +130,7 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
                         {/* Right card */}
                         <div className="perspective w-full flex-shrink-0 cursor-pointer md:mt-0 md:ml-4 md:w-[400px]" onClick={handleCardClick}>
                             <Card
-                                className={`relative w-full overflow-hidden rounded-xl p-3 bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900 text-white shadow-none transition-transform duration-1000 ${
+                                className={`relative w-full overflow-hidden rounded-xl bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900 p-3 text-white shadow-none transition-transform duration-1000 ${
                                     flipped ? 'rotate-y-180' : ''
                                 }`}
                             >
@@ -175,7 +186,7 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
 
                 <Table>
                     {/* TABLE HEADER — ONLY ONCE */}
-                    <TableHeader className="bg-green-50">
+                    <TableHeader className="bg-blue-50">
                         <TableRow className="hover:bg-transparent">
                             <TableHead className="w-[50px] text-center text-nowrap">#</TableHead>
                             <TableHead className="text-center text-nowrap">Month</TableHead>

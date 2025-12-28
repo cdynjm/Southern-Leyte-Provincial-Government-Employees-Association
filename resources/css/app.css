@@ -149,11 +149,11 @@
 @keyframes card-glow {
     0% {
         transform: rotate(0deg);
-        opacity: 0.2;
+        opacity: 0.3;
     }
     100% {
         transform: rotate(360deg);
-        opacity: 0.2;
+        opacity: 0.3;
     }
 }
 
