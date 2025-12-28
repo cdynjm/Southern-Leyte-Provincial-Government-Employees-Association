@@ -145,18 +145,35 @@
     }
 }
 
-/* Continuous full-card glow */
-@keyframes card-glow {
+.glossy-sweep {
+    background: linear-gradient(
+        135deg,
+        transparent 35%,
+        rgba(255, 255, 255, 0.18) 45%,
+        rgba(255, 255, 255, 0.35) 50%,
+        rgba(255, 255, 255, 0.18) 55%,
+        transparent 65%
+    );
+
+    filter: blur(8px);
+    opacity: 0.7;
+
+    animation: glossy-sweep 5s ease-in-out infinite;
+}
+
+@keyframes glossy-sweep {
     0% {
-        transform: rotate(0deg);
-        opacity: 0.3;
+        transform: translateX(-70%);
+    }
+    50% {
+        transform: translateX(70%);
     }
     100% {
-        transform: rotate(360deg);
-        opacity: 0.3;
+        transform: translateX(70%);
     }
 }
 
-.animate-card-glow {
-    animation: card-glow 8s linear infinite;
-}
+
+
+
+

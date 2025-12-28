@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Contributions, type User } from '@/types';
 import { Head } from '@inertiajs/react';
 import { CreditCardIcon, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: route('admin.dashboard') }];
 
 interface DashboardProps {
@@ -18,12 +18,6 @@ interface DashboardProps {
 
 export default function Dashboard({ auth, regulars, joborders, contributions, balance }: DashboardProps) {
     const [flipped, setFlipped] = useState(false);
-
-    useEffect(() => {
-        setFlipped(true);
-        const timeout = setTimeout(() => setFlipped(false), 1000);
-        return () => clearTimeout(timeout);
-    }, []);
 
     const handleCardClick = () => {
         setFlipped(true);
@@ -56,21 +50,31 @@ export default function Dashboard({ auth, regulars, joborders, contributions, ba
                                         className="max-w-[350px] object-contain opacity-10 select-none"
                                     />
                                 </div>
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.15),transparent_45%)]" />
 
-                                {/* Light shine */}
-                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_40%)]" />
+                                {/* Premium glossy diagonal sweep */}
                                 <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                                    <div className="animate-card-glow absolute inset-[-50%] bg-[conic-gradient(from_0deg,transparent,rgba(255,255,255,0.15),transparent)]" />
+                                    <div className="glossy-sweep absolute inset-[-60%]" />
                                 </div>
 
                                 <CardContent className="relative flex flex-col gap-6 p-6">
                                     <div className="flex items-center justify-between">
                                         <p className="text-sm tracking-widest text-gray-300 uppercase">DEPOSITED</p>
 
-                                        <div className="flex h-8 w-12 flex-col items-center justify-center gap-[2px] rounded-md bg-gradient-to-br from-yellow-400 to-yellow-500 opacity-90">
-                                            <span className="h-[2px] w-8 rounded bg-yellow-100" />
-                                            <span className="h-[2px] w-6 rounded bg-yellow-100" />
-                                            <span className="h-[2px] w-8 rounded bg-yellow-100" />
+                                        <div className="relative h-9 w-14 rounded-md bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 shadow-inner">
+                                            {/* Inner border */}
+                                            <div className="absolute inset-[2px] rounded-[4px] border border-yellow-200/70" />
+
+                                            {/* Horizontal lines */}
+                                            <div className="absolute top-[30%] right-2 left-2 h-[2px] bg-yellow-100/50" />
+                                            <div className="absolute top-[50%] right-3 left-2 h-[2px] bg-yellow-100/50" />
+                                            <div className="absolute top-[70%] right-2 left-2 h-[2px] bg-yellow-100/50" />
+
+                                            {/* Vertical line */}
+                                            <div className="absolute top-2 bottom-2 left-[45%] w-[2px] bg-yellow-100/70" />
+
+                                            {/* Subtle shine */}
+                                            <div className="absolute inset-0 rounded-md bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.35),transparent_55%)]" />
                                         </div>
                                     </div>
 
