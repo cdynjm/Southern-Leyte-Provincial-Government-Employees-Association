@@ -71,7 +71,7 @@ export default function Dashboard({ auth, regulars, joborders, contributions, ba
                                             <div className="absolute top-[70%] right-2 left-2 h-[2px] bg-yellow-100/50" />
 
                                             {/* Vertical line */}
-                                            <div className="absolute top-2 bottom-2 left-[45%] w-[2px] bg-yellow-100/70" />
+                                            <div className="absolute top-2 bottom-2 left-[45%] w-[2px] bg-yellow-100/50" />
 
                                             {/* Subtle shine */}
                                             <div className="absolute inset-0 rounded-md bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.35),transparent_55%)]" />
