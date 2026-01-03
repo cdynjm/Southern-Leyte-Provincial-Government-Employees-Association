@@ -65,7 +65,7 @@ export interface User {
     updated_at: string;
     [key: string]: unknown;
     contributions: Contributions[];
-}
+} 
 
 export interface Employees {
     id: number;
