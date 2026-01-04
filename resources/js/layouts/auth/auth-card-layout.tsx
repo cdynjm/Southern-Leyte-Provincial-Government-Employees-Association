@@ -50,12 +50,13 @@ export default function AuthCardLayout({
 
                     {/* RIGHT FORM AREA */}
                     <div className="flex w-full flex-col justify-center p-10 md:p-15 lg:w-1/2">
-                        <div className="mb-4 text-center">
-                            <Link href={route('home')} className="mb-3 flex justify-center">
+                        <div className="mb-8 text-center">
+                            <Link href={route('home')} className="mb-2 flex justify-center">
                                 <AppLogoIcon className="size-12 fill-current text-black dark:text-white" />
                             </Link>
 
                             <h1 className="text-lg font-semibold text-gray-700">{title}</h1>
+                            <hr className='my-4' />
                             <p className="text-sm text-gray-500">{description}</p>
                         </div>
 

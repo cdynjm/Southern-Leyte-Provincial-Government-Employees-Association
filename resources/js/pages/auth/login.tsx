@@ -4,6 +4,7 @@ import { FormEventHandler, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
@@ -35,13 +36,13 @@ export default function Login({ status }: LoginProps) {
     };
 
     return (
-        <AuthLayout title="SOLEPGEA - Portal" description="Enter your username and password below to log in">
+        <AuthLayout title="SOLEPGEA - Portal" description="Enter your account credentials below to log in">
             <Head title="Log in" />
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
                     {/* Email */}
-                    <div className="grid gap-2">
+                    <div className="grid gap-3">
                         <Label htmlFor="email">Username</Label>
                         <Input
                             id="email"
@@ -57,7 +58,7 @@ export default function Login({ status }: LoginProps) {
                     </div>
 
                     {/* Password with show/hide toggle */}
-                    <div className="grid gap-2">
+                    <div className="grid gap-3">
                         <div className="flex items-center">
                             <Label htmlFor="password">Password</Label>
                         </div>
@@ -86,6 +87,17 @@ export default function Login({ status }: LoginProps) {
                         </div>
 
                         <InputError message={errors.password} />
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                        <Checkbox
+                            id="remember"
+                            name="remember"
+                            checked={data.remember}
+                            onClick={() => setData('remember', !data.remember)}
+                            tabIndex={3}
+                        />
+                        <Label htmlFor="remember">Remember me</Label>
                     </div>
 
                     {/* Submit */}
