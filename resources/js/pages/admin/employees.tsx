@@ -119,7 +119,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                 });
             },
         });
-    };
+    }; 
 
     const deleteForm = useForm({
         encrypted_id: '',
