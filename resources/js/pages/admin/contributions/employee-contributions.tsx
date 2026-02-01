@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type ContributionRow, type Employees, type Paginated, type User, type ContributionTypes } from '@/types';
+import { type BreadcrumbItem, type ContributionRow, type ContributionTypes, type Employees, type Offices, type Paginated, type User } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { CheckIcon, EraserIcon, EyeIcon, LoaderCircle, SearchIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -23,10 +23,12 @@ interface ContributionsProps {
     };
     employees: Paginated<Employees>;
     search: string;
+    office: string;
     contributionTypes: ContributionTypes[];
+    offices: Offices[];
 }
 
-export default function Contributions({ auth, employees, search, contributionTypes }: ContributionsProps) {
+export default function Contributions({ auth, employees, search, office, contributionTypes, offices }: ContributionsProps) {
     const generateYears = () => {
         const startYear = 2023;
         const currentYear = new Date().getFullYear();
@@ -63,6 +65,7 @@ export default function Contributions({ auth, employees, search, contributionTyp
     const months = generateMonths();
 
     const searchEmployeeForm = useForm({
+        office: office || '',
         search: search || '',
     });
 
@@ -78,6 +81,7 @@ export default function Contributions({ auth, employees, search, contributionTyp
         clearEmployeeForm.post(route('admin.contributions.clear-search'), {
             onSuccess: () => {
                 searchEmployeeForm.setData('search', '');
+                searchEmployeeForm.setData('office', '');
             },
         });
     };
@@ -149,19 +153,35 @@ export default function Contributions({ auth, employees, search, contributionTyp
             <Head title="Employees" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
-                    <div className="">
+                    <div>
                         <Label className="text-sm font-bold text-gray-500">Employee Contributions</Label>
                     </div>
-                    <div className="flex w-full max-w-sm items-center gap-2">
+
+                    <div className="flex w-full max-w-2xl items-center gap-2 sm:ml-auto">
                         <Button
                             size="icon"
                             variant="secondary"
                             onClick={clearSearch}
                             disabled={searchEmployeeForm.processing}
-                            className={search === null ? 'hidden' : 'text-red-600'}
+                            className={!searchEmployeeForm.data.search && searchEmployeeForm.data.office === '' ? 'hidden' : 'text-red-600'}
                         >
                             {clearEmployeeForm.processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <EraserIcon className="h-4 w-4" />}
                         </Button>
+
+                        <Select value={searchEmployeeForm.data.office} onValueChange={(value) => searchEmployeeForm.setData('office', value)}>
+                            <SelectTrigger className="w-50">
+                                <SelectValue placeholder="All Offices" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                                {offices.map((office) => (
+                                    <SelectItem key={office.encrypted_id} value={office.encrypted_id}>
+                                        {office.officeName}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
                         <Input
                             type="text"
                             placeholder="Search employees..."
@@ -169,11 +189,13 @@ export default function Contributions({ auth, employees, search, contributionTyp
                             value={searchEmployeeForm.data.search}
                             className="flex-1"
                         />
+
                         <Button size="icon" onClick={searchEmployee} disabled={searchEmployeeForm.processing}>
                             {searchEmployeeForm.processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <SearchIcon className="h-4 w-4" />}
                         </Button>
                     </div>
                 </div>
+
                 <Table>
                     <TableHeader>
                         <TableRow className="">
@@ -215,7 +237,9 @@ export default function Contributions({ auth, employees, search, contributionTyp
                                     <TableCell className="py-[6px] text-center text-nowrap">
                                         <Select
                                             key={
-                                                rowValues[emp.encrypted_id]?.contributionTypes ? rowValues[emp.encrypted_id]?.contributionTypes : emp.encrypted_id + '-type'
+                                                rowValues[emp.encrypted_id]?.contributionTypes
+                                                    ? rowValues[emp.encrypted_id]?.contributionTypes
+                                                    : emp.encrypted_id + '-type'
                                             }
                                             value={rowValues[emp.encrypted_id]?.contributionTypes ?? undefined}
                                             onValueChange={(value) =>

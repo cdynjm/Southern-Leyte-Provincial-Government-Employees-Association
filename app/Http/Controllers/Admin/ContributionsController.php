@@ -12,6 +12,7 @@ use Session;
 use App\Models\User;
 use App\Models\Contributions;
 use App\Models\ContributionTypes;
+use App\Models\Offices;
 
 class ContributionsController extends Controller
 {
@@ -25,9 +26,14 @@ class ContributionsController extends Controller
     public function employeeContributions(Request $request)
     {
         $search = session('search');
+        $officeEncrypted = session('office');
+        $office = $officeEncrypted != '' ? $this->aes->decrypt($officeEncrypted) : '';
 
         $employees = User::where('role', 'employee')
         ->where('name', 'like', "%{$search}%")
+         ->when($office !== '', function ($query) use ($office) {
+            $query->where('offices_id', $office);
+        })
         ->orderBy('name', 'asc')->paginate(10)->through(function ($employee) {
             $employee->encrypted_id = $this->aes->encrypt($employee->id);
             return $employee;
@@ -38,10 +44,17 @@ class ContributionsController extends Controller
             return $contributionType;
         });
 
+        $offices = Offices::orderBy('officeName', 'asc')->get()->map(function ($office) {
+            $office->encrypted_id = $this->aes->encrypt($office->id);
+            return $office;
+        });
+
         return Inertia::render('admin/contributions/employee-contributions', [
             'employees' => $employees,
             'search' => $search,
+            'office' => $officeEncrypted,
             'contributionTypes' => $contributionTypes,
+            'offices' => $offices,
         ]);
     }
 
@@ -151,10 +164,12 @@ class ContributionsController extends Controller
     public function search(Request $request)
     {
         Session::put('search', $request->search);
+        Session::put('office', $request->office);
     }
 
     public function clearSearch()
     {
         Session::forget('search');
+        Session::forget('office');
     }
 }
