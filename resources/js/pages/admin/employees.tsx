@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Employees, type Paginated, type User } from '@/types';
+import { type BreadcrumbItem, type Employees, type Paginated, type User, type Offices } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Eye, EyeOff, PencilIcon, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
@@ -33,9 +33,10 @@ interface EmployeesProps {
         user: User;
     };
     employees: Paginated<Employees>;
+    offices: Offices[];
 }
 
-export default function Employees({ auth, employees }: EmployeesProps) {
+export default function Offices({ auth, employees, offices }: EmployeesProps) {
     const [showPassword, setShowPassword] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -43,10 +44,13 @@ export default function Employees({ auth, employees }: EmployeesProps) {
 
     const createForm = useForm({
         name: '',
+        employeeID: '',
         position: '',
+        office: '',
         contactNumber: '',
         startDate: '',
         endDate: '',
+        birthDate: '',
         employmentType: '',
         email: '',
         password: '',
@@ -76,10 +80,13 @@ export default function Employees({ auth, employees }: EmployeesProps) {
     const updateForm = useForm({
         encrypted_id: '',
         name: '',
+        employeeID: '',
         position: '',
+        office: '',
         contactNumber: '',
         startDate: '',
         endDate: '',
+        birthDate: '',
         employmentType: '',
         email: '',
         password: '',
@@ -89,10 +96,13 @@ export default function Employees({ auth, employees }: EmployeesProps) {
         updateForm.setData({
             encrypted_id: String(employee.encrypted_id),
             name: String(employee.name),
+            employeeID: String(employee.employeeID),
             position: String(employee.position),
+            office: String(employee.officeEncrypted_id),
             contactNumber: String(employee.contactNumber),
             startDate: String(employee.startDate),
             endDate: String(employee.endDate),
+            birthDate: String(employee.birthDate),
             employmentType: String(employee.employmentType),
             email: String(employee.email),
             password: '',
@@ -177,8 +187,8 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                             </DialogHeader>
 
                             <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
-                                <div className="grid gap-4">
-                                    <div className="flex flex-col gap-2">
+                                <div className="">
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Name</Label>
                                         <Input
                                             value={createForm.data.name}
@@ -187,7 +197,16 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 mb-4">
+                                        <Label>Employee ID</Label>
+                                        <Input
+                                            value={createForm.data.employeeID}
+                                            onChange={(e) => createForm.setData('employeeID', e.target.value)}
+                                            placeholder="Enter Employee ID"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Position</Label>
                                         <Input
                                             value={createForm.data.position}
@@ -196,7 +215,25 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 mb-4">
+                                        <Label>Office Name</Label>
+
+                                        <Select
+                                            value={createForm.data.office}
+                                            onValueChange={(value) => createForm.setData('office', value)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select office" />
+                                            </SelectTrigger>
+
+                                            <SelectContent>
+                                                {offices.map((office) => (
+                                                    <SelectItem key={office.encrypted_id} value={office.encrypted_id}>{office.officeName}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Contact Number</Label>
                                         <Input
                                             value={createForm.data.contactNumber}
@@ -205,7 +242,21 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2">
+
+                                     <div className="flex flex-col gap-2 mb-4">
+                                        <Label>Birth Date</Label>
+                                        <Input
+                                            value={createForm.data.birthDate}
+                                            type="date"
+                                            onChange={(e) => createForm.setData('birthDate', e.target.value)}
+                                            placeholder="Enter Birth Date"
+                                            required
+                                        />
+                                    </div>
+                                   
+                                </div>
+                                <div className="">
+                                     <div className="flex flex-col gap-2 mb-4">
                                         <Label>Start Date</Label>
                                         <Input
                                             value={createForm.data.startDate}
@@ -215,9 +266,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                </div>
-                                <div className="grid gap-4">
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>End Date</Label>
                                         <Input
                                             value={createForm.data.endDate}
@@ -226,7 +275,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             placeholder="Enter End Date"
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Employment Type</Label>
 
                                         <Select
@@ -244,7 +293,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                         </Select>
                                     </div>
 
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Username</Label>
                                         <Input
                                             value={createForm.data.email}
@@ -253,7 +302,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Password</Label>
                                         <div className="relative">
                                             <Input
@@ -297,8 +346,8 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                             </DialogHeader>
 
                             <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
-                                <div className="grid gap-4">
-                                    <div className="flex flex-col gap-2">
+                                <div className="">
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Name</Label>
                                         <Input
                                             value={updateForm.data.name}
@@ -307,7 +356,16 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 mb-4">
+                                        <Label>Employee ID</Label>
+                                        <Input
+                                            value={updateForm.data.employeeID}
+                                            onChange={(e) => updateForm.setData('employeeID', e.target.value)}
+                                            placeholder="Update Employee ID"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Position</Label>
                                         <Input
                                             value={updateForm.data.position}
@@ -316,7 +374,25 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2">
+                                     <div className="flex flex-col gap-2 mb-4">
+                                        <Label>Office Name</Label>
+
+                                        <Select
+                                            value={updateForm.data.office}
+                                            onValueChange={(value) => updateForm.setData('office', value)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select office" />
+                                            </SelectTrigger>
+
+                                            <SelectContent>
+                                                {offices.map((office) => (
+                                                    <SelectItem key={office.encrypted_id} value={office.encrypted_id}>{office.officeName}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Contact Number</Label>
                                         <Input
                                             value={updateForm.data.contactNumber}
@@ -325,7 +401,19 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 mb-4">
+                                        <Label>Birth Date</Label>
+                                        <Input
+                                            value={updateForm.data.birthDate}
+                                            type="date"
+                                            onChange={(e) => updateForm.setData('birthDate', e.target.value)}
+                                            placeholder="Update Birth Date"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="">
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Start Date</Label>
                                         <Input
                                             value={updateForm.data.startDate}
@@ -335,9 +423,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                </div>
-                                <div className="grid gap-4">
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>End Date</Label>
                                         <Input
                                             value={updateForm.data.endDate}
@@ -346,7 +432,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             placeholder="Update End Date"
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Employment Type</Label>
 
                                         <Select
@@ -363,7 +449,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Username</Label>
                                         <Input
                                             value={updateForm.data.email}
@@ -372,7 +458,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 mb-4">
                                         <Label>Password</Label>
                                         <div className="relative">
                                             <Input
@@ -431,9 +517,9 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                         <TableRow className="">
                             <TableHead className="w-[50px] text-center">#</TableHead>
                             <TableHead className="text-start text-nowrap">Name</TableHead>
-                            <TableHead className="text-center text-nowrap">Contact No.</TableHead>
-                            <TableHead className="text-center text-nowrap">Start Date</TableHead>
-                            <TableHead className="text-center text-nowrap">End Date</TableHead>
+                            <TableHead className="text-center text-nowrap">Office</TableHead>
+                            <TableHead className="text-center text-nowrap">Age</TableHead>
+                            <TableHead className="text-center text-nowrap">Start & End</TableHead>
                             <TableHead className="text-center text-nowrap">Type</TableHead>
                             <TableHead className="w-[200px] text-center text-nowrap">Actions</TableHead>
                         </TableRow>
@@ -441,7 +527,7 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                     <TableBody>
                         {employees.data.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="text-center text-[13px] text-gray-500">
+                                <TableCell colSpan={10} className="text-center text-[13px] text-gray-500">
                                     No Data Found
                                 </TableCell>
                             </TableRow>
@@ -453,15 +539,17 @@ export default function Employees({ auth, employees }: EmployeesProps) {
                                     </TableCell>
                                     <TableCell className="py-[6px] text-nowrap">
                                         <div>{emp.name}</div>
-                                        <small>{emp.position}</small>
+                                        <small>{emp.employeeID}</small>
                                     </TableCell>
-                                    <TableCell className="py-[6px] text-center text-nowrap">{emp.contactNumber}</TableCell>
-                                    <TableCell className="py-[6px] text-center text-nowrap">
-                                        <FormattedDate date={emp.startDate} variant="date" />
+                                    <TableCell className="py-[6px] text-center text-nowrap">{emp.office?.officeName}</TableCell>
+                                     <TableCell className="py-[6px] text-center text-nowrap font-bold">
+                                        {emp.birthDate ? <FormattedDate date={emp.birthDate} variant="age" /> : '-'}
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
+                                        <FormattedDate date={emp.startDate} variant="date" /> <span className='mx-2'>|</span>
                                         {emp.endDate ? <FormattedDate date={emp.endDate} variant="date" /> : '-'}
                                     </TableCell>
+                                   
                                     <TableCell className="py-[6px] text-center text-nowrap">
                                         {emp.employmentType === 'regular' ? 'Regular' : 'Job Order'}
                                     </TableCell>

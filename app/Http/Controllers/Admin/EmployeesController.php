@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 use App\Models\User;
+use App\Models\Offices;
 
 class EmployeesController extends Controller
 {
@@ -23,13 +24,20 @@ class EmployeesController extends Controller
 
     public function index()
     {
-        $employees = User::where('role', 'employee')->orderBy('name', 'asc')->paginate(10)->through(function ($employee) {
+        $employees = User::with('office')->where('role', 'employee')->orderBy('name', 'asc')->paginate(10)->through(function ($employee) {
             $employee->encrypted_id = $this->aes->encrypt($employee->id);
+            $employee->officeEncrypted_id = $this->aes->encrypt($employee->offices_id);
             return $employee;
         });
 
+       $offices = Offices::orderBy('officeName', 'asc')->get()->map(function ($office) {
+            $office->encrypted_id = $this->aes->encrypt($office->id);
+            return $office;
+        });
+
         return Inertia::render('admin/employees', [
-            'employees' => $employees
+            'employees' => $employees,
+            'offices' => $offices
         ]);
     }
 
@@ -37,9 +45,12 @@ class EmployeesController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'employeeID' => ['required', 'string', 'max:255'],
             'position' => ['required', 'string', 'max:255'],
+            'office' => ['required', 'string', 'max:255'],
             'contactNumber' => ['required', 'string', 'max:255'],
             'startDate' => ['required', 'date'],
+            'birthDate' => ['required', 'date'],
             'employmentType' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
@@ -51,10 +62,13 @@ class EmployeesController extends Controller
 
         User::create([
             'name' => strtoupper($validated['name']),
+            'employeeID' => strtoupper($validated['employeeID']),
             'position' => ucwords($validated['position']),
+            'offices_id' => $this->aes->decrypt($validated['office']),
             'contactNumber' => $validated['contactNumber'],
             'startDate' => $validated['startDate'],
             'endDate' => $validated['endDate'] ?? null,
+            'birthDate' => $validated['birthDate'],
             'employmentType' => $validated['employmentType'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
@@ -68,9 +82,12 @@ class EmployeesController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'employeeID' => ['required', 'string', 'max:255'],
             'position' => ['required', 'string', 'max:255'],
+            'office' => ['required', 'string', 'max:255'],
             'contactNumber' => ['required', 'string', 'max:255'],
             'startDate' => ['required', 'date'],
+            'birthDate' => ['required', 'date'],
             'employmentType' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
@@ -81,10 +98,13 @@ class EmployeesController extends Controller
 
         $data = [
             'name' => strtoupper($validated['name']),
+            'employeeID' => strtoupper($validated['employeeID']),
             'position' => ucwords($validated['position']),
+            'offices_id' => $this->aes->decrypt($validated['office']),
             'contactNumber' => $validated['contactNumber'],
             'startDate' => $validated['startDate'],
             'endDate' => $validated['endDate'] ?? null,
+            'birthDate' => $validated['birthDate'],
             'employmentType' => $validated['employmentType'],
             'email' => $validated['email']
         ];

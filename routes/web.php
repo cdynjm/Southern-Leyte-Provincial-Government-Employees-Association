@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EmployeesController;
+use App\Http\Controllers\Admin\OfficesController;
 use App\Http\Controllers\Admin\ContributionsController;
 
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
@@ -37,6 +38,11 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/employees/store', [EmployeesController::class, 'store'])->name('admin.employee.store');
             Route::put('/employees/update', [EmployeesController::class, 'update'])->name('admin.employee.update');
             Route::delete('/employees/destroy', [EmployeesController::class, 'destroy'])->name('admin.employee.destroy');
+
+            Route::get('/offices', [OfficesController::class, 'index'])->name('admin.offices');
+            Route::post('/offices/store', [OfficesController::class, 'store'])->name('admin.office.store');
+            Route::put('/offices/update', [OfficesController::class, 'update'])->name('admin.office.update');
+            Route::delete('/offices/destroy', [OfficesController::class, 'destroy'])->name('admin.office.destroy');
 
             Route::get('/contributions', [ContributionsController::class, 'employeeContributions'])->name('admin.contributions');
             Route::get('/contributions/{encrypted_id}', [ContributionsController::class, 'viewContributions'])->name('admin.contributions.view');

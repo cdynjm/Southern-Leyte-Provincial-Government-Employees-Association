@@ -19,6 +19,7 @@ import {
     LayoutGrid,
     UsersIcon,
     Wallet2Icon,
+    BriefcaseBusiness,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -47,6 +48,11 @@ const adminNavItems: NavItem[] = [
         title: 'Employees',
         href: route('admin.employees'),
         icon: UsersIcon,
+    },
+    {
+        title: 'Offices',
+        href: route('admin.offices'),
+        icon: BriefcaseBusiness,
     },
     {
         title: 'Contributions',

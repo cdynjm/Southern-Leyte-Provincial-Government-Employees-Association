@@ -49,11 +49,14 @@ export interface Paginated<T> {
 
 export interface User {
     id: number;
+    offices?: Offices;
     name: string;
     position: string;
     contactNumber: string;
     startDate: string;
     endDate: string;
+    employeeID: string;
+    birthDate: string;
     employmentType: string;
     email: string;
     totalContribution: number;
@@ -69,12 +72,16 @@ export interface User {
 
 export interface Employees {
     id: number;
+    office?: Offices;
     encrypted_id: string;
+    officeEncrypted_id: string;
     name: string;
     position: string;
     contactNumber: string;
     startDate: string;
     endDate: string;
+    employeeID: string;
+    birthDate: string;
     employmentType: string;
     email: string;
     totalContribution: number;
@@ -102,6 +109,15 @@ export interface ContributionTypes {
     encrypted_id: string;
     description: string;
     contributions?: Contributions[];
+}
+
+export interface Offices {
+    id: number;
+    user?: User[];
+    encrypted_id: string;
+    officeName: string;
+    created_at: string;
+    updated_at: string;
 }
 export interface ContributionGroup {
     type: ContributionTypes;

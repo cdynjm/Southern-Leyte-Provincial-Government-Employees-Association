@@ -19,11 +19,14 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'offices_id',
         'name',
         'position',
         'contactNumber',
         'startDate',
         'endDate',
+        'employeeID',
+        'birthDate',
         'employmentType',
         'email',
         'password',
@@ -57,5 +60,10 @@ class User extends Authenticatable
     public function contributions()
     {
         return $this->hasMany(Contributions::class, 'users_id');
+    }
+
+    public function office()
+    {
+        return $this->belongsTo(Offices::class, 'offices_id');
     }
 }
