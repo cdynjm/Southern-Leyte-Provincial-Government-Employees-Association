@@ -29,7 +29,8 @@ class ContributionsController extends Controller
         $officeEncrypted = session('office');
         $office = $officeEncrypted != '' ? $this->aes->decrypt($officeEncrypted) : '';
 
-        $employees = User::where('role', 'employee')
+        $employees = User::with('office')
+        ->where('role', 'employee')
         ->where('name', 'like', "%{$search}%")
          ->when($office !== '', function ($query) use ($office) {
             $query->where('offices_id', $office);

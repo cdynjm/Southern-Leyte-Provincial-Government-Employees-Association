@@ -201,12 +201,6 @@ export default function Contributions({ auth, employees, search, office, contrib
                         <TableRow className="">
                             <TableHead className="w-[50px] text-center">#</TableHead>
                             <TableHead className="w-[450px] text-start text-nowrap">Name</TableHead>
-                            <TableHead className="w-[50px] text-center">
-                                <div className="flex flex-col">
-                                    <small>Total</small>
-                                    <small>Contribution</small>
-                                </div>
-                            </TableHead>
                             <TableHead className="w-[300px] text-center text-nowrap">Type</TableHead>
                             <TableHead className="w-[300px] text-center text-nowrap">Year</TableHead>
                             <TableHead className="w-[300px] text-center text-nowrap">Month</TableHead>
@@ -230,10 +224,9 @@ export default function Contributions({ auth, employees, search, office, contrib
                                     <TableCell className="py-[6px] text-nowrap">
                                         <Link href={route('admin.contributions.view', { encrypted_id: emp.encrypted_id })}>
                                             <div>{emp.name}</div>
-                                            <small>{emp.position}</small>
+                                            <small>{emp.office?.officeName} | {emp.employeeID}</small>
                                         </Link>
                                     </TableCell>
-                                    <TableCell className="py-[6px] text-center font-bold text-nowrap">₱{emp.totalContribution}</TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
                                         <Select
                                             key={
