@@ -29,7 +29,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('admin')
         ->middleware('admin')
-        ->group(function () {
+        ->group(function () { 
 
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
