@@ -16,9 +16,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Employees, type Paginated, type User, type Offices } from '@/types';
+import { type BreadcrumbItem, type Employees, type Offices, type Paginated, type User } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { Eye, EyeOff, PencilIcon, Trash2Icon } from 'lucide-react';
+import { Eye, EyeOff, PencilIcon, Trash2Icon, LoaderCircle, EraserIcon, SearchIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -33,14 +33,43 @@ interface EmployeesProps {
         user: User;
     };
     employees: Paginated<Employees>;
+    search: string;
+    office: string;
+    type: string;
     offices: Offices[];
 }
 
-export default function Offices({ auth, employees, offices }: EmployeesProps) {
+export default function Offices({ auth, employees, offices, search, office, type }: EmployeesProps) {
     const [showPassword, setShowPassword] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+    const searchEmployeeForm = useForm({
+        office: office || '',
+        search: search || '',
+        type: type || '',
+    });
+
+    const clearEmployeeForm = useForm({
+        search: '',
+        office: '',
+        type: '',
+    });
+
+    const searchEmployee = () => {
+        searchEmployeeForm.post(route('admin.employees.search'));
+    };
+
+    const clearSearch = () => {
+        clearEmployeeForm.post(route('admin.employees.clear-search'), {
+            onSuccess: () => {
+                searchEmployeeForm.setData('search', '');
+                searchEmployeeForm.setData('office', '');
+                searchEmployeeForm.setData('type', '');
+            },
+        });
+    };
 
     const createForm = useForm({
         name: '',
@@ -129,7 +158,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                 });
             },
         });
-    }; 
+    };
 
     const deleteForm = useForm({
         encrypted_id: '',
@@ -188,7 +217,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
 
                             <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
                                 <div className="">
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Name</Label>
                                         <Input
                                             value={createForm.data.name}
@@ -197,7 +226,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Employee ID</Label>
                                         <Input
                                             value={createForm.data.employeeID}
@@ -206,7 +235,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Position</Label>
                                         <Input
                                             value={createForm.data.position}
@@ -215,25 +244,24 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Office Name</Label>
 
-                                        <Select
-                                            value={createForm.data.office}
-                                            onValueChange={(value) => createForm.setData('office', value)}
-                                        >
+                                        <Select value={createForm.data.office} onValueChange={(value) => createForm.setData('office', value)}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select office" />
                                             </SelectTrigger>
 
                                             <SelectContent>
                                                 {offices.map((office) => (
-                                                    <SelectItem key={office.encrypted_id} value={office.encrypted_id}>{office.officeName}</SelectItem>
+                                                    <SelectItem key={office.encrypted_id} value={office.encrypted_id}>
+                                                        {office.officeName}
+                                                    </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Contact Number</Label>
                                         <Input
                                             value={createForm.data.contactNumber}
@@ -243,7 +271,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                         />
                                     </div>
 
-                                     <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Birth Date</Label>
                                         <Input
                                             value={createForm.data.birthDate}
@@ -253,10 +281,9 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                   
                                 </div>
                                 <div className="">
-                                     <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Start Date</Label>
                                         <Input
                                             value={createForm.data.startDate}
@@ -266,7 +293,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>End Date</Label>
                                         <Input
                                             value={createForm.data.endDate}
@@ -275,7 +302,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             placeholder="Enter End Date"
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Employment Type</Label>
 
                                         <Select
@@ -293,7 +320,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                         </Select>
                                     </div>
 
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Username</Label>
                                         <Input
                                             value={createForm.data.email}
@@ -302,7 +329,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Password</Label>
                                         <div className="relative">
                                             <Input
@@ -347,7 +374,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
 
                             <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
                                 <div className="">
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Name</Label>
                                         <Input
                                             value={updateForm.data.name}
@@ -356,7 +383,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Employee ID</Label>
                                         <Input
                                             value={updateForm.data.employeeID}
@@ -365,7 +392,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Position</Label>
                                         <Input
                                             value={updateForm.data.position}
@@ -374,25 +401,24 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                     <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Office Name</Label>
 
-                                        <Select
-                                            value={updateForm.data.office}
-                                            onValueChange={(value) => updateForm.setData('office', value)}
-                                        >
+                                        <Select value={updateForm.data.office} onValueChange={(value) => updateForm.setData('office', value)}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select office" />
                                             </SelectTrigger>
 
                                             <SelectContent>
                                                 {offices.map((office) => (
-                                                    <SelectItem key={office.encrypted_id} value={office.encrypted_id}>{office.officeName}</SelectItem>
+                                                    <SelectItem key={office.encrypted_id} value={office.encrypted_id}>
+                                                        {office.officeName}
+                                                    </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Contact Number</Label>
                                         <Input
                                             value={updateForm.data.contactNumber}
@@ -401,7 +427,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Birth Date</Label>
                                         <Input
                                             value={updateForm.data.birthDate}
@@ -413,7 +439,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                     </div>
                                 </div>
                                 <div className="">
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Start Date</Label>
                                         <Input
                                             value={updateForm.data.startDate}
@@ -423,7 +449,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>End Date</Label>
                                         <Input
                                             value={updateForm.data.endDate}
@@ -432,7 +458,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             placeholder="Update End Date"
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Employment Type</Label>
 
                                         <Select
@@ -449,7 +475,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Username</Label>
                                         <Input
                                             value={updateForm.data.email}
@@ -458,7 +484,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    <div className="mb-4 flex flex-col gap-2">
                                         <Label>Password</Label>
                                         <div className="relative">
                                             <Input
@@ -494,7 +520,7 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                     </Dialog>
 
                     <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-                        <DialogContent className='sm:max-w-lg'>
+                        <DialogContent className="sm:max-w-lg">
                             <DialogHeader>
                                 <DialogTitle>Delete Employee</DialogTitle>
                                 <DialogDescription>Are you sure you want to delete this employee? This action cannot be undone.</DialogDescription>
@@ -512,6 +538,59 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                         </DialogContent>
                     </Dialog>
                 </div>
+
+                <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-3">
+                    <div className="flex items-center gap-2">
+                        <Button
+                            size="icon"
+                            variant="secondary"
+                            onClick={clearSearch}
+                            disabled={searchEmployeeForm.processing}
+                            className={!search && !office && !type ? 'hidden' : 'text-red-600'}
+                        >
+                            {clearEmployeeForm.processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <EraserIcon className="h-4 w-4" />}
+                        </Button>
+                        <Select value={searchEmployeeForm.data.office} onValueChange={(value) => searchEmployeeForm.setData('office', value)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All Offices" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                                {offices.map((office) => (
+                                    <SelectItem key={office.encrypted_id} value={office.encrypted_id}>
+                                        {office.officeName}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <Select value={searchEmployeeForm.data.type} onValueChange={(value) => searchEmployeeForm.setData('type', value)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All Types" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                                <SelectItem value="job order">Job Order</SelectItem>
+                                <SelectItem value="regular">Regular</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Input
+                            type="text"
+                            placeholder="Search employees..."
+                            onChange={(e) => searchEmployeeForm.setData('search', e.target.value)}
+                            value={searchEmployeeForm.data.search}
+                            className="flex-1"
+                        />
+
+                        <Button size="icon" onClick={searchEmployee} disabled={searchEmployeeForm.processing} className="">
+                            {searchEmployeeForm.processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <SearchIcon className="h-4 w-4" />}
+                        </Button>
+                    </div>
+                </div>
+
                 <Table>
                     <TableHeader>
                         <TableRow className="">
@@ -542,14 +621,14 @@ export default function Offices({ auth, employees, offices }: EmployeesProps) {
                                         <small>{emp.employeeID}</small>
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">{emp.office?.officeName}</TableCell>
-                                     <TableCell className="py-[6px] text-center text-nowrap font-bold">
+                                    <TableCell className="py-[6px] text-center font-bold text-nowrap">
                                         {emp.birthDate ? <FormattedDate date={emp.birthDate} variant="age" /> : '-'}
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
-                                        <FormattedDate date={emp.startDate} variant="date" /> <span className='mx-2'>|</span>
+                                        <FormattedDate date={emp.startDate} variant="date" /> <span className="mx-2">|</span>
                                         {emp.endDate ? <FormattedDate date={emp.endDate} variant="date" /> : '-'}
                                     </TableCell>
-                                   
+
                                     <TableCell className="py-[6px] text-center text-nowrap">
                                         {emp.employmentType === 'regular' ? 'Regular' : 'Job Order'}
                                     </TableCell>

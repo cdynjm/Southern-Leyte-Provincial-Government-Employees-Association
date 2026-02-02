@@ -126,7 +126,7 @@ export interface ContributionGroup {
 export interface ContributionRow {
     contributionTypes?: string;
     year?: string;
-    month?: string;
+    month?: string[];
     amount?: number;
 }
 

@@ -1,5 +1,6 @@
 import Pagination from '@/components/pagination';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,11 +25,12 @@ interface ContributionsProps {
     employees: Paginated<Employees>;
     search: string;
     office: string;
+    type: string;
     contributionTypes: ContributionTypes[];
     offices: Offices[];
 }
 
-export default function Contributions({ auth, employees, search, office, contributionTypes, offices }: ContributionsProps) {
+export default function Contributions({ auth, employees, search, office, contributionTypes, offices, type }: ContributionsProps) {
     const generateYears = () => {
         const startYear = 2023;
         const currentYear = new Date().getFullYear();
@@ -67,10 +69,13 @@ export default function Contributions({ auth, employees, search, office, contrib
     const searchEmployeeForm = useForm({
         office: office || '',
         search: search || '',
+        type: type || '',
     });
 
     const clearEmployeeForm = useForm({
         search: '',
+        office: '',
+        type: '',
     });
 
     const searchEmployee = () => {
@@ -82,6 +87,7 @@ export default function Contributions({ auth, employees, search, office, contrib
             onSuccess: () => {
                 searchEmployeeForm.setData('search', '');
                 searchEmployeeForm.setData('office', '');
+                searchEmployeeForm.setData('type', '');
             },
         });
     };
@@ -89,87 +95,95 @@ export default function Contributions({ auth, employees, search, office, contrib
     const [rowValues, setRowValues] = useState<Record<string, ContributionRow>>({});
     const [rowLoading, setRowLoading] = useState<Record<string, boolean>>({});
 
-    const submitContribution = (emp: Employees) => {
-        const row = rowValues[emp.encrypted_id];
+    const submitContribution = () => {
+        const entries = Object.entries(rowValues);
 
-        if (!row?.year || !row?.month || !row?.contributionTypes || !row?.amount) {
+        const rowsToSubmit = entries.filter(([, row]) => row.year || (row.month?.length ?? 0) > 0 || row.contributionTypes || row.amount);
+
+        if (rowsToSubmit.length === 0) {
             toast('Opss, Error', {
-                description: 'Please fill in required fields before submitting.',
-                action: {
-                    label: 'Close',
-                    onClick: () => console.log(''),
-                },
+                description: 'No contribution data to submit.',
+                action: { label: 'Close', onClick: () => console.log('') },
             });
             return;
         }
 
-        setRowLoading((prev) => ({ ...prev, [emp.encrypted_id]: true }));
+        for (const [, row] of rowsToSubmit) {
+            if (!row.year || !row.month?.length || !row.contributionTypes || !row.amount) {
+                toast('Opss, Error', {
+                    description: 'Please fill in all required fields for the rows you entered.',
+                    action: { label: 'Close', onClick: () => console.log('') },
+                });
+                return;
+            }
+        }
 
-        router.post(
-            route('admin.contribution.store'),
-            {
-                encrypted_id: emp.encrypted_id,
-                contribution_type_id: row.contributionTypes,
-                year: row.year,
-                month: row.month,
-                amount: row.amount,
-            },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast('Contribution Added', {
-                        description: 'The contribution has been successfully added.',
-                        action: {
-                            label: 'Close',
-                            onClick: () => console.log(''),
-                        },
-                    });
+        const loadingState: Record<string, boolean> = {};
+        rowsToSubmit.forEach(([id]) => (loadingState[id] = true));
+        setRowLoading(loadingState);
 
-                    setRowValues((prev) => {
-                        const copy = { ...prev };
-                        delete copy[emp.encrypted_id];
-                        return copy;
-                    });
+        Promise.all(
+            rowsToSubmit.map(([encrypted_id, row]) =>
+                router.post(
+                    route('admin.contribution.store'),
+                    {
+                        encrypted_id,
+                        contribution_type_id: row.contributionTypes,
+                        year: row.year,
+                        month: row.month,
+                        amount: row.amount === undefined ? 0 : row.amount,
+                    },
+                    { preserveScroll: true },
+                ),
+            ),
+        )
+            .then(() => {
+                toast('Contributions Submitted', {
+                    description: 'All filled contributions have been successfully submitted. Please wait...',
+                    action: { label: 'Close', onClick: () => console.log('') },
+                });
 
-                    setRowLoading((prev) => {
-                        const copy = { ...prev };
-                        delete copy[emp.encrypted_id];
-                        return copy;
-                    });
-                },
-                onError: () => {
-                    setRowLoading((prev) => {
-                        const copy = { ...prev };
-                        delete copy[emp.encrypted_id];
-                        return copy;
-                    });
-                },
-            },
-        );
+                // Clear only submitted rows
+                setRowValues((prev) => {
+                    const copy = { ...prev };
+                    rowsToSubmit.forEach(([id]) => delete copy[id]);
+                    return copy;
+                });
+
+                setRowLoading({});
+            })
+            .catch(() => {
+                toast('Error', { description: 'Failed to submit some contributions.' });
+                setRowLoading({});
+            });
     };
+
+    // This can go inside your component
+    const totalAmount = Object.values(rowValues).reduce((sum, row) => sum + (row.amount || 0), 0);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="Employees" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
+                <div className="grid grid-cols-1">
                     <div>
                         <Label className="text-sm font-bold text-gray-500">Employee Contributions</Label>
                     </div>
+                </div>
 
-                    <div className="flex w-full max-w-2xl items-center gap-2 sm:ml-auto">
+                <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-3">
+                    <div className="flex items-center gap-2">
                         <Button
                             size="icon"
                             variant="secondary"
                             onClick={clearSearch}
                             disabled={searchEmployeeForm.processing}
-                            className={!searchEmployeeForm.data.search && searchEmployeeForm.data.office === '' ? 'hidden' : 'text-red-600'}
+                            className={!search && !office && !type ? 'hidden' : 'text-red-600'}
                         >
                             {clearEmployeeForm.processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <EraserIcon className="h-4 w-4" />}
                         </Button>
-
                         <Select value={searchEmployeeForm.data.office} onValueChange={(value) => searchEmployeeForm.setData('office', value)}>
-                            <SelectTrigger className="w-50">
+                            <SelectTrigger>
                                 <SelectValue placeholder="All Offices" />
                             </SelectTrigger>
 
@@ -181,7 +195,20 @@ export default function Contributions({ auth, employees, search, office, contrib
                                 ))}
                             </SelectContent>
                         </Select>
+                    </div>
+                    <div>
+                        <Select value={searchEmployeeForm.data.type} onValueChange={(value) => searchEmployeeForm.setData('type', value)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All Types" />
+                            </SelectTrigger>
 
+                            <SelectContent>
+                                <SelectItem value="job order">Job Order</SelectItem>
+                                <SelectItem value="regular">Regular</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex items-center gap-2">
                         <Input
                             type="text"
                             placeholder="Search employees..."
@@ -190,7 +217,7 @@ export default function Contributions({ auth, employees, search, office, contrib
                             className="flex-1"
                         />
 
-                        <Button size="icon" onClick={searchEmployee} disabled={searchEmployeeForm.processing}>
+                        <Button size="icon" onClick={searchEmployee} disabled={searchEmployeeForm.processing} className="">
                             {searchEmployeeForm.processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <SearchIcon className="h-4 w-4" />}
                         </Button>
                     </div>
@@ -224,7 +251,9 @@ export default function Contributions({ auth, employees, search, office, contrib
                                     <TableCell className="py-[6px] text-nowrap">
                                         <Link href={route('admin.contributions.view', { encrypted_id: emp.encrypted_id })}>
                                             <div>{emp.name}</div>
-                                            <small>{emp.office?.officeName} | {emp.employeeID}</small>
+                                            <small>
+                                                {emp.office?.officeName} | {emp.employeeID}
+                                            </small>
                                         </Link>
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
@@ -284,32 +313,69 @@ export default function Contributions({ auth, employees, search, office, contrib
                                         </Select>
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
-                                        <Select
-                                            key={
-                                                rowValues[emp.encrypted_id]?.month ? rowValues[emp.encrypted_id]?.month : emp.encrypted_id + '-month'
-                                            }
-                                            value={rowValues[emp.encrypted_id]?.month ?? undefined}
-                                            onValueChange={(value) =>
-                                                setRowValues((prev) => ({
-                                                    ...prev,
-                                                    [emp.encrypted_id]: {
-                                                        ...prev[emp.encrypted_id],
-                                                        month: value,
-                                                    },
-                                                }))
-                                            }
-                                        >
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Month" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {months.map((month) => (
-                                                    <SelectItem key={month.value} value={month.value}>
-                                                        {month.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="outline" className="w-full justify-between">
+                                                    {(rowValues[emp.encrypted_id]?.month ?? []).length
+                                                        ? `${(rowValues[emp.encrypted_id]?.month ?? []).length} month(s) selected`
+                                                        : 'Select month(s)'}
+                                                </Button>
+                                            </DropdownMenuTrigger>
+
+                                            <DropdownMenuContent align="start" className="max-h-60 w-full overflow-auto">
+                                                <div className="grid grid-cols-1 gap-2 p-2">
+                                                    {/* Select / Deselect All */}
+                                                    <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={rowValues[emp.encrypted_id]?.month?.length === months.length}
+                                                            onChange={(e) => {
+                                                                setRowValues((prev) => ({
+                                                                    ...prev,
+                                                                    [emp.encrypted_id]: {
+                                                                        ...prev[emp.encrypted_id],
+                                                                        month: e.target.checked
+                                                                            ? months.map((m) => m.value) // Select all
+                                                                            : [], // Deselect all
+                                                                    },
+                                                                }));
+                                                            }}
+                                                        />
+                                                        Select All
+                                                    </label>
+
+                                                    {/* Individual month checkboxes */}
+                                                    {months.map((month) => {
+                                                        const selectedMonths = rowValues[emp.encrypted_id]?.month ?? [];
+
+                                                        return (
+                                                            <label key={month.value} className="flex cursor-pointer items-center gap-2 text-sm">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={selectedMonths.includes(month.value)}
+                                                                    onChange={(e) => {
+                                                                        setRowValues((prev) => {
+                                                                            const current = prev[emp.encrypted_id]?.month ?? [];
+
+                                                                            return {
+                                                                                ...prev,
+                                                                                [emp.encrypted_id]: {
+                                                                                    ...prev[emp.encrypted_id],
+                                                                                    month: e.target.checked
+                                                                                        ? [...current, month.value]
+                                                                                        : current.filter((m) => m !== month.value),
+                                                                                },
+                                                                            };
+                                                                        });
+                                                                    }}
+                                                                />
+                                                                {month.label}
+                                                            </label>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </TableCell>
                                     <TableCell className="py-[6px] text-center text-nowrap">
                                         <div className="flex justify-center">
@@ -324,7 +390,7 @@ export default function Contributions({ auth, employees, search, office, contrib
                                                         ...prev,
                                                         [emp.encrypted_id]: {
                                                             ...prev[emp.encrypted_id],
-                                                            amount: Number(e.target.value),
+                                                            amount: e.target.value === '' ? undefined : Number(e.target.value),
                                                         },
                                                     }))
                                                 }
@@ -333,7 +399,7 @@ export default function Contributions({ auth, employees, search, office, contrib
                                     </TableCell>
                                     <TableCell className="py-[6px]">
                                         <div className="flex items-center justify-center gap-2">
-                                            <Button
+                                            {/* <Button
                                                 size="sm"
                                                 variant="secondary"
                                                 className="text-[12px]"
@@ -345,7 +411,7 @@ export default function Contributions({ auth, employees, search, office, contrib
                                                 ) : (
                                                     <CheckIcon className="h-4 w-4 text-green-600" />
                                                 )}
-                                            </Button>
+                                            </Button> */}
                                             <Link href={route('admin.contributions.view', { encrypted_id: emp.encrypted_id })}>
                                                 <Button variant="secondary" size="sm" className="text-[12px]">
                                                     <EyeIcon className="h-4 w-4" />
@@ -359,6 +425,21 @@ export default function Contributions({ auth, employees, search, office, contrib
                     </TableBody>
                 </Table>
                 <Pagination links={employees.links} />
+
+                <div className="mt-2 mr-4 flex items-center justify-end text-[14px] font-medium">
+                    <span className="text-[12px]">Total Amount: </span>
+                    <span className="ml-2 text-[18px]">₱{totalAmount.toLocaleString()}</span>
+                </div>
+                <Button
+                    variant="default"
+                    className="mt-2 flex w-fit items-center gap-2 self-end text-[13px]"
+                    size="sm"
+                    onClick={submitContribution}
+                    disabled={Object.keys(rowValues).length === 0 || Object.values(rowLoading).some(Boolean)}
+                >
+                    {Object.values(rowLoading).some(Boolean) ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <CheckIcon className="h-4 w-4" />}
+                    Submit Contributions
+                </Button>
             </div>
         </AppLayout>
     );

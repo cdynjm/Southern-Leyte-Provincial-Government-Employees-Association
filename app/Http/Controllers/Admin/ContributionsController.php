@@ -26,19 +26,27 @@ class ContributionsController extends Controller
     public function employeeContributions(Request $request)
     {
         $search = session('search');
+        $type = session('type');
         $officeEncrypted = session('office');
         $office = $officeEncrypted != '' ? $this->aes->decrypt($officeEncrypted) : '';
 
         $employees = User::with('office')
-        ->where('role', 'employee')
-        ->where('name', 'like', "%{$search}%")
-         ->when($office !== '', function ($query) use ($office) {
-            $query->where('offices_id', $office);
-        })
-        ->orderBy('name', 'asc')->paginate(10)->through(function ($employee) {
-            $employee->encrypted_id = $this->aes->encrypt($employee->id);
-            return $employee;
-        });
+            ->where('role', 'employee')
+            ->when(filled($search), function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->when(filled($office), function ($query) use ($office) {
+                $query->where('offices_id', $office);
+            })
+            ->when(filled($type), function ($query) use ($type) {
+                $query->where('employmentType', $type);
+            })
+            ->orderBy('name', 'asc')
+            ->paginate(10)
+            ->through(function ($employee) {
+                $employee->encrypted_id = $this->aes->encrypt($employee->id);
+                return $employee;
+            });
 
         $contributionTypes = ContributionTypes::orderBy('description', 'asc')->get()->map(function ($contributionType) {
             $contributionType->encrypted_id = $this->aes->encrypt($contributionType->id);
@@ -54,6 +62,7 @@ class ContributionsController extends Controller
             'employees' => $employees,
             'search' => $search,
             'office' => $officeEncrypted,
+            'type' => $type,
             'contributionTypes' => $contributionTypes,
             'offices' => $offices,
         ]);
@@ -64,13 +73,19 @@ class ContributionsController extends Controller
         $id = $this->aes->decrypt($request->encrypted_id);
         $contributionTypeId = $this->aes->decrypt($request->contribution_type_id);
 
-        Contributions::create([
-            'users_id' => $id,
-            'contribution_types_id' => $contributionTypeId,
-            'year' => $request->year,
-            'month' => $request->month,
-            'amount' => $request->amount,
-        ]);
+        $months = $request->month;
+        $monthlyAmount = $request->amount / count($months);
+
+        foreach ($months as $month) {
+            Contributions::create([
+                'users_id' => $id,
+                'contribution_types_id' => $contributionTypeId,
+                'year' => $request->year,
+                'month' => $month,
+                'amount' => $monthlyAmount,
+            ]);
+        }
+
 
         User::where('id', $id)->increment('totalContribution', $request->amount);
     }
@@ -91,7 +106,7 @@ class ContributionsController extends Controller
                 ->where('contribution_types_id', $type->id)
                 ->with('contributiontype')
                 ->orderBy('year', 'desc')
-                ->orderBy('month', 'desc')
+                ->orderBy('month', 'asc')
                 ->paginate(
                     12,
                     ['*'],
@@ -166,11 +181,13 @@ class ContributionsController extends Controller
     {
         Session::put('search', $request->search);
         Session::put('office', $request->office);
+        Session::put('type', $request->type);
     }
 
     public function clearSearch()
     {
         Session::forget('search');
         Session::forget('office');
+        Session::forget('type');
     }
 }

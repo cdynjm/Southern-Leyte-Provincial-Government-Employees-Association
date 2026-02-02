@@ -9,6 +9,7 @@ use Inertia\Response;
 use App\Http\Controllers\Security\AESCipher;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Session;
 
 use App\Models\User;
 use App\Models\Offices;
@@ -24,7 +25,23 @@ class EmployeesController extends Controller
 
     public function index()
     {
-        $employees = User::with('office')->where('role', 'employee')->orderBy('name', 'asc')->paginate(10)->through(function ($employee) {
+        $search = session('search');
+        $type = session('type');
+        $officeEncrypted = session('office');
+        $office = $officeEncrypted != '' ? $this->aes->decrypt($officeEncrypted) : '';
+
+        $employees = User::with('office')->where('role', 'employee')
+            ->when(filled($search), function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->when(filled($office), function ($query) use ($office) {
+                $query->where('offices_id', $office);
+            })
+            ->when(filled($type), function ($query) use ($type) {
+                $query->where('employmentType', $type);
+            })
+        ->orderBy('name', 'asc')
+        ->paginate(10)->through(function ($employee) {
             $employee->encrypted_id = $this->aes->encrypt($employee->id);
             $employee->officeEncrypted_id = $this->aes->encrypt($employee->offices_id);
             return $employee;
@@ -37,7 +54,10 @@ class EmployeesController extends Controller
 
         return Inertia::render('admin/employees', [
             'employees' => $employees,
-            'offices' => $offices
+            'offices' => $offices,
+            'search' => $search,
+            'office' => $officeEncrypted,
+            'type' => $type,
         ]);
     }
 
@@ -120,6 +140,20 @@ class EmployeesController extends Controller
     {
         $id = $this->aes->decrypt($request->encrypted_id);
         User::where('id', $id)->delete();
+    }
+
+    public function search(Request $request)
+    {
+        Session::put('search', $request->search);
+        Session::put('office', $request->office);
+        Session::put('type', $request->type);
+    }
+
+    public function clearSearch()
+    {
+        Session::forget('search');
+        Session::forget('office');
+        Session::forget('type');
     }
     
 }

@@ -38,6 +38,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/employees/store', [EmployeesController::class, 'store'])->name('admin.employee.store');
             Route::put('/employees/update', [EmployeesController::class, 'update'])->name('admin.employee.update');
             Route::delete('/employees/destroy', [EmployeesController::class, 'destroy'])->name('admin.employee.destroy');
+            Route::post('/employees/search', [EmployeesController::class, 'search'])->name('admin.employees.search');
+            Route::post('/employees/clear-search', [EmployeesController::class, 'clearSearch'])->name('admin.employees.clear-search');
+
 
             Route::get('/offices', [OfficesController::class, 'index'])->name('admin.offices');
             Route::post('/offices/store', [OfficesController::class, 'store'])->name('admin.office.store');
