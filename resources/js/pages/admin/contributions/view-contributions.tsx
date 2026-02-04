@@ -142,7 +142,7 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
                                 {/* Premium glossy diagonal sweep */}
                                 <div className="pointer-events-none absolute inset-0 overflow-hidden">
                                     <div className="glossy-sweep absolute inset-[-60%]" />
-                                </div>
+                                </div>  
 
                                 <CardContent className="relative flex flex-col gap-6 p-6">
                                     <div className="flex items-center justify-between">
