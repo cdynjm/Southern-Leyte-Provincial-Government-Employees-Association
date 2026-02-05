@@ -132,6 +132,16 @@ export interface FinancialAccount {
     created_at: string;
     updated_at: string;
 }
+
+export interface LoanTracker {
+    id: number;
+    encrypted_id: string;
+    users_id: number;
+    description: string;
+    created_at: string;
+    updated_at: string;
+    user?: User;
+}
 export interface ContributionGroup {
     type: ContributionTypes;
     contributions: Paginated<Contributions>;

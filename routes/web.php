@@ -67,6 +67,7 @@ Route::middleware(['auth'])->group(function () {
        
             Route::get('/loans', [LoansController::class, 'index'])->name('admin.loans');
             Route::get('/loan-tracker', [LoansController::class, 'loanTracker'])->name('admin.loan-tracker');
+            Route::post('/loan-tracker/store-or-update', [LoansController::class, 'storeOrUpdate'])->name('admin.loan-tracker.store-or-update');
             
         });
 
