@@ -31,7 +31,8 @@ class User extends Authenticatable
         'email',
         'password',
         'totalContribution',
-        'role'
+        'role',
+        'specialAccount'
     ];
 
     /**
@@ -65,5 +66,10 @@ class User extends Authenticatable
     public function office()
     {
         return $this->belongsTo(Offices::class, 'offices_id');
+    }
+
+    public function loantracker()
+    {
+        return $this->hasOne(LoanTracker::class, 'users_id');
     }
 }

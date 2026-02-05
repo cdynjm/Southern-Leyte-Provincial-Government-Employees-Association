@@ -20,6 +20,10 @@ import {
     UsersIcon,
     Wallet2Icon,
     BriefcaseBusiness,
+    Landmark,
+    PhilippinePeso,
+    Navigation,
+    BanknoteIcon,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -55,6 +59,11 @@ const adminNavItems: NavItem[] = [
         icon: BriefcaseBusiness,
     },
     {
+        title: 'Financial Account',
+        href: route('admin.financial-account'),
+        icon: Landmark,
+    },
+    {
         title: 'Contributions',
         icon: Wallet2Icon,
         href: '',
@@ -68,6 +77,23 @@ const adminNavItems: NavItem[] = [
                 title: 'Contribution Types',
                 icon: HandCoins,
                 href: route('admin.contribution-types'),
+            },
+        ],
+    },
+    {
+        title: 'Loans',
+        icon: PhilippinePeso,
+        href: '',
+        children: [
+            {
+                title: 'Loans',
+                icon: BanknoteIcon,
+                href: route('admin.loans'),
+            },
+            {
+                title: 'Loan Tracker',
+                icon: Navigation,
+                href: route('admin.loan-tracker'),
             },
         ],
     },

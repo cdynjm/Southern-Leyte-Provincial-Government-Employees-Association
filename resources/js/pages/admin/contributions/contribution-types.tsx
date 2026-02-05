@@ -11,9 +11,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type ContributionTypes, type User } from '@/types';
+import { type BreadcrumbItem, type ContributionTypes, type FinancialAccount, type User } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { PencilIcon, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
@@ -30,15 +31,17 @@ interface ContributionTypesProps {
         user: User;
     };
     contributionTypes: ContributionTypes[];
+    financialAccount: FinancialAccount[];
 }
 
-export default function ContributionTypes({ auth, contributionTypes }: ContributionTypesProps) {
+export default function ContributionTypes({ auth, contributionTypes, financialAccount }: ContributionTypesProps) {
     const [openDialog, setOpenDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
     const createForm = useForm({
         description: '',
+        financialAccount: '',
     });
 
     const addContributionType = () => {
@@ -59,12 +62,14 @@ export default function ContributionTypes({ auth, contributionTypes }: Contribut
 
     const updateForm = useForm({
         encrypted_id: '',
+        financialAccount: '',
         description: '',
     });
 
     const editContributionType = (contributionType: ContributionTypes) => {
         updateForm.setData('encrypted_id', contributionType.encrypted_id);
         updateForm.setData('description', contributionType.description);
+        updateForm.setData('financialAccount', contributionType.financialAccountEncrypted_id);
         setOpenEditDialog(true);
     };
 
@@ -139,6 +144,23 @@ export default function ContributionTypes({ auth, contributionTypes }: Contribut
                                     required
                                 />
                             </div>
+                            <div className="mb-4 flex flex-col gap-2">
+                                <Label>Financial Account</Label>
+
+                                <Select value={createForm.data.financialAccount} onValueChange={(value) => createForm.setData('financialAccount', value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Financial Account" />
+                                    </SelectTrigger>
+
+                                    <SelectContent>
+                                        {financialAccount.map((fa) => (
+                                            <SelectItem key={fa.encrypted_id} value={fa.encrypted_id}>
+                                                {fa.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                             <DialogFooter>
                                 <DialogClose asChild>
                                     <Button variant="outline">Cancel</Button>
@@ -165,6 +187,23 @@ export default function ContributionTypes({ auth, contributionTypes }: Contribut
                                     placeholder="Enter Description"
                                     required
                                 />
+                            </div>
+                            <div className="mb-4 flex flex-col gap-2">
+                                <Label>Financial Account</Label>
+
+                                <Select value={updateForm.data.financialAccount} onValueChange={(value) => updateForm.setData('financialAccount', value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Financial Account" />
+                                    </SelectTrigger>
+
+                                    <SelectContent>
+                                        {financialAccount.map((fa) => (
+                                            <SelectItem key={fa.encrypted_id} value={fa.encrypted_id}>
+                                                {fa.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <DialogFooter>
                                 <DialogClose asChild>
@@ -204,6 +243,7 @@ export default function ContributionTypes({ auth, contributionTypes }: Contribut
                         <TableRow className="">
                             <TableHead className="w-[50px] text-center">#</TableHead>
                             <TableHead className="text-start text-nowrap">Description</TableHead>
+                            <TableHead className="text-start text-nowrap">Financial Account</TableHead>
                             <TableHead className="w-[200px] text-center text-nowrap">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -219,6 +259,7 @@ export default function ContributionTypes({ auth, contributionTypes }: Contribut
                                 <TableRow key={ct.encrypted_id}>
                                     <TableCell className="py-[6px] text-center">{index + 1}</TableCell>
                                     <TableCell className="py-[6px] text-nowrap">{ct.description}</TableCell>
+                                    <TableCell className="py-[6px] text-nowrap">{ct.financialaccount?.name}</TableCell>
 
                                     <TableCell className="py-[6px]">
                                         <div className="flex items-center justify-center gap-2">

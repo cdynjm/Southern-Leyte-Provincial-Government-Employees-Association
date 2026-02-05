@@ -13,7 +13,7 @@ use App\Models\User;
 use App\Models\Contributions;
 use App\Models\FinancialAccount;
 
-class DashboardController extends Controller
+class LoansController extends Controller
 {
     protected $aes;
 
@@ -24,15 +24,15 @@ class DashboardController extends Controller
 
     public function index()
     {
-        $regulars = User::where('employmentType', 'regular')->count(); 
-        $joborders = User::where('employmentType', 'job order')->count(); 
+        return Inertia::render('admin/loans/loans', [
+            
+        ]);
+    }
 
-        $financialAccount = FinancialAccount::all();
-
-        return Inertia::render('admin/dashboard', [
-            'regulars' => $regulars,   
-            'joborders' => $joborders,
-            'financialAccount' => $financialAccount,
+    public function loanTracker()
+    {
+        return Inertia::render('admin/loans/loan-tracker', [
+            
         ]);
     }
 }

@@ -12,11 +12,17 @@ class ContributionTypes extends Model
     protected $table = 'contribution_types';
 
     protected $fillable = [
+        'financial_account_id',
         'description',
     ];
 
     public function contributions()
     {
         return $this->hasMany(Contribution::class, 'contribution_types_id');
+    }
+
+    public function financialaccount()
+    {
+        return $this->belongsTo(FinancialAccount::class, 'financial_account_id');
     }
 }

@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EmployeesController;
 use App\Http\Controllers\Admin\OfficesController;
 use App\Http\Controllers\Admin\ContributionsController;
+use App\Http\Controllers\Admin\FinancialAccountController;
+use App\Http\Controllers\Admin\LoansController;
 
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
 
@@ -41,7 +43,6 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/employees/search', [EmployeesController::class, 'search'])->name('admin.employees.search');
             Route::post('/employees/clear-search', [EmployeesController::class, 'clearSearch'])->name('admin.employees.clear-search');
 
-
             Route::get('/offices', [OfficesController::class, 'index'])->name('admin.offices');
             Route::post('/offices/store', [OfficesController::class, 'store'])->name('admin.office.store');
             Route::put('/offices/update', [OfficesController::class, 'update'])->name('admin.office.update');
@@ -59,6 +60,14 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/contribution-types/update', [ContributionsController::class, 'updateContributionType'])->name('admin.contribution-type.update');
             Route::delete('/contribution-types/destroy', [ContributionsController::class, 'destroyContributionType'])->name('admin.contribution-type.destroy');
         
+            Route::get('/financial-account', [FinancialAccountController::class, 'index'])->name('admin.financial-account');
+            Route::post('/financial-account/store', [FinancialAccountController::class, 'store'])->name('admin.financial-account.store');
+            Route::put('/financial-account/update', [FinancialAccountController::class, 'update'])->name('admin.financial-account.update');
+            Route::delete('/financial-account/destroy', [FinancialAccountController::class, 'destroy'])->name('admin.financial-account.destroy');
+       
+            Route::get('/loans', [LoansController::class, 'index'])->name('admin.loans');
+            Route::get('/loan-tracker', [LoansController::class, 'loanTracker'])->name('admin.loan-tracker');
+            
         });
 
     Route::prefix('employee')

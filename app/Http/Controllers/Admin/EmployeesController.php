@@ -78,6 +78,7 @@ class EmployeesController extends Controller
                 Rule::unique('users', 'email'),
             ],
             'password' => ['required', 'string'],
+            'specialAccount' => ['required', 'string', 'max:255'],
         ]);
 
         User::create([
@@ -93,6 +94,7 @@ class EmployeesController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => 'employee',
+            'specialAccount' => $validated['specialAccount'],
         ]);
     }
 
@@ -114,6 +116,8 @@ class EmployeesController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->ignore($id),
             ],
+            'specialAccount' => ['required', 'string', 'max:255'],
+
         ]);
 
         $data = [
@@ -126,7 +130,8 @@ class EmployeesController extends Controller
             'endDate' => $validated['endDate'] ?? null,
             'birthDate' => $validated['birthDate'],
             'employmentType' => $validated['employmentType'],
-            'email' => $validated['email']
+            'email' => $validated['email'],
+            'specialAccount' => $validated['specialAccount'],
         ];
 
         if (!empty($validated['password'])) {

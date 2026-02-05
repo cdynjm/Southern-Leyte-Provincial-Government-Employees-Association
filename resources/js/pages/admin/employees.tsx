@@ -13,12 +13,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Employees, type Offices, type Paginated, type User } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { Eye, EyeOff, PencilIcon, Trash2Icon, LoaderCircle, EraserIcon, SearchIcon } from 'lucide-react';
+import { EraserIcon, Eye, EyeOff, LoaderCircle, PencilIcon, SearchIcon, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -83,9 +84,32 @@ export default function Offices({ auth, employees, offices, search, office, type
         employmentType: '',
         email: '',
         password: '',
+        specialAccount: '',
     });
 
     const addEmployee = () => {
+        const { name, employeeID, position, office, contactNumber, startDate, birthDate, employmentType, email, password, specialAccount } =
+            createForm.data;
+
+        if (
+            !name ||
+            !employeeID ||
+            !position ||
+            !office ||
+            !contactNumber ||
+            !startDate ||
+            !birthDate ||
+            !employmentType ||
+            !email ||
+            !password ||
+            !specialAccount
+        ) {
+            toast('Opss, Error', {
+                description: 'Please fill in required fields before submitting.',
+            });
+            return;
+        }
+
         createForm.post(route('admin.employee.store'), {
             onSuccess: () => {
                 toast('Created', {
@@ -119,6 +143,7 @@ export default function Offices({ auth, employees, offices, search, office, type
         employmentType: '',
         email: '',
         password: '',
+        specialAccount: '',
     });
 
     const editEmployee = (employee: Employees) => {
@@ -135,11 +160,32 @@ export default function Offices({ auth, employees, offices, search, office, type
             employmentType: String(employee.employmentType),
             email: String(employee.email),
             password: '',
+            specialAccount: String(employee.specialAccount),
         });
         setOpenEditDialog(true);
     };
 
     const updateEmployee = () => {
+        const { name, employeeID, position, office, contactNumber, startDate, birthDate, employmentType, email, specialAccount } = updateForm.data;
+
+        if (
+            !name ||
+            !employeeID ||
+            !position ||
+            !office ||
+            !contactNumber ||
+            !startDate ||
+            !birthDate ||
+            !employmentType ||
+            !email ||
+            !specialAccount
+        ) {
+            toast('Opss, Error', {
+                description: 'Please fill in required fields before submitting.',
+            });
+            return;
+        }
+
         updateForm.put(route('admin.employee.update'), {
             onSuccess: () => {
                 toast('Updated', {
@@ -192,6 +238,10 @@ export default function Offices({ auth, employees, offices, search, office, type
             },
         });
     };
+
+    const pinnedEmployees = employees.data.filter((emp) => emp.specialAccount && emp.specialAccount !== 'No');
+
+    const normalEmployees = employees.data.filter((emp) => !emp.specialAccount || emp.specialAccount === 'No');
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
@@ -350,6 +400,43 @@ export default function Offices({ auth, employees, offices, search, office, type
                                             </button>
                                         </div>
                                     </div>
+                                    <div className="flex flex-col gap-2 pt-2">
+                                        <Label className="font-medium">Special Account?</Label>
+
+                                        <RadioGroup
+                                            value={createForm.data.specialAccount}
+                                            onValueChange={(value) => createForm.setData('specialAccount', value)}
+                                            className="flex flex-col gap-2"
+                                        >
+                                            {/* No / None Option */}
+                                            <div className="flex items-center gap-2">
+                                                <RadioGroupItem value="No" id="special-account-none" />
+                                                <Label htmlFor="special-account-none" className="cursor-pointer">
+                                                    No
+                                                </Label>
+                                            </div>
+
+                                            {/* If Yes label */}
+                                            <div className="ml-6 text-sm text-gray-500">If Yes, specify type:</div>
+
+                                            {/* Yes options */}
+                                            <div className="ml-6 flex items-center gap-4">
+                                                <div className="flex items-center gap-2">
+                                                    <RadioGroupItem value="Loan Encoder" id="special-account-loan-encoder" />
+                                                    <Label htmlFor="special-account-loan-encoder" className="cursor-pointer">
+                                                        Loan Encoder
+                                                    </Label>
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    <RadioGroupItem value="Loan Officer" id="special-account-loan-officer" />
+                                                    <Label htmlFor="special-account-loan-officer" className="cursor-pointer">
+                                                        Loan Officer
+                                                    </Label>
+                                                </div>
+                                            </div>
+                                        </RadioGroup>
+                                    </div>
                                 </div>
                             </div>
 
@@ -504,6 +591,43 @@ export default function Offices({ auth, employees, offices, search, office, type
                                             </button>
                                         </div>
                                     </div>
+                                    <div className="flex flex-col gap-2 pt-2">
+                                        <Label className="font-medium">Special Account?</Label>
+
+                                        <RadioGroup
+                                            value={updateForm.data.specialAccount}
+                                            onValueChange={(value) => updateForm.setData('specialAccount', value)}
+                                            className="flex flex-col gap-2"
+                                        >
+                                            {/* No / None Option */}
+                                            <div className="flex items-center gap-2">
+                                                <RadioGroupItem value="No" id="special-account-none" />
+                                                <Label htmlFor="special-account-none" className="cursor-pointer">
+                                                    No
+                                                </Label>
+                                            </div>
+
+                                            {/* If Yes label */}
+                                            <div className="ml-6 text-sm text-gray-500">If Yes, specify type:</div>
+
+                                            {/* Yes options */}
+                                            <div className="ml-6 flex items-center gap-4">
+                                                <div className="flex items-center gap-2">
+                                                    <RadioGroupItem value="Loan Encoder" id="special-account-loan-encoder" />
+                                                    <Label htmlFor="special-account-loan-encoder" className="cursor-pointer">
+                                                        Loan Encoder
+                                                    </Label>
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    <RadioGroupItem value="Loan Officer" id="special-account-loan-officer" />
+                                                    <Label htmlFor="special-account-loan-officer" className="cursor-pointer">
+                                                        Loan Officer
+                                                    </Label>
+                                                </div>
+                                            </div>
+                                        </RadioGroup>
+                                    </div>
                                 </div>
                             </div>
 
@@ -611,44 +735,88 @@ export default function Offices({ auth, employees, offices, search, office, type
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            employees.data.map((emp, index) => (
-                                <TableRow key={emp.encrypted_id}>
-                                    <TableCell className="py-[6px] text-center">
-                                        {index + 1 + (employees.current_page - 1) * employees.per_page}
-                                    </TableCell>
-                                    <TableCell className="py-[6px] text-nowrap">
-                                        <div>{emp.name}</div>
-                                        <small>{emp.employeeID}</small>
-                                    </TableCell>
-                                    <TableCell className="py-[6px] text-center text-nowrap">{emp.office?.officeName}</TableCell>
-                                    <TableCell className="py-[6px] text-center font-bold text-nowrap">
-                                        {emp.birthDate ? <FormattedDate date={emp.birthDate} variant="age" /> : '-'}
-                                    </TableCell>
-                                    <TableCell className="py-[6px] text-center text-nowrap">
-                                        <FormattedDate date={emp.startDate} variant="date" /> <span className="mx-2">|</span>
-                                        {emp.endDate ? <FormattedDate date={emp.endDate} variant="date" /> : '-'}
-                                    </TableCell>
+                            <>
+                                {/* 🔒 Pinned Accounts */}
+                                {pinnedEmployees.map((emp) => (
+                                    <TableRow key={emp.encrypted_id} className="bg-yellow-50">
+                                        <TableCell className="py-[6px] text-center font-semibold">📌</TableCell>
 
-                                    <TableCell className="py-[6px] text-center text-nowrap">
-                                        {emp.employmentType === 'regular' ? 'Regular' : 'Job Order'}
-                                    </TableCell>
-                                    <TableCell className="py-[6px]">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <Button variant="secondary" className="text-[11px]" size="icon" onClick={() => editEmployee(emp)}>
-                                                <PencilIcon className="text-gray-600" />
-                                            </Button>
-                                            <Button
-                                                variant="secondary"
-                                                className="text-[11px]"
-                                                size="icon"
-                                                onClick={() => deleteEmployee(emp.encrypted_id)}
-                                            >
-                                                <Trash2Icon className="text-red-600" />
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))
+                                        <TableCell className="py-[6px] text-nowrap">
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                {emp.name}
+                                                <span className="rounded bg-green-200 px-2 py-[1px] text-[10px]">{emp.specialAccount}</span>
+                                            </div>
+                                            <small>{emp.employeeID}</small>
+                                        </TableCell>
+
+                                        <TableCell className="py-[6px] text-center text-nowrap">{emp.office?.officeName}</TableCell>
+
+                                        <TableCell className="py-[6px] text-center font-bold text-nowrap">
+                                            {emp.birthDate ? <FormattedDate date={emp.birthDate} variant="age" /> : '-'}
+                                        </TableCell>
+
+                                        <TableCell className="py-[6px] text-center text-nowrap">
+                                            <FormattedDate date={emp.startDate} variant="date" /> <span className="mx-2">|</span>
+                                            {emp.endDate ? <FormattedDate date={emp.endDate} variant="date" /> : '-'}
+                                        </TableCell>
+
+                                        <TableCell className="py-[6px] text-center text-nowrap">
+                                            {emp.employmentType === 'regular' ? 'Regular' : 'Job Order'}
+                                        </TableCell>
+
+                                        <TableCell className="py-[6px]">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <Button variant="secondary" size="icon" onClick={() => editEmployee(emp)}>
+                                                    <PencilIcon className="text-gray-600" />
+                                                </Button>
+                                                <Button variant="secondary" size="icon" onClick={() => deleteEmployee(emp.encrypted_id)}>
+                                                    <Trash2Icon className="text-red-600" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+
+                                {/* 👥 Normal Accounts */}
+                                {normalEmployees.map((emp, index) => (
+                                    <TableRow key={emp.encrypted_id}>
+                                        <TableCell className="py-[6px] text-center">
+                                            {index + 1 + (employees.current_page - 1) * employees.per_page}
+                                        </TableCell>
+
+                                        <TableCell className="py-[6px] text-nowrap">
+                                            <div>{emp.name}</div>
+                                            <small>{emp.employeeID}</small>
+                                        </TableCell>
+
+                                        <TableCell className="py-[6px] text-center text-nowrap">{emp.office?.officeName}</TableCell>
+
+                                        <TableCell className="py-[6px] text-center font-bold text-nowrap">
+                                            {emp.birthDate ? <FormattedDate date={emp.birthDate} variant="age" /> : '-'}
+                                        </TableCell>
+
+                                        <TableCell className="py-[6px] text-center text-nowrap">
+                                            <FormattedDate date={emp.startDate} variant="date" /> <span className="mx-2">|</span>
+                                            {emp.endDate ? <FormattedDate date={emp.endDate} variant="date" /> : '-'}
+                                        </TableCell>
+
+                                        <TableCell className="py-[6px] text-center text-nowrap">
+                                            {emp.employmentType === 'regular' ? 'Regular' : 'Job Order'}
+                                        </TableCell>
+
+                                        <TableCell className="py-[6px]">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <Button variant="secondary" size="icon" onClick={() => editEmployee(emp)}>
+                                                    <PencilIcon className="text-gray-600" />
+                                                </Button>
+                                                <Button variant="secondary" size="icon" onClick={() => deleteEmployee(emp.encrypted_id)}>
+                                                    <Trash2Icon className="text-red-600" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </>
                         )}
                     </TableBody>
                 </Table>

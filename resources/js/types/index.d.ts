@@ -61,6 +61,7 @@ export interface User {
     email: string;
     totalContribution: number;
     role: string;
+    specialAccount: string;
     email: string;
     avatar?: string;
     email_verified_at: string | null;
@@ -86,6 +87,7 @@ export interface Employees {
     email: string;
     totalContribution: number;
     role: string;
+    specialAccount: string;
     created_at: string;
     contributions?: Contributions[];
 }
@@ -107,6 +109,8 @@ export interface Contributions {
 export interface ContributionTypes {
     id: number;
     encrypted_id: string;
+    financialAccountEncrypted_id: string;
+    financialaccount?: FinancialAccount;
     description: string;
     contributions?: Contributions[];
 }
@@ -116,6 +120,15 @@ export interface Offices {
     user?: User[];
     encrypted_id: string;
     officeName: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface FinancialAccount {
+    id: number;
+    encrypted_id: string;
+    name: string;
+    balance: number;
     created_at: string;
     updated_at: string;
 }

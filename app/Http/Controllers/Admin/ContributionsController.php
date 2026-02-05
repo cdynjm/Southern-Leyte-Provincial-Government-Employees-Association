@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\Contributions;
 use App\Models\ContributionTypes;
 use App\Models\Offices;
+use App\Models\FinancialAccount;
 
 class ContributionsController extends Controller
 {
@@ -86,6 +87,8 @@ class ContributionsController extends Controller
             ]);
         }
 
+        $type = ContributionTypes::where('id', $contributionTypeId)->value('financial_account_id');
+        FinancialAccount::where('id', $type)->increment('balance', $request->amount);
 
         User::where('id', $id)->increment('totalContribution', $request->amount);
     }
@@ -145,35 +148,46 @@ class ContributionsController extends Controller
 
     public function contributionTypes()
     {
-        $contributionTypes = ContributionTypes::orderBy('description', 'asc')->get()->map(function ($contributionType) {
+        $contributionTypes = ContributionTypes::with('financialaccount')->orderBy('description', 'asc')->get()->map(function ($contributionType) {
             $contributionType->encrypted_id = $this->aes->encrypt($contributionType->id);
+            $contributionType->financialAccountEncrypted_id = $this->aes->encrypt($contributionType->financial_account_id);
             return $contributionType;
         });
+
+        $financialAccount = FinancialAccount::orderBy('name', 'asc')->get()->map(function ($financialAccount) {
+            $financialAccount->encrypted_id = $this->aes->encrypt($financialAccount->id);
+            return $financialAccount;
+        });
+
         return Inertia::render('admin/contributions/contribution-types', [
             'contributionTypes' => $contributionTypes,
+            'financialAccount' => $financialAccount,
         ]);
     }
 
     public function storeContributionType(Request $request)
     {
+        $financialAccountId = $this->aes->decrypt($request->financialAccount);
         ContributionTypes::create([
             'description' => ucwords($request->description),
+            'financial_account_id' => $financialAccountId,
         ]);
     }
 
     public function updateContributionType(Request $request)
     {
         $id = $this->aes->decrypt($request->encrypted_id);
+        $financialAccountId = $this->aes->decrypt($request->financialAccount);
 
         ContributionTypes::where('id', $id)->update([
-            'description' => ucwords($request->description)
+            'description' => ucwords($request->description),
+            'financial_account_id' => $financialAccountId,
         ]);
     }
 
     public function destroyContributionType(Request $request)
     {
         $id = $this->aes->decrypt($request->encrypted_id);
-
         ContributionTypes::where('id', $id)->delete();
     }
 
