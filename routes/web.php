@@ -76,6 +76,9 @@ Route::middleware(['auth'])->group(function () {
         ->group(function () {
 
             Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('employee.dashboard');
+            Route::post('/employees/search', [EmployeeDashboardController::class, 'search'])->name('employee.employees.search');
+            Route::post('/employees/clear-search', [EmployeeDashboardController::class, 'clearSearch'])->name('employee.employees.clear-search');
+
 
         });
 });

@@ -69,6 +69,7 @@ export interface User {
     updated_at: string;
     [key: string]: unknown;
     contributions: Contributions[];
+    loantracker:? LoanTracker;
 } 
 
 export interface Employees {
@@ -90,6 +91,7 @@ export interface Employees {
     specialAccount: string;
     created_at: string;
     contributions?: Contributions[];
+    loantracker:? LoanTracker;
 }
 
 export interface Contributions {

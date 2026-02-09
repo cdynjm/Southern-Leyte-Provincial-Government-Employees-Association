@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Http\Controllers\Security\AESCipher;
+use Session;
 
 use App\Models\User;
 use App\Models\Contributions;
@@ -23,39 +24,31 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
-       $employee = User::findOrFail(auth()->user()->id);
+       $search = session('search');
 
-        $contributionTypes = ContributionTypes::orderBy('description', 'asc')->get();
-
-        $contributionsByType = $contributionTypes->map(function ($type) use ($employee, $request) {
-
-            $pageKey = 'page_' . $type->id;
-
-            $paginated = $employee->contributions()
-                ->where('contribution_types_id', $type->id)
-                ->with('contributiontype')
-                ->orderBy('year', 'desc')
-                ->orderBy('month', 'desc')
-                ->paginate(
-                    12,
-                    ['*'],
-                    $pageKey
-                )
-                ->through(function ($contribution) {
-                    $contribution->encrypted_id = $this->aes->encrypt($contribution->id);
-                    return $contribution;
-                })
-                ->withQueryString();
-
-            return [
-                'type' => $type,
-                'contributions' => $paginated,
-            ];
+        $employees = User::with('office')->where('role', 'employee')
+            ->when(filled($search), function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+        ->orderBy('name', 'asc')
+        ->paginate(10)->through(function ($employee) {
+            $employee->encrypted_id = $this->aes->encrypt($employee->id);
+            return $employee;
         });
 
         return Inertia::render('employee/dashboard', [
-            'employee' => $employee,
-            'contributionsByType' => $contributionsByType,
+            'employees' => $employees,
+            'search' => $search,
         ]);
+    }
+
+    public function search(Request $request)
+    {
+        Session::put('search', $request->search);
+    }
+
+    public function clearSearch()
+    {
+        Session::forget('search');
     }
 }
