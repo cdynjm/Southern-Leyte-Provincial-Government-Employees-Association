@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { type Employees, type Paginated } from '@/types';
-import { useForm } from '@inertiajs/react';
-import { EraserIcon, LoaderCircle, SearchIcon } from 'lucide-react';
+import { Link, useForm } from '@inertiajs/react';
+import { EraserIcon, KeyboardIcon, LoaderCircle, SearchIcon } from 'lucide-react';
 
 interface LoanEncoderProps {
     employees: Paginated<Employees>;
@@ -35,7 +35,7 @@ export default function LoanEncoder({ employees, search }: LoanEncoderProps) {
 
     return (
         <>
-            <div className="grid grid-cols-1 items-center gap-3 mb-4">
+            <div className="mb-4 grid grid-cols-1 items-center gap-3">
                 <div className="flex items-center gap-2">
                     <Button
                         size="icon"
@@ -117,7 +117,11 @@ export default function LoanEncoder({ employees, search }: LoanEncoderProps) {
 
                                             <TableCell className="py-[6px]">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    
+                                                    <Link href={route('employee.encode-employee-loan', { encrypted_id: emp.encrypted_id })}>
+                                                        <Button variant="secondary" size="sm" className="text-[13px]">
+                                                            <KeyboardIcon className='text-blue-600' /> Encode Loan
+                                                        </Button>
+                                                    </Link>
                                                 </div>
                                             </TableCell>
                                         </TableRow>

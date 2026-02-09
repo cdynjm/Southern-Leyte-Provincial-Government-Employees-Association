@@ -41,7 +41,7 @@ class EmployeesController extends Controller
                 $query->where('employmentType', $type);
             })
         ->orderBy('name', 'asc')
-        ->paginate(10)->through(function ($employee) {
+        ->paginate(20)->through(function ($employee) {
             $employee->encrypted_id = $this->aes->encrypt($employee->id);
             $employee->officeEncrypted_id = $this->aes->encrypt($employee->offices_id);
             return $employee;
