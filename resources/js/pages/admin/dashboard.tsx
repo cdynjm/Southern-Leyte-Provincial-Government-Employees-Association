@@ -59,7 +59,7 @@ export default function Dashboard({ auth, regulars, joborders, financialAccount 
                                         </div>
 
                                         <CardContent className="relative flex flex-col gap-6 p-6">
-                                            <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-4 justify-between">
                                                 <p className="text-sm text-gray-300 uppercase">{account.name}</p>
 
                                                 <div className="relative h-9 w-14 rounded-md bg-gradient-to-br from-yellow-200 via-yellow-500 to-amber-500 shadow-inner">
