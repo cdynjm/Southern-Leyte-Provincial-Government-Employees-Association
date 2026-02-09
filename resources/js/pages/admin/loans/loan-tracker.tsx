@@ -99,7 +99,7 @@ export default function LoanTracker({ auth, trackers, officers }: LoanTrackerPro
                 <div className="flex flex-col gap-3">
                     {trackersState.map((tracker, index) => (
                         <>
-                            <div key={index} className="grid grid-cols-1 gap-4 lg:grid-cols-[6fr_6fr_1fr]">
+                            <div key={index} className={trackersState.length > 1 ? 'grid grid-cols-1 gap-4 lg:grid-cols-[6fr_6fr_1fr]' : 'grid grid-cols-1 gap-4 lg:grid-cols-[6fr_6fr]'}>
                                 {/* Officer Select */}
                                 <div className="flex items-center gap-3">
                                     <div className="text-[13px] font-bold">{index + 1}</div>
@@ -133,7 +133,8 @@ export default function LoanTracker({ auth, trackers, officers }: LoanTrackerPro
                                 />
 
                                 {/* Remove Button */}
-                                <Button
+                                {trackersState.length > 1 && (
+                                    <Button
                                     type="button"
                                     variant="secondary"
                                     onClick={() => {
@@ -145,6 +146,7 @@ export default function LoanTracker({ auth, trackers, officers }: LoanTrackerPro
                                 >
                                     <Trash2 className="text-red-600" />
                                 </Button>
+                                )}
                             </div>
                         </>
                     ))}
