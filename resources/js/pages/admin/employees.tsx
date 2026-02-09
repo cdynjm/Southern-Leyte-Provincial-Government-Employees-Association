@@ -88,7 +88,7 @@ export default function Offices({ auth, employees, offices, search, office, type
     });
 
     const addEmployee = () => {
-        const { name, employeeID, position, office, contactNumber, startDate, birthDate, employmentType, email, password, specialAccount } =
+        const { name, employeeID, position, office, startDate, birthDate, employmentType, email, password, specialAccount } =
             createForm.data;
 
         if (
@@ -96,7 +96,6 @@ export default function Offices({ auth, employees, offices, search, office, type
             !employeeID ||
             !position ||
             !office ||
-            !contactNumber ||
             !startDate ||
             !birthDate ||
             !employmentType ||
@@ -166,14 +165,13 @@ export default function Offices({ auth, employees, offices, search, office, type
     };
 
     const updateEmployee = () => {
-        const { name, employeeID, position, office, contactNumber, startDate, birthDate, employmentType, email, specialAccount } = updateForm.data;
+        const { name, employeeID, position, office, startDate, birthDate, employmentType, email, specialAccount } = updateForm.data;
 
         if (
             !name ||
             !employeeID ||
             !position ||
             !office ||
-            !contactNumber ||
             !startDate ||
             !birthDate ||
             !employmentType ||
