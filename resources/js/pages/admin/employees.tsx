@@ -152,7 +152,7 @@ export default function Offices({ auth, employees, offices, search, office, type
             employeeID: String(employee.employeeID),
             position: String(employee.position),
             office: String(employee.officeEncrypted_id),
-            contactNumber: String(employee.contactNumber),
+            contactNumber: employee.contactNumber == null ? '' : String(employee.contactNumber),
             startDate: String(employee.startDate),
             endDate: String(employee.endDate),
             birthDate: String(employee.birthDate),
