@@ -23,10 +23,14 @@ class EncodeEmployeeLoanController extends Controller
         $this->aes = $aes;
     }
 
-    public function index(Request $requet)
+    public function index(Request $request)
     {
+
+        $employee = User::where('id', $this->aes->decrypt($request->encrypted_id))->first();
+
         return Inertia::render('employee/special-account/encode-employee-loan', [
-            'encrypted_id' => $requet->encrypted_id,
+            'encrypted_id' => $request->encrypted_id,
+            'employee' => $employee,
         ]);
     }
 }

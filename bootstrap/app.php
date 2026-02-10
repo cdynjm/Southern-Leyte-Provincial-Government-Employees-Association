@@ -8,6 +8,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use App\Http\Middleware\Admin;
 use App\Http\Middleware\Employee;
+use App\Http\Middleware\LoanEncoder;
+use App\Http\Middleware\LoanOfficer;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => Admin::class,
             'employee' => Employee::class,
+            'loan.encoder' => LoanEncoder::class,
+            'loan.officer' => LoanOfficer::class,
         ]);
     })
     ->withMiddleware(function (Middleware $middleware) {
