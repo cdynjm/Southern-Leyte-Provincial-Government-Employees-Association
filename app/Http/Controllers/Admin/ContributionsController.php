@@ -43,7 +43,7 @@ class ContributionsController extends Controller
                 $query->where('employmentType', $type);
             })
             ->orderBy('name', 'asc')
-            ->paginate(40)
+            ->paginate(30)
             ->through(function ($employee) {
                 $employee->encrypted_id = $this->aes->encrypt($employee->id);
                 return $employee;
