@@ -27,6 +27,37 @@ export default function Dashboard({ auth, regulars, joborders, financialAccount 
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                {/* Other dashboard cards */}
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2">
+                    {/* Regulars */}
+                    <Card className="relative border bg-white shadow-none">
+                        <CardContent className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-gray-500">Regulars</p>
+                                <h2 className="mt-1 text-2xl font-bold text-gray-900">{regulars}</h2>
+                                <p className="mt-1 text-[13px] text-gray-500">Total Employees</p>
+                            </div>
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                                <Users className="h-6 w-6 text-primary" />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Job Orders */}
+                    <Card className="relative border bg-white shadow-none">
+                        <CardContent className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-gray-500">Job Orders</p>
+                                <h2 className="mt-1 text-2xl font-bold text-gray-900">{joborders}</h2>
+                                <p className="mt-1 text-[13px] text-gray-500">Total Employees</p>
+                            </div>
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600/10">
+                                <Users className="h-6 w-6 text-red-600" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+                
                 <Card className="relative overflow-hidden rounded-md border-none shadow-none">
                     <div className="pointer-events-none absolute top-1/2 left-[-100px] -translate-y-1/2 opacity-[0.07]">
                         <img src="/img/province-logo-official.png" alt="SOLEPGEA" className="w-[450px] max-w-none select-none" />
@@ -41,7 +72,7 @@ export default function Dashboard({ auth, regulars, joborders, financialAccount 
                             <CardContent>
                                 <div className="perspective flex justify-center" onClick={handleCardClick}>
                                     <Card
-                                        className={`relative w-full max-w-[400px] overflow-hidden rounded-xl bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900 p-3 text-white shadow-none transition-transform duration-1000 ${flipped ? 'rotate-y-180' : ''}`}
+                                        className={`relative w-full max-w-[450px] overflow-hidden rounded-xl bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900 p-3 text-white shadow-none transition-transform duration-1000 ${flipped ? 'rotate-y-180' : ''}`}
                                     >
                                         {/* Right-side overlayed SOLEPGEA Logo */}
                                         <div className="pointer-events-none absolute top-1/2 right-[-50px] -translate-y-1/2 overflow-hidden">
@@ -109,36 +140,7 @@ export default function Dashboard({ auth, regulars, joborders, financialAccount 
                     </div>
                 </Card>
 
-                {/* Other dashboard cards */}
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2">
-                    {/* Regulars */}
-                    <Card className="relative border bg-white shadow-none">
-                        <CardContent className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-500">Regulars</p>
-                                <h2 className="mt-1 text-2xl font-bold text-gray-900">{regulars}</h2>
-                                <p className="mt-1 text-[13px] text-gray-500">Total Employees</p>
-                            </div>
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                                <Users className="h-6 w-6 text-primary" />
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Job Orders */}
-                    <Card className="relative border bg-white shadow-none">
-                        <CardContent className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-500">Job Orders</p>
-                                <h2 className="mt-1 text-2xl font-bold text-gray-900">{joborders}</h2>
-                                <p className="mt-1 text-[13px] text-gray-500">Total Employees</p>
-                            </div>
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600/10">
-                                <Users className="h-6 w-6 text-red-600" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                
             </div>
         </AppLayout>
     );

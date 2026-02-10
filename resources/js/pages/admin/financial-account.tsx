@@ -249,6 +249,14 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
                                         </Select>
                                     </div>
 
+                                    {/* Display balance if an account is selected */}
+                                    {updateForm.data.deduct_from_account && (
+                                        <p className="mt-1 text-sm text-gray-500 flex items-center gap-2">
+                                            <small>Available Balance:</small>
+                                            <span className='text-[16px] font-bold text-green-600'>₱ {financialAccount.find((fa) => fa.encrypted_id === updateForm.data.deduct_from_account)?.balance ?? 0}</span>
+                                        </p>
+                                    )}
+
                                     {/* Deduction amount */}
                                     <div className="flex flex-col gap-2">
                                         <Label>Deduction Amount</Label>
