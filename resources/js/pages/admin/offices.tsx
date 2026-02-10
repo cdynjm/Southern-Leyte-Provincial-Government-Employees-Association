@@ -1,3 +1,4 @@
+import { SkeletonCard } from '@/components/skeleton-card';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -11,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SkeletonDelay } from '@/components/ui/skeleton-delay';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Offices, type User } from '@/types';
@@ -133,135 +135,137 @@ export default function Employees({ auth, offices }: OfficesProps) {
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="Offices" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex flex-col gap-1">
-                        <Label className="text-sm font-bold text-gray-500">List of Offices</Label>
+                <SkeletonDelay skeleton={<SkeletonCard />}>
+                    <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-1">
+                            <Label className="text-sm font-bold text-gray-500">List of Offices</Label>
+                        </div>
+
+                        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+                            <DialogTrigger asChild>
+                                <Button size="sm" className="text-[12px]">
+                                    + Add
+                                </Button>
+                            </DialogTrigger>
+
+                            <DialogContent className="sm:max-w-[500px]">
+                                <DialogHeader>
+                                    <DialogTitle>Add New Office</DialogTitle>
+                                    <DialogDescription>Fill in the details below to add a new office.</DialogDescription>
+                                </DialogHeader>
+
+                                <div className="flex flex-col gap-2">
+                                    <Label>Office Name</Label>
+                                    <Input
+                                        value={createForm.data.officeName}
+                                        onChange={(e) => createForm.setData('officeName', e.target.value)}
+                                        placeholder="Enter Office Name"
+                                        required
+                                    />
+                                </div>
+
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button variant="outline">Cancel</Button>
+                                    </DialogClose>
+
+                                    <Button onClick={addOffice} disabled={createForm.processing}>
+                                        {createForm.processing ? 'Saving...' : 'Save'}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+
+                        <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+                            <DialogContent className="sm:max-w-[500px]">
+                                <DialogHeader>
+                                    <DialogTitle>Edit Office</DialogTitle>
+                                    <DialogDescription>Update the office details below.</DialogDescription>
+                                </DialogHeader>
+
+                                <div className="flex flex-col gap-2">
+                                    <Label>Office Name</Label>
+                                    <Input
+                                        value={updateForm.data.officeName}
+                                        onChange={(e) => updateForm.setData('officeName', e.target.value)}
+                                        placeholder="Update Office Name"
+                                        required
+                                    />
+                                </div>
+
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button variant="outline">Cancel</Button>
+                                    </DialogClose>
+
+                                    <Button onClick={updateOffice} disabled={updateForm.processing}>
+                                        {updateForm.processing ? 'Saving...' : 'Save'}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+
+                        <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+                            <DialogContent className="sm:max-w-lg">
+                                <DialogHeader>
+                                    <DialogTitle>Delete Office</DialogTitle>
+                                    <DialogDescription>Are you sure you want to delete this office? This action cannot be undone.</DialogDescription>
+                                </DialogHeader>
+
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button variant="outline">Cancel</Button>
+                                    </DialogClose>
+
+                                    <Button variant="destructive" onClick={removeOffice} disabled={deleteForm.processing}>
+                                        {deleteForm.processing ? 'Deleting...' : 'Delete'}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
                     </div>
-
-                    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-                        <DialogTrigger asChild>
-                            <Button size="sm" className="text-[12px]">
-                                + Add
-                            </Button>
-                        </DialogTrigger>
-
-                        <DialogContent className="sm:max-w-[500px]">
-                            <DialogHeader>
-                                <DialogTitle>Add New Office</DialogTitle>
-                                <DialogDescription>Fill in the details below to add a new office.</DialogDescription>
-                            </DialogHeader>
-
-                            <div className="flex flex-col gap-2">
-                                <Label>Office Name</Label>
-                                <Input
-                                    value={createForm.data.officeName}
-                                    onChange={(e) => createForm.setData('officeName', e.target.value)}
-                                    placeholder="Enter Office Name"
-                                    required
-                                />
-                            </div>
-
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="outline">Cancel</Button>
-                                </DialogClose>
-
-                                <Button onClick={addOffice} disabled={createForm.processing}>
-                                    {createForm.processing ? 'Saving...' : 'Save'}
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-
-                    <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
-                        <DialogContent className="sm:max-w-[500px]">
-                            <DialogHeader>
-                                <DialogTitle>Edit Office</DialogTitle>
-                                <DialogDescription>Update the office details below.</DialogDescription>
-                            </DialogHeader>
-
-                            <div className="flex flex-col gap-2">
-                                <Label>Office Name</Label>
-                                <Input
-                                    value={updateForm.data.officeName}
-                                    onChange={(e) => updateForm.setData('officeName', e.target.value)}
-                                    placeholder="Update Office Name"
-                                    required
-                                />
-                            </div>
-
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="outline">Cancel</Button>
-                                </DialogClose>
-
-                                <Button onClick={updateOffice} disabled={updateForm.processing}>
-                                    {updateForm.processing ? 'Saving...' : 'Save'}
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-
-                    <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-                        <DialogContent className="sm:max-w-lg">
-                            <DialogHeader>
-                                <DialogTitle>Delete Office</DialogTitle>
-                                <DialogDescription>Are you sure you want to delete this office? This action cannot be undone.</DialogDescription>
-                            </DialogHeader>
-
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="outline">Cancel</Button>
-                                </DialogClose>
-
-                                <Button variant="destructive" onClick={removeOffice} disabled={deleteForm.processing}>
-                                    {deleteForm.processing ? 'Deleting...' : 'Delete'}
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-                <Table>
-                    <TableHeader>
-                        <TableRow className="">
-                            <TableHead className="w-[50px] text-center">#</TableHead>
-                            <TableHead className="text-start text-nowrap">Office Name</TableHead>
-                            <TableHead className="w-[200px] text-center text-nowrap">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {offices.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={10} className="text-center text-[13px] text-gray-500">
-                                    No Data Found
-                                </TableCell>
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="">
+                                <TableHead className="w-[50px] text-center">#</TableHead>
+                                <TableHead className="text-start text-nowrap">Office Name</TableHead>
+                                <TableHead className="w-[200px] text-center text-nowrap">Actions</TableHead>
                             </TableRow>
-                        ) : (
-                            offices.map((of, index) => (
-                                <TableRow key={of.encrypted_id}>
-                                    <TableCell className="py-[6px] text-center">{index + 1}</TableCell>
-
-                                    <TableCell className="py-[6px] text-start text-nowrap">{of.officeName}</TableCell>
-                                    <TableCell className="py-[6px]">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <Button variant="secondary" className="text-[11px]" size="icon" onClick={() => editOffice(of)}>
-                                                <PencilIcon className="text-gray-600" />
-                                            </Button>
-                                            <Button
-                                                variant="secondary"
-                                                className="text-[11px]"
-                                                size="icon"
-                                                onClick={() => deleteOffice(of.encrypted_id)}
-                                            >
-                                                <Trash2Icon className="text-red-600" />
-                                            </Button>
-                                        </div>
+                        </TableHeader>
+                        <TableBody>
+                            {offices.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={10} className="text-center text-[13px] text-gray-500">
+                                        No Data Found
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                            ) : (
+                                offices.map((of, index) => (
+                                    <TableRow key={of.encrypted_id}>
+                                        <TableCell className="py-[6px] text-center">{index + 1}</TableCell>
+
+                                        <TableCell className="py-[6px] text-start text-nowrap">{of.officeName}</TableCell>
+                                        <TableCell className="py-[6px]">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <Button variant="secondary" className="text-[11px]" size="icon" onClick={() => editOffice(of)}>
+                                                    <PencilIcon className="text-gray-600" />
+                                                </Button>
+                                                <Button
+                                                    variant="secondary"
+                                                    className="text-[11px]"
+                                                    size="icon"
+                                                    onClick={() => deleteOffice(of.encrypted_id)}
+                                                >
+                                                    <Trash2Icon className="text-red-600" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </SkeletonDelay>
             </div>
         </AppLayout>
     );

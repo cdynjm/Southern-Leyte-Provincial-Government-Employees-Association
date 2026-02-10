@@ -9,6 +9,8 @@ import { Head, router } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { SkeletonCard } from '@/components/skeleton-card';
+import { SkeletonDelay } from '@/components/ui/skeleton-delay';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -92,6 +94,7 @@ export default function LoanTracker({ auth, trackers, officers }: LoanTrackerPro
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="Loan Tracker" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                <SkeletonDelay skeleton={<SkeletonCard />}>
                 <div className="flex flex-col gap-1">
                     <Label className="text-sm font-bold text-gray-500">Loan Tracker</Label>
                 </div>
@@ -162,6 +165,7 @@ export default function LoanTracker({ auth, trackers, officers }: LoanTrackerPro
                         </Button>
                     </div>
                 </div>
+                </SkeletonDelay>
             </div>
         </AppLayout>
     );
