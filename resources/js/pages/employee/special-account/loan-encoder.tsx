@@ -1,5 +1,6 @@
 import FormattedDate from '@/components/formatted-date';
 import Pagination from '@/components/pagination';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,7 +8,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { type Employees, type LoanAmortization, type Paginated } from '@/types';
 import { Link, useForm } from '@inertiajs/react';
 import { CircleMinus, EraserIcon, EyeIcon, KeyboardIcon, LoaderCircle, SearchIcon, Send } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 interface LoanEncoderProps {
     employees: Paginated<Employees>;
     search: string;
@@ -154,6 +154,7 @@ export default function LoanEncoder({ employees, search, borrowers }: LoanEncode
                         <TableHead className="text-center text-nowrap">Amount Borrowed</TableHead>
                         <TableHead className="text-center text-nowrap">Net Proceeds</TableHead>
                         <TableHead className="text-center text-nowrap">Monthly Installment</TableHead>
+                        <TableHead className="text-center text-nowrap">Date</TableHead>
                         <TableHead className="text-center text-nowrap">Status</TableHead>
                         <TableHead className="w-[200px] text-center text-nowrap">Actions</TableHead>
                     </TableRow>
@@ -181,14 +182,21 @@ export default function LoanEncoder({ employees, search, borrowers }: LoanEncode
                                     <TableCell className="py-[6px] text-center text-nowrap">
                                         <div className="font-bold">
                                             ₱
-                                        {Number(bor.borrowed).toLocaleString('en-PH', {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2,
-                                        })}
-                                        </div> <small>with a <span className='font-bold text-green-600'>{bor.rateInMonth}%</span> rate in month for <span className='font-bold'>{bor.periodInMonths}</span> month/s</small>
+                                            {Number(bor.borrowed).toLocaleString('en-PH', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2,
+                                            })}
+                                        </div>{' '}
+                                        <small>
+                                            with a{' '}
+                                            <span className="font-bold text-green-600">
+                                                {Number(bor.rateInMonth) % 1 === 0 ? Number(bor.rateInMonth) : Number(bor.rateInMonth)}%
+                                            </span>{' '}
+                                            rate in month for <span className="font-bold">{bor.periodInMonths}</span> month/s
+                                        </small>
                                     </TableCell>
 
-                                    <TableCell className="py-[6px] text-center font-bold text-blue-600 text-nowrap">
+                                    <TableCell className="py-[6px] text-center font-bold text-nowrap text-blue-600">
                                         ₱
                                         {Number(bor.netProceeds).toLocaleString('en-PH', {
                                             minimumFractionDigits: 2,
@@ -204,7 +212,11 @@ export default function LoanEncoder({ employees, search, borrowers }: LoanEncode
                                         })}
                                     </TableCell>
 
-                                     <TableCell className="py-[6px] text-center font-bold text-nowrap">
+                                    <TableCell className="py-[6px] text-center font-normal text-[13px] text-nowrap">
+                                        <FormattedDate date={bor.date} variant="date" />
+                                    </TableCell>
+
+                                    <TableCell className="py-[6px] text-center font-bold text-nowrap">
                                         <Badge variant="destructive">{bor.status}</Badge>
                                     </TableCell>
 
@@ -217,8 +229,8 @@ export default function LoanEncoder({ employees, search, borrowers }: LoanEncode
                                             </Link>
 
                                             <Button variant="secondary" size="sm" className="text-[13px]">
-                                                    <Send />
-                                                </Button>
+                                                <Send />
+                                            </Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
