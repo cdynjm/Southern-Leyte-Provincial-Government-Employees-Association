@@ -145,6 +145,35 @@ export interface LoanTracker {
     updated_at: string;
     user?: User;
 }
+
+export interface LoanAmortization {
+    id: number;
+    encrypted_id: string;
+    user?: User;
+    loaninstallment?: LoanInstallment[];
+    tracker: string;
+    borrowed: number;
+    processingFee: number;
+    netProceeds: number;
+    periodInMonths: number;
+    rateInMonth: number;
+    monthlyInstallment: number;
+    date: string;
+    status: string;
+}
+
+export interface LoanInstallment {
+    id: number;
+    encrypted_id: string;
+    user?: User;
+    loanamortization?: LoanAmortization;
+    date: string;
+    installment: number;
+    interest: number;
+    principal: number;
+    endingBalance: number;
+    status: string;
+}
 export interface ContributionGroup {
     type: ContributionTypes;
     contributions: Paginated<Contributions>;

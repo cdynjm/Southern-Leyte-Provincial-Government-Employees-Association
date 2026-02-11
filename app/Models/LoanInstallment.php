@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class LoanInstallment extends Model
+{
+    use SoftDeletes;
+
+    protected $table = 'loan_installment';
+
+    protected $fillable = [
+       'users_id',
+       'loan_amortization_id',
+       'date',
+       'installment',
+       'interest',
+       'principal',
+       'endingBalance',
+       'status'
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'users_id');
+    }
+    
+    public function loanamortization()
+    {
+        return $this->belongsTo(LoanAmortization::class, 'loan_amortization_id');
+    }
+}

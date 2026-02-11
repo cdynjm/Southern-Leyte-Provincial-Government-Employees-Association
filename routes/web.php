@@ -82,8 +82,9 @@ Route::middleware(['auth'])->group(function () {
                             
                     Route::post('/employees/search', [EmployeeDashboardController::class, 'search'])->name('employee.employees.search');
                     Route::post('/employees/clear-search', [EmployeeDashboardController::class, 'clearSearch'])->name('employee.employees.clear-search');
+                    
                     Route::get('/encode-employee-loan/{encrypted_id}', [EncodeEmployeeLoanController::class, 'index'])->name('employee.encode-employee-loan');
-                
+                    Route::post('/encode-employee-loan', [EncodeEmployeeLoanController::class, 'store'])->name('employee.encode-employee-loan.store');
                 });
 
                 Route::middleware('loan.officer')->group(function () {

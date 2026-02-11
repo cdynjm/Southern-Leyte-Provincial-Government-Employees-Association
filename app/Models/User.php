@@ -63,6 +63,16 @@ class User extends Authenticatable
         return $this->hasMany(Contributions::class, 'users_id');
     }
 
+    public function loanamortization()
+    {
+        return $this->hasMany(LoanAmortization::class, 'users_id');
+    }
+
+    public function loaninstallment()
+    {
+        return $this->hasMany(LoanInstallment::class, 'users_id');
+    }
+
     public function office()
     {
         return $this->belongsTo(Offices::class, 'offices_id');
