@@ -139,6 +139,7 @@ export interface LoanTracker {
     id: number;
     encrypted_id: string;
     users_id: number;
+    tracker: string;
     description: string;
     created_at: string;
     updated_at: string;

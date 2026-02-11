@@ -261,9 +261,9 @@ export default function Contributions({ auth, employees, search, office, contrib
                                         </TableCell>
                                         <TableCell className="py-[6px] text-nowrap">
                                             <Link href={route('admin.contributions.view', { encrypted_id: emp.encrypted_id })}>
-                                                <div>{emp.name}</div>
+                                                <div className='font-bold'>{emp.name}</div>
                                                 <small>
-                                                    {emp.office?.officeName} | {emp.employeeID}
+                                                    {emp.office?.officeName} | <span className='text-gray-500'>{emp.position}</span>
                                                 </small>
                                             </Link>
                                         </TableCell>

@@ -96,8 +96,8 @@ export default function LoanEncoder({ employees, search }: LoanEncoderProps) {
                                             </TableCell>
 
                                             <TableCell className="py-[6px] text-nowrap">
-                                                <div>{emp.name}</div>
-                                                <small>{emp.employeeID}</small>
+                                                <div className="font-bold">{emp.name}</div>
+                                                <small>{emp.employeeID} | <span className='text-gray-500'>{emp.position}</span></small>
                                             </TableCell>
 
                                             <TableCell className="py-[6px] text-center text-nowrap">{emp.office?.officeName}</TableCell>
@@ -132,7 +132,7 @@ export default function LoanEncoder({ employees, search }: LoanEncoderProps) {
                     )}
                 </TableBody>
             </Table>
-            <Pagination links={employees.links} />
+            {search != null ? ( <Pagination links={employees.links} /> ): ''}
         </>
     );
 }

@@ -32,8 +32,12 @@ export default function Dashboard({ auth, employees, search }: DashboardProps) {
                         {auth.user.specialAccount == 'Loan Encoder' && (
                             <>
                                 <Label className="text-uppercase mb-2 flex items-center gap-2 text-sm font-bold text-gray-500">
-                                    <FolderPen className="mb-1 w-5 text-blue-500" />
-                                    <span>{auth.user.specialAccount}</span>
+                                    <FolderPen className="mb-[3px] w-5 text-red-500" />
+                                    <span>{auth.user.specialAccount}</span> |{' '}
+                                    <span className="font-normal">
+                                        Tracker # {auth.user.loantracker?.tracker}{' '}
+                                        <span className="ms-1 font-bold text-blue-600">{auth.user.loantracker?.description}</span>
+                                    </span>
                                 </Label>
 
                                 <LoanEncoder employees={employees} search={search} />
@@ -43,8 +47,12 @@ export default function Dashboard({ auth, employees, search }: DashboardProps) {
                         {auth.user.specialAccount == 'Loan Officer' && (
                             <>
                                 <Label className="text-uppercase flex items-center gap-2 text-sm font-bold text-gray-500">
-                                    <FolderPen className="mb-1 w-5 text-blue-500" />
-                                    <span>{auth.user.specialAccount}</span>
+                                    <FolderPen className="mb-[3px] w-5 text-green-500" />
+                                    <span>{auth.user.specialAccount}</span> |{' '}
+                                    <span className="font-normal">
+                                        Tracker # {auth.user.loantracker?.tracker}{' '}
+                                        <span className="ms-1 font-bold text-blue-600">{auth.user.loantracker?.description}</span>
+                                    </span>
                                 </Label>
                                 <hr />
                                 <LoanOfficer auth={auth} />

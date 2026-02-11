@@ -729,10 +729,10 @@ export default function Offices({ auth, employees, employeesWithSpecialAccount, 
 
                                             <TableCell className="py-[6px] text-nowrap">
                                                 <div className="flex items-center gap-2 font-semibold">
-                                                    {emp.name}
+                                                    <div className="font-bold">{emp.name}</div>
                                                     <span className="rounded bg-green-200 px-2 py-[1px] text-[10px]">{emp.specialAccount}</span>
                                                 </div>
-                                                <small>{emp.employeeID}</small>
+                                                <small>{emp.employeeID} | <span className='text-gray-500'>{emp.position}</span></small>
                                             </TableCell>
 
                                             <TableCell className="py-[6px] text-center text-nowrap">{emp.office?.officeName}</TableCell>
@@ -771,8 +771,8 @@ export default function Offices({ auth, employees, employeesWithSpecialAccount, 
                                             </TableCell>
 
                                             <TableCell className="py-[6px] text-nowrap">
-                                                <div>{emp.name}</div>
-                                                <small>{emp.employeeID}</small>
+                                                <div className="font-bold">{emp.name}</div>
+                                                <small>{emp.employeeID} | <span className='text-gray-500'>{emp.position}</span></small>
                                             </TableCell>
 
                                             <TableCell className="py-[6px] text-center text-nowrap">{emp.office?.officeName}</TableCell>
