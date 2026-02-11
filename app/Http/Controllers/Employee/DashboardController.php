@@ -12,6 +12,7 @@ use Session;
 use App\Models\User;
 use App\Models\Contributions;
 use App\Models\ContributionTypes;
+use App\Models\LoanAmortization;
 
 class DashboardController extends Controller
 {
@@ -36,8 +37,16 @@ class DashboardController extends Controller
             return $employee;
         });
 
+        $borrowers = LoanAmortization::with('user')->where('tracker', auth()->user()->loantracker->tracker)
+            ->orderBy('date', 'desc')
+            ->get()->map(function ($borrower) {
+                $borrower->encrypted_id = $this->aes->encrypt($borrower->id);
+                return $borrower;
+            });
+
         return Inertia::render('employee/dashboard', [
             'employees' => $employees,
+            'borrowers' => $borrowers,
             'search' => $search,
         ]);
     }
