@@ -10,7 +10,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { CheckCheck } from 'lucide-react';
 import { useMemo } from 'react';
 import { toast } from 'sonner';
-interface DashboardProps {
+interface EncodeEmployeeLoanProps {
     auth: {
         user: User;
     };
@@ -18,7 +18,7 @@ interface DashboardProps {
     employee: Employees;
 }
 
-export default function Dashboard({ auth, encrypted_id, employee }: DashboardProps) {
+export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: EncodeEmployeeLoanProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Encode Employee Loan',

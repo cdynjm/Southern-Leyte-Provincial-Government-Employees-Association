@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\LoansController;
 
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
 use App\Http\Controllers\Employee\EncodeEmployeeLoanController;
+use App\Http\Controllers\Employee\ViewEmployeeLoanController;
 
 Route::get('/', function () {
 
@@ -85,6 +86,9 @@ Route::middleware(['auth'])->group(function () {
                     
                     Route::get('/encode-employee-loan/{encrypted_id}', [EncodeEmployeeLoanController::class, 'index'])->name('employee.encode-employee-loan');
                     Route::post('/encode-employee-loan', [EncodeEmployeeLoanController::class, 'store'])->name('employee.encode-employee-loan.store');
+
+                    Route::get('/view-employee-loan/{encrypted_id}', [ViewEmployeeLoanController::class, 'index'])->name('employee.view-employee-loan');
+
                 });
 
                 Route::middleware('loan.officer')->group(function () {

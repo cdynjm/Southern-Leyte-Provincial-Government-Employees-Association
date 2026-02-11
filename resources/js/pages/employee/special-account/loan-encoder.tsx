@@ -222,7 +222,7 @@ export default function LoanEncoder({ employees, search, borrowers }: LoanEncode
 
                                     <TableCell className="py-[6px]">
                                         <div className="flex items-center justify-center gap-2">
-                                            <Link href={route('employee.encode-employee-loan', { encrypted_id: bor.encrypted_id })}>
+                                            <Link href={route('employee.view-employee-loan', { encrypted_id: bor.encrypted_id })}>
                                                 <Button variant="secondary" size="sm" className="text-[13px]">
                                                     <EyeIcon />
                                                 </Button>
