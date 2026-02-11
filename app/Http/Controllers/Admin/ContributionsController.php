@@ -196,6 +196,8 @@ class ContributionsController extends Controller
         Session::put('search', $request->search);
         Session::put('office', $request->office);
         Session::put('type', $request->type);
+
+        return redirect()->route('admin.contributions');
     }
 
     public function clearSearch()
@@ -203,5 +205,7 @@ class ContributionsController extends Controller
         Session::forget('search');
         Session::forget('office');
         Session::forget('type');
+
+        return redirect()->route('admin.contributions');
     }
 }

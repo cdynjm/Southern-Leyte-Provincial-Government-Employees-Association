@@ -45,10 +45,12 @@ class DashboardController extends Controller
     public function search(Request $request)
     {
         Session::put('search', $request->search);
+        return redirect()->route('employee.dashboard');
     }
 
     public function clearSearch()
     {
         Session::forget('search');
+        return redirect()->route('employee.dashboard');
     }
 }

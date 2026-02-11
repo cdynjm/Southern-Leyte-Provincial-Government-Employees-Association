@@ -36,13 +36,14 @@ interface EmployeesProps {
         user: User;
     };
     employees: Paginated<Employees>;
+    employeesWithSpecialAccount: Employees[];
     search: string;
     office: string;
     type: string;
     offices: Offices[];
 }
 
-export default function Offices({ auth, employees, offices, search, office, type }: EmployeesProps) {
+export default function Offices({ auth, employees, employeesWithSpecialAccount, offices, search, office, type }: EmployeesProps) {
     const [showPassword, setShowPassword] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -216,10 +217,6 @@ export default function Offices({ auth, employees, offices, search, office, type
             },
         });
     };
-
-    const pinnedEmployees = employees.data.filter((emp) => emp.specialAccount && emp.specialAccount !== 'No');
-
-    const normalEmployees = employees.data.filter((emp) => !emp.specialAccount || emp.specialAccount === 'No');
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
@@ -717,7 +714,7 @@ export default function Offices({ auth, employees, offices, search, office, type
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {employees.data.length === 0 ? (
+                            {employees.data.length === 0 && employeesWithSpecialAccount.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={10} className="text-center text-[13px] text-gray-500">
                                         No Data Found
@@ -726,7 +723,7 @@ export default function Offices({ auth, employees, offices, search, office, type
                             ) : (
                                 <>
                                     {/* 🔒 Pinned Accounts */}
-                                    {pinnedEmployees.map((emp) => (
+                                    {employeesWithSpecialAccount.map((emp) => (
                                         <TableRow key={emp.encrypted_id} className="bg-yellow-50">
                                             <TableCell className="py-[6px] text-center font-semibold">📌</TableCell>
 
@@ -767,7 +764,7 @@ export default function Offices({ auth, employees, offices, search, office, type
                                     ))}
 
                                     {/* 👥 Normal Accounts */}
-                                    {normalEmployees.map((emp, index) => (
+                                    {employees.data.map((emp, index) => (
                                         <TableRow key={emp.encrypted_id}>
                                             <TableCell className="py-[6px] text-center">
                                                 {index + 1 + (employees.current_page - 1) * employees.per_page}

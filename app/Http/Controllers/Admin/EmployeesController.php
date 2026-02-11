@@ -30,7 +30,7 @@ class EmployeesController extends Controller
         $officeEncrypted = session('office');
         $office = $officeEncrypted != '' ? $this->aes->decrypt($officeEncrypted) : '';
 
-        $employees = User::with('office')->where('role', 'employee')
+        $employees = User::with('office')->where('role', 'employee')->where('specialAccount', 'No')
             ->when(filled($search), function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%");
             })
@@ -47,6 +47,23 @@ class EmployeesController extends Controller
             return $employee;
         });
 
+        $employeesWithSpecialAccount = User::with('office')->where('role', 'employee')->where('specialAccount', '!=', 'No')
+            ->when(filled($search), function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->when(filled($office), function ($query) use ($office) {
+                $query->where('offices_id', $office);
+            })
+            ->when(filled($type), function ($query) use ($type) {
+                $query->where('employmentType', $type);
+            })
+        ->orderBy('name', 'asc')
+        ->get()->map(function ($employee) {
+            $employee->encrypted_id = $this->aes->encrypt($employee->id);
+            $employee->officeEncrypted_id = $this->aes->encrypt($employee->offices_id);
+            return $employee;
+        });
+
        $offices = Offices::orderBy('officeName', 'asc')->get()->map(function ($office) {
             $office->encrypted_id = $this->aes->encrypt($office->id);
             return $office;
@@ -54,6 +71,7 @@ class EmployeesController extends Controller
 
         return Inertia::render('admin/employees', [
             'employees' => $employees,
+            'employeesWithSpecialAccount' => $employeesWithSpecialAccount,
             'offices' => $offices,
             'search' => $search,
             'office' => $officeEncrypted,
@@ -150,6 +168,8 @@ class EmployeesController extends Controller
         Session::put('search', $request->search);
         Session::put('office', $request->office);
         Session::put('type', $request->type);
+
+        return redirect()->route('admin.employees');
     }
 
     public function clearSearch()
@@ -157,6 +177,8 @@ class EmployeesController extends Controller
         Session::forget('search');
         Session::forget('office');
         Session::forget('type');
+
+        return redirect()->route('admin.employees');
     }
     
 }
