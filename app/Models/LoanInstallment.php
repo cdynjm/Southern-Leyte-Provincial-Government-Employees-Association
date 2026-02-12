@@ -15,11 +15,12 @@ class LoanInstallment extends Model
        'users_id',
        'loan_amortization_id',
        'date',
+       'paymentDate',
        'installment',
        'interest',
        'principal',
-       'endingBalance',
-       'status'
+       'outstandingBalance',
+       
     ];
 
     public function user()

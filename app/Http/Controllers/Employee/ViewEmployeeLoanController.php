@@ -29,6 +29,11 @@ class ViewEmployeeLoanController extends Controller
     {
         $borrower = LoanAmortization::with(['loaninstallment', 'user'])->where('id', $this->aes->decrypt($request->encrypted_id))->first();
 
+        $borrower->loaninstallment->map(function ($installment) {
+            $installment->encrypted_id = $this->aes->encrypt($installment->id);
+            return $installment;
+        });
+
         return Inertia::render('employee/special-account/view-employee-loan', [
             'encrypted_id' => $request->encrypted_id,
             'borrower' => $borrower,

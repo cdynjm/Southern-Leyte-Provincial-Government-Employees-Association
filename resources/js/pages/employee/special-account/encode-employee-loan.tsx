@@ -222,7 +222,11 @@ export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: Enc
                                 <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
                                     <div>
                                         <p className="text-gray-500">Net Proceeds</p>
-                                        <p className="text-base font-semibold">₱ {computation.netProceeds}</p>
+                                        <p className="text-base font-semibold">₱{' '}
+                                                {Number(computation.netProceeds).toLocaleString('en-PH', {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2,
+                                                })}</p>
                                     </div>
 
                                     <div>
@@ -232,7 +236,11 @@ export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: Enc
 
                                     <div>
                                         <p className="text-gray-500">Monthly Installment</p>
-                                        <p className="text-base font-semibold">₱ {computation.monthlyInstallment}</p>
+                                        <p className="text-base font-semibold">₱{' '}
+                                                {Number(computation.monthlyInstallment).toLocaleString('en-PH', {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2,
+                                                })}</p>
                                     </div>
                                 </div>
                             </div>

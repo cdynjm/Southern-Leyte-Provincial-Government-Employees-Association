@@ -82,47 +82,26 @@ class EncodeEmployeeLoanController extends Controller
             'rateInMonth' => $rateInMonth * 100, // store as percent
             'monthlyInstallment' => $monthlyInstallment,
             'status' => 'pending',
+            'paymentStatus' => 'unpaid',
             'date' => $loanDate, // payment date = loan date
         ]);
 
-        $remainingBalance = $borrowed;
-        $paymentDate = $loanDate->copy()->startOfMonth(); // Always 1st day
+        $paymentDate = $loanDate->copy(); // Keep exact loan date (15th stays 15th)
 
         for ($month = 1; $month <= $periodInMonths; $month++) {
 
-            // Compute Interest
-            $interest = round($remainingBalance * $rateInMonth, 2);
-
-            // Compute Principal
-            $principal = round($monthlyInstallment - $interest, 2);
-
-            // Adjust final payment to remove rounding difference
-            if ($month == $periodInMonths) {
-                $principal = $remainingBalance;
-                $monthlyInstallmentFinal = round($principal + $interest, 2);
-            } else {
-                $monthlyInstallmentFinal = $monthlyInstallment;
-            }
-
-            // Compute Ending Balance
-            $endingBalance = round($remainingBalance - $principal, 2);
-
-            // Save Installment
             LoanInstallment::create([
                 'users_id' => $employeeId,
                 'loan_amortization_id' => $loanAmortization->id,
-                'date' => $paymentDate->copy(), // always 1st of month
-                'installment' => $monthlyInstallmentFinal,
-                'interest' => $interest,
-                'principal' => $principal,
-                'endingBalance' => $endingBalance < 0 ? 0 : $endingBalance,
+                'date' => $paymentDate->copy(),
+                'interest' => 0,
+                'principal' => 0,
+                'outstandingBalance' => $month === 1 ? $borrowed : null, // only first month has value
                 'status' => 'unpaid'
             ]);
 
-            // Prepare next loop
-            $remainingBalance = $endingBalance;
-            $paymentDate->addMonth(); // Move to next month (still 1st day)
-
+            // Move to same day next month (15 → 15)
+            $paymentDate->addMonth();
         }
     }
 }

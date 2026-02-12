@@ -1,11 +1,12 @@
+import FormattedDate from '@/components/formatted-date';
 import { SkeletonCard } from '@/components/skeleton-card';
 import { Card, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { SkeletonDelay } from '@/components/ui/skeleton-delay';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type LoanAmortization, type User } from '@/types';
 import { Head } from '@inertiajs/react';
-import { Label } from '@/components/ui/label';
-
 interface ViewEmployeeLoanProps {
     auth: {
         user: User;
@@ -21,6 +22,18 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
             href: route('employee.encode-employee-loan', { encrypted_id }),
         },
     ];
+
+    {
+        /* const totals = borrower.loaninstallment?.reduce(
+        (acc, ln) => {
+            acc.installment += Number(ln.installment);
+            acc.interest += Number(ln.interest);
+            acc.principal += Number(ln.principal);
+            return acc;
+        },
+        { installment: 0, interest: 0, principal: 0 },
+    ) ?? { installment: 0, interest: 0, principal: 0 }; */
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
@@ -57,7 +70,163 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
                     </Card>
                     <Card className="shadow-none">
                         <CardContent>
-                            <Label className='font-bold'>Loan Amortization Statement</Label>
+                            <Label className="font-bold">Loan Amortization Statement</Label>
+                            <hr className="my-4" />
+                            <div className="grid grid-cols-1 justify-center gap-4 lg:grid-cols-2">
+                                <div className="flex flex-col gap-2">
+                                    <Label className="text-gray-600">
+                                        Borrowed:{' '}
+                                        <b>
+                                            ₱{' '}
+                                            {Number(borrower.borrowed).toLocaleString('en-PH', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2,
+                                            })}
+                                        </b>
+                                    </Label>
+                                    <Label className="text-gray-600">
+                                        Processing Fee:{' '}
+                                        <b>
+                                            ₱{' '}
+                                            {Number(borrower.processingFee).toLocaleString('en-PH', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2,
+                                            })}
+                                        </b>
+                                    </Label>
+                                    <Label className="text-gray-600">
+                                        Net Proceeds:{' '}
+                                        <b className="text-green-600">
+                                            ₱{' '}
+                                            {Number(borrower.netProceeds).toLocaleString('en-PH', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2,
+                                            })}
+                                        </b>
+                                    </Label>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label className="text-gray-600">
+                                        Period in Months: <b>{borrower.periodInMonths}</b>
+                                    </Label>
+                                    <Label className="text-gray-600">
+                                        Rate in Month:{' '}
+                                        <b>{Number(borrower.rateInMonth) % 1 === 0 ? Number(borrower.rateInMonth) : Number(borrower.rateInMonth)}%</b>
+                                    </Label>
+                                    <Label className="text-gray-600">
+                                        Monthly Installment:{' '}
+                                        <b className="text-green-600">
+                                            ₱{' '}
+                                            {Number(borrower.monthlyInstallment).toLocaleString('en-PH', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2,
+                                            })}
+                                        </b>
+                                    </Label>
+                                </div>
+                            </div>
+                            <hr className="my-4" />
+
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="">
+                                        <TableHead className="w-[50px] text-center">Month</TableHead>
+                                        <TableHead className="text-start text-nowrap">Due Date</TableHead>
+                                        <TableHead className="text-start text-nowrap">Payment Date</TableHead>
+                                        <TableHead className="text-start text-nowrap">Installment</TableHead>
+                                        <TableHead className="text-start text-nowrap">Interest</TableHead>
+                                        <TableHead className="text-start text-nowrap">Principal</TableHead>
+                                        <TableHead className="text-start text-nowrap">Outstanding Balance</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {borrower.loaninstallment?.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={10} className="text-center text-[13px] text-gray-500">
+                                                No data to be shown.
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        <>
+                                            {borrower.loaninstallment?.map((ln, index) => (
+                                                <TableRow key={ln.encrypted_id}>
+                                                    <TableCell className="py-[6px] text-center">{index + 1}</TableCell>
+
+                                                    {/* Date */}
+                                                    <TableCell className="py-[6px] text-nowrap">
+                                                        <FormattedDate date={ln.date} variant="date" />
+                                                    </TableCell>
+
+                                                    {/* Payment Date */}
+                                                    <TableCell className="py-[6px] text-nowrap">
+                                                        {index === 0 ? (
+                                                            ''
+                                                        ) : ln.paymentDate ? (
+                                                            <FormattedDate date={ln.paymentDate} variant="date" />
+                                                        ) : (
+                                                            '-'
+                                                        )}
+                                                    </TableCell>
+
+                                                    {/* Installment */}
+                                                    <TableCell className="py-[6px] text-nowrap">
+                                                        {index === 0 ? (
+                                                            ''
+                                                        ) : (
+                                                            <>
+                                                                ₱
+                                                                {Number(ln.installment).toLocaleString('en-PH', {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2,
+                                                                })}
+                                                            </>
+                                                        )}
+                                                    </TableCell>
+
+                                                    {/* Interest */}
+                                                    <TableCell className="py-[6px] text-nowrap">
+                                                        {index === 0 ? (
+                                                            ''
+                                                        ) : (
+                                                            <>
+                                                                ₱
+                                                                {Number(ln.interest).toLocaleString('en-PH', {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2,
+                                                                })}
+                                                            </>
+                                                        )}
+                                                    </TableCell>
+
+                                                    {/* Principal */}
+                                                    <TableCell className="py-[6px] text-nowrap">
+                                                        {index === 0 ? (
+                                                            ''
+                                                        ) : (
+                                                            <>
+                                                                ₱
+                                                                {Number(ln.principal).toLocaleString('en-PH', {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2,
+                                                                })}
+                                                            </>
+                                                        )}
+                                                    </TableCell>
+
+                                                    {/* Outstanding Balance (Always show) */}
+                                                    <TableCell className="py-[6px] font-bold text-nowrap">
+                                                        ₱
+                                                        {Number(ln.outstandingBalance).toLocaleString('en-PH', {
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2,
+                                                        })}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </>
+                                    )}
+                                </TableBody>
+                            </Table>
                         </CardContent>
                     </Card>
                 </SkeletonDelay>

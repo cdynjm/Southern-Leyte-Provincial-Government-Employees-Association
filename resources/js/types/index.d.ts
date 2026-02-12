@@ -160,6 +160,7 @@ export interface LoanAmortization {
     monthlyInstallment: number;
     date: string;
     status: string;
+    paymentStatus: string;
 }
 
 export interface LoanInstallment {
@@ -168,10 +169,11 @@ export interface LoanInstallment {
     user?: User;
     loanamortization?: LoanAmortization;
     date: string;
+    paymentDate: string;
     installment: number;
     interest: number;
     principal: number;
-    endingBalance: number;
+    outstandingBalance: number;
     status: string;
 }
 export interface ContributionGroup {
