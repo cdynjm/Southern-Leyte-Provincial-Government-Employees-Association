@@ -19,7 +19,7 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'View Employee Loan',
-            href: route('employee.encode-employee-loan', { encrypted_id }),
+            href: route('employee.view-employee-loan', { encrypted_id }),
         },
     ];
 
@@ -170,9 +170,7 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
 
                                                     {/* Installment */}
                                                     <TableCell className="py-[6px] text-nowrap">
-                                                        {index === 0 ? (
-                                                            ''
-                                                        ) : (
+                                                        {index === 0 ? null : ln.installment ? (
                                                             <>
                                                                 ₱
                                                                 {Number(ln.installment).toLocaleString('en-PH', {
@@ -180,6 +178,8 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
                                                                     maximumFractionDigits: 2,
                                                                 })}
                                                             </>
+                                                        ) : (
+                                                            <small className='text-red-600'>Unpaid</small>
                                                         )}
                                                     </TableCell>
 
@@ -200,9 +200,7 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
 
                                                     {/* Principal */}
                                                     <TableCell className="py-[6px] text-nowrap">
-                                                        {index === 0 ? (
-                                                            ''
-                                                        ) : (
+                                                        {index === 0 ? null : ln.installment ? (
                                                             <>
                                                                 ₱
                                                                 {Number(ln.principal).toLocaleString('en-PH', {
@@ -210,6 +208,8 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
                                                                     maximumFractionDigits: 2,
                                                                 })}
                                                             </>
+                                                        ) : (
+                                                            <small>-</small>
                                                         )}
                                                     </TableCell>
 

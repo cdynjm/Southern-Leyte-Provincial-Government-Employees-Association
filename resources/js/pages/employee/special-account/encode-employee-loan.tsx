@@ -102,6 +102,12 @@ export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: Enc
         });
     };
 
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    .toISOString()
+    .split("T")[0];
+
+
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="Encode Employee Loan" />
@@ -210,6 +216,7 @@ export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: Enc
                                     <Label className="text-[13px] text-gray-500">Date of Loan</Label>
                                     <Input
                                         value={createForm.data.date}
+                                        min={firstDayOfMonth}
                                         onChange={(e) => createForm.setData('date', e.target.value)}
                                         type="date"
                                         placeholder="Select date of loan"

@@ -96,7 +96,7 @@ class EncodeEmployeeLoanController extends Controller
                 'date' => $paymentDate->copy(),
                 'interest' => 0,
                 'principal' => 0,
-                'outstandingBalance' => $month === 1 ? $borrowed : null, // only first month has value
+                'outstandingBalance' => $month === 1 || $month === 2 ? $borrowed : null, // only first month has value
                 'status' => 'unpaid'
             ]);
 
