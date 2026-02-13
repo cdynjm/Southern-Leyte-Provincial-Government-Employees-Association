@@ -88,7 +88,7 @@ class EncodeEmployeeLoanController extends Controller
 
         $paymentDate = $loanDate->copy(); // Keep exact loan date (15th stays 15th)
 
-        for ($month = 1; $month <= $periodInMonths; $month++) {
+        for ($month = 1; $month <= $periodInMonths + 1; $month++) {
 
             LoanInstallment::create([
                 'users_id' => $employeeId,

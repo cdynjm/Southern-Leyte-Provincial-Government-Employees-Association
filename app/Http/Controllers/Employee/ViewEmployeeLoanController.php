@@ -40,41 +40,73 @@ class ViewEmployeeLoanController extends Controller
         ->get();
 
         $monthlyRate = $borrower->rateInMonth / 100;
-
-        $today = Carbon::today();
+        $today = Carbon::parse('2026-04-12');
 
         for ($i = 1; $i < $installments->count(); $i++) {
+
             $prev = $installments[$i - 1];
             $current = $installments[$i];
 
-            $prevDate = Carbon::parse($prev->date);
+            if($prev->paymentDate == null) {
+                $prevDate = Carbon::parse($prev->date);
+            }
+            else {
+                $prevDate = Carbon::parse($prev->paymentDate);
+            }
+
             $currentDate = Carbon::parse($current->date);
 
-            if ($today->between($prevDate->copy()->addDay(), $currentDate)) {
-        
-                if ($current->lastComputedDate === $today->toDateString()) {
-                    break;
-                }
+            $cycleStart = $prevDate->copy()->addDay();
+            $cycleEnd = $currentDate;
 
-                $daysInMonth = $currentDate->daysInMonth;
+            if ($current->lastComputedDate === $today->toDateString()) {
+                break;
+            }
 
-                $daysGap = $prevDate->diffInDays($today);
+            if($current->status == 'paid') {
+                continue;
+            }
 
-                $dailyInterest = $prev->outstandingBalance * $monthlyRate * ($daysGap / $daysInMonth);
+            // 🟢 CASE 1: Today passed this month completely
+            if ($today->gt($cycleEnd)) {
 
-                $current->interest = $dailyInterest;
+                $daysInMonth = $prevDate->daysInMonth;
 
-                $current->outstandingBalance = $prev->outstandingBalance + $dailyInterest;
+                $interest = $prev->outstandingBalance * $monthlyRate;
+
+                $current->interest = $interest;
+                $current->outstandingBalance = $prev->outstandingBalance + $interest;
+
+                $current->lastComputedDate = $cycleEnd->toDateString();
+                $current->save();
+
+                // move to next month
+                continue;
+            }
+
+            // 🟡 CASE 2: Today is inside this cycle
+            if ($today->between($cycleStart, $cycleEnd)) {
+
+                $daysInMonth = $prevDate->daysInMonth;
+
+                $daysGap = $cycleStart->diffInDays($today) + 1;
+
+                $interest = $prev->outstandingBalance
+                            * $monthlyRate
+                            * ($daysGap / $daysInMonth);
+
+                $current->interest = $interest;
+                $current->outstandingBalance = $prev->outstandingBalance + $interest;
 
                 $current->lastComputedDate = $today->toDateString();
-
                 $current->save();
 
                 break;
             }
-
         }
 
+
+        $borrower->load('loaninstallment');
 
         return Inertia::render('employee/special-account/view-employee-loan', [
             'encrypted_id' => $request->encrypted_id,

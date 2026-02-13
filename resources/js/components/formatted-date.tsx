@@ -1,9 +1,10 @@
-interface FormattedDateProps {
+export interface FormattedDateProps {
     date: string | Date;
-    variant?: 'datetime' | 'date' | 'age' | 'month-year';
+    endDate?: string | Date; // optional, used for date-range variant
+    variant?: 'datetime' | 'date' | 'age' | 'month-year' | 'date-range';
 }
 
-export default function FormattedDate({ date, variant = 'datetime' }: FormattedDateProps) {
+export default function FormattedDate({ date, endDate, variant = 'datetime' }: FormattedDateProps) {
     const d = new Date(date);
 
     // AGE CALCULATION
@@ -15,9 +16,7 @@ export default function FormattedDate({ date, variant = 'datetime' }: FormattedD
             today.getMonth() > d.getMonth() ||
             (today.getMonth() === d.getMonth() && today.getDate() >= d.getDate());
 
-        if (!hasHadBirthdayThisYear) {
-            age--;
-        }
+        if (!hasHadBirthdayThisYear) age--;
 
         return (
             <>
@@ -29,11 +28,26 @@ export default function FormattedDate({ date, variant = 'datetime' }: FormattedD
             </>
         );
     }
+
+    // MONTH-YEAR
     if (variant === 'month-year') {
         const month = d.toLocaleString(undefined, { month: 'short' });
         const year = d.toLocaleString(undefined, { year: 'numeric' });
 
         return <>{`${month} - ${year}`}</>;
+    }
+
+    // DATE RANGE
+    if (variant === 'date-range' && endDate) {
+        const d2 = new Date(endDate);
+
+        const options: Intl.DateTimeFormatOptions = {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        };
+
+        return <>{`${d.toLocaleDateString(undefined, options)} - ${d2.toLocaleDateString(undefined, options)}`}</>;
     }
 
     // DEFAULT OPTIONS
