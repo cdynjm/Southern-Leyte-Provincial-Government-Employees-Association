@@ -129,7 +129,7 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
 
                             <Table>
                                 <TableHeader>
-                                    <TableRow className="">
+                                    <TableRow>
                                         <TableHead className="w-[50px] text-center">Month</TableHead>
                                         <TableHead className="text-start text-nowrap">Due Date</TableHead>
                                         <TableHead className="text-start text-nowrap">Payment Date</TableHead>
@@ -139,88 +139,93 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
                                         <TableHead className="text-start text-nowrap">Outstanding Balance</TableHead>
                                     </TableRow>
                                 </TableHeader>
+
                                 <TableBody>
-                                    {borrower.loaninstallment?.length === 0 ? (
+                                    {borrower.duedates?.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={10} className="text-center text-[13px] text-gray-500">
+                                            <TableCell colSpan={7} className="text-center text-[13px] text-gray-500">
                                                 No data to be shown.
                                             </TableCell>
                                         </TableRow>
                                     ) : (
-                                        <>
-                                            {(borrower.loaninstallment ?? []).map((ln, index) => {
-                                                // Determine date range for this row
-                                                const startDate = index === 0 ? null : (borrower.loaninstallment ?? [])[index - 1].date;
-                                                const endDate = ln.date;
+                                        borrower.duedates.map((month, monthIndex) => {
+                                            const startDate = monthIndex === 0 ? null : borrower.duedates[monthIndex - 1].date;
+                                            const endDate = month.date;
 
-                                                // Skip row if startDate is null (i.e., first row)
-                                                if (!startDate) return null;
+                                            // Skip first row if you don't want a "null" range
+                                            if (!startDate) return null;
 
-                                                return (
-                                                    <TableRow key={ln.encrypted_id}>
-                                                        <TableCell className="py-[6px] text-center">{(index - 1) + 1}</TableCell>
+                                            return month.loaninstallment?.map((ln, lnIndex) => (
+                                                <TableRow key={ln.encrypted_id}>
+                                                    {/* Month only on first installment of that month */}
+                                                    <TableCell className="py-[6px] text-center">{lnIndex === 0 ? monthIndex : ''}</TableCell>
 
-                                                        {/* Date Range */}
-                                                        <TableCell className="py-[6px] text-nowrap">
+                                                    {/* Due Date / Date Range */}
+                                                    <TableCell className="py-[6px] text-nowrap">
+                                                        {lnIndex === 0 ? (
                                                             <FormattedDate date={startDate} endDate={endDate} variant="date-range" />
-                                                        </TableCell>
+                                                        ) : (
+                                                            ''
+                                                        )}
+                                                    </TableCell>
 
-                                                        {/* Payment Date */}
-                                                        <TableCell className="py-[6px] text-nowrap">
-                                                            {ln.paymentDate ? <FormattedDate date={ln.paymentDate} variant="date" /> : '-'}
-                                                        </TableCell>
+                                                    {/* Payment Date */}
+                                                    <TableCell className="py-[6px] text-nowrap">
+                                                        {ln.paymentDate ? <FormattedDate date={ln.paymentDate} variant="date" /> : '-'}
+                                                    </TableCell>
 
-                                                        {/* Installment */}
-                                                        <TableCell className="py-[6px] text-nowrap">
-                                                            {ln.installment ? (
-                                                                <>
-                                                                    ₱
-                                                                    {Number(ln.installment).toLocaleString('en-PH', {
-                                                                        minimumFractionDigits: 2,
-                                                                        maximumFractionDigits: 2,
-                                                                    })}
-                                                                </>
-                                                            ) : (
-                                                                <small className={ln.status == 'paid' ? 'text-green-600' : 'text-red-600'}>{ln.status}</small>
-                                                            )}
-                                                        </TableCell>
+                                                    {/* Installment */}
+                                                    <TableCell className="py-[6px] text-nowrap">
+                                                        {ln.installment ? (
+                                                            <>
+                                                                ₱
+                                                                {Number(ln.installment).toLocaleString('en-PH', {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2,
+                                                                })}
+                                                            </>
+                                                        ) : (
+                                                            <small className={ln.status === 'paid' ? 'text-green-600' : 'text-red-600'}>
+                                                                {ln.status}
+                                                            </small>
+                                                        )}
+                                                    </TableCell>
 
-                                                        {/* Interest */}
-                                                        <TableCell className="py-[6px] text-nowrap">
-                                                            ₱
-                                                            {Number(ln.interest).toLocaleString('en-PH', {
-                                                                minimumFractionDigits: 2,
-                                                                maximumFractionDigits: 2,
-                                                            })}
-                                                        </TableCell>
+                                                    {/* Interest */}
+                                                    <TableCell className="py-[6px] text-nowrap">
+                                                        ₱
+                                                        {Number(ln.interest).toLocaleString('en-PH', {
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2,
+                                                        })}
+                                                    </TableCell>
 
-                                                        {/* Principal */}
-                                                        <TableCell className="py-[6px] text-nowrap">
-                                                            {ln.principal ? (
-                                                                <>
-                                                                    ₱
-                                                                    {Number(ln.principal).toLocaleString('en-PH', {
-                                                                        minimumFractionDigits: 2,
-                                                                        maximumFractionDigits: 2,
-                                                                    })}
-                                                                </>
-                                                            ) : (
-                                                                <small>-</small>
-                                                            )}
-                                                        </TableCell>
+                                                    {/* Principal */}
+                                                    <TableCell className="py-[6px] text-nowrap">
+                                                        {ln.principal ? (
+                                                            <>
+                                                                ₱
+                                                                {Number(ln.principal).toLocaleString('en-PH', {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2,
+                                                                })}
+                                                            </>
+                                                        ) : (
+                                                            <small>-</small>
+                                                        )}
+                                                    </TableCell>
 
-                                                        {/* Outstanding Balance */}
-                                                        <TableCell className="py-[6px] font-bold text-nowrap">
-                                                            ₱
-                                                            {Number(ln.outstandingBalance).toLocaleString('en-PH', {
-                                                                minimumFractionDigits: 2,
-                                                                maximumFractionDigits: 2,
-                                                            })}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                );
-                                            })}
-                                        </>
+                                                    {/* Outstanding Balance */}
+                                                    <TableCell className="py-[6px] font-bold text-nowrap">
+                                                        ₱
+                                                        {Number(ln.outstandingBalance).toLocaleString('en-PH', {
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2,
+                                                        })}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ));
+                                        })
                                     )}
                                 </TableBody>
                             </Table>

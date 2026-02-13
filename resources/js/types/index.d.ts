@@ -151,6 +151,7 @@ export interface LoanAmortization {
     encrypted_id: string;
     user?: User;
     loaninstallment?: LoanInstallment[];
+    duedates: DueDates[];
     tracker: string;
     borrowed: number;
     processingFee: number;
@@ -168,6 +169,7 @@ export interface LoanInstallment {
     encrypted_id: string;
     user?: User;
     loanamortization?: LoanAmortization;
+    duedates?: DueDates;
     date: string;
     paymentDate: string;
     installment: number;
@@ -175,6 +177,15 @@ export interface LoanInstallment {
     principal: number;
     outstandingBalance: number;
     status: string;
+}
+
+export interface DueDates {
+    id: number;
+    encrypted_id: string;
+    date: string;
+    status: string;
+    loaninstallment?: LoanInstallment[];
+    loanamortization?: LoanAmortization;
 }
 export interface ContributionGroup {
     type: ContributionTypes;

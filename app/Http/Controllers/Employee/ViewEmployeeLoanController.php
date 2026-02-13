@@ -28,19 +28,24 @@ class ViewEmployeeLoanController extends Controller
     public function index(Request $request)
     {
         $loanAmortizationId = $this->aes->decrypt($request->encrypted_id);
-        $borrower = LoanAmortization::with(['loaninstallment', 'user'])->where('id', $loanAmortizationId)->first();
 
-        $borrower->loaninstallment->map(function ($installment) {
-            $installment->encrypted_id = $this->aes->encrypt($installment->id);
-            return $installment;
+        $borrower = LoanAmortization::with([
+            'user',
+            'duedates.loaninstallment'
+        ])->findOrFail($loanAmortizationId);
+
+        $borrower->duedates = $borrower->duedates->map(function ($duedate) {
+            $duedate->encrypted_id = $this->aes->encrypt($duedate->id);
+            return $duedate;
         });
 
-        $installments = LoanInstallment::where('loan_amortization_id', $loanAmortizationId)
+
+      /*  $installments = LoanInstallment::where('loan_amortization_id', $loanAmortizationId)
         ->orderBy('date', 'asc')
         ->get();
 
         $monthlyRate = $borrower->rateInMonth / 100;
-        $today = Carbon::parse('2026-04-12');
+        $today = Carbon::parse('2026-04-13');
 
         for ($i = 1; $i < $installments->count(); $i++) {
 
@@ -106,7 +111,7 @@ class ViewEmployeeLoanController extends Controller
         }
 
 
-        $borrower->load('loaninstallment');
+        $borrower->load('loaninstallment'); */
 
         return Inertia::render('employee/special-account/view-employee-loan', [
             'encrypted_id' => $request->encrypted_id,

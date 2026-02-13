@@ -14,6 +14,7 @@ class LoanInstallment extends Model
     protected $fillable = [
        'users_id',
        'loan_amortization_id',
+       'due_dates_id',
        'date',
        'paymentDate',
        'installment',
@@ -33,5 +34,10 @@ class LoanInstallment extends Model
     public function loanamortization()
     {
         return $this->belongsTo(LoanAmortization::class, 'loan_amortization_id');
+    }
+
+    public function duedates()
+    {
+        return $this->belongsTo(DueDates::class, 'due_dates_id');
     }
 }

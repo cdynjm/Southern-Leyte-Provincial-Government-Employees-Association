@@ -34,4 +34,9 @@ class LoanAmortization extends Model
     {
         return $this->hasMany(LoanInstallment::class, 'loan_amortization_id');
     }
+
+    public function duedates()
+    {
+        return $this->hasMany(DueDates::class, 'loan_amortization_id');
+    }
 }
