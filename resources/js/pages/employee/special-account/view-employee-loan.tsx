@@ -14,9 +14,10 @@ interface ViewEmployeeLoanProps {
     };
     encrypted_id: string;
     borrower: LoanAmortization;
+    today: string;
 }
 
-export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployeeLoanProps) {
+export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewEmployeeLoanProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'View Employee Loan',
@@ -72,6 +73,12 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
                     <Card className="shadow-none">
                         <CardContent>
                             <Label className="font-bold">Loan Amortization Statement</Label>
+                            <p>
+                                <small>Current Date: </small>
+                                <span className="font-bold text-blue-600">
+                                    <FormattedDate date={today} variant="date" />
+                                </span>
+                            </p>
                             <hr className="my-4" />
                             <div className="grid grid-cols-1 justify-center gap-4 lg:grid-cols-2">
                                 <div className="flex flex-col gap-2">
@@ -154,7 +161,15 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
                                             const endDate = month.date;
 
                                             return month.loaninstallment?.map((ln, lnIndex) => (
-                                                <TableRow key={lnIndex}>
+                                                <TableRow
+                                                    key={lnIndex}
+                                                    className={
+                                                        monthIndex === borrower.duedates.length - 1 &&
+                                                        lnIndex === (month.loaninstallment?.length ?? 0) - 1
+                                                            ? 'bg-yellow-100'
+                                                            : ''
+                                                    }
+                                                >
                                                     {/* Month only on first installment of that month */}
                                                     <TableCell className="py-[6px] text-center">{lnIndex === 0 ? monthIndex + 1 : ''}</TableCell>
 
@@ -178,11 +193,11 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
                                                             <>
                                                                 <div className="flex items-center gap-2">
                                                                     ₱
-                                                                {Number(ln.installment).toLocaleString('en-PH', {
-                                                                    minimumFractionDigits: 2,
-                                                                    maximumFractionDigits: 2,
-                                                                })}
-                                                                {ln.status === 'paid' ? <CheckIcon className='text-green-600 w-5' /> : ''}
+                                                                    {Number(ln.installment).toLocaleString('en-PH', {
+                                                                        minimumFractionDigits: 2,
+                                                                        maximumFractionDigits: 2,
+                                                                    })}
+                                                                    {ln.status === 'paid' ? <CheckIcon className="w-5 text-green-600" /> : ''}
                                                                 </div>
                                                             </>
                                                         ) : (
@@ -218,14 +233,11 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
 
                                                     {/* Outstanding Balance */}
                                                     <TableCell className="py-[6px] font-bold text-nowrap">
-                                                        
-                                                            ₱
+                                                        ₱
                                                         {Number(ln.outstandingBalance).toLocaleString('en-PH', {
                                                             minimumFractionDigits: 2,
                                                             maximumFractionDigits: 2,
                                                         })}
-                                                        
-                                                       
                                                     </TableCell>
                                                 </TableRow>
                                             ));

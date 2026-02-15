@@ -45,7 +45,7 @@ class ViewEmployeeLoanController extends Controller
         ->get();
 
         $monthlyRate = $borrower->rateInMonth / 100;
-        $today = Carbon::parse('2026-03-27');
+        $today = Carbon::parse('2026-08-16');
 
         for ($m = 0; $m < $months->count(); $m++) {
 
@@ -59,7 +59,14 @@ class ViewEmployeeLoanController extends Controller
             if($lastPrevPayment) {
                 $prevDate = Carbon::parse($lastPrevPayment->paymentDate);
             } else {
-                $prevDate = Carbon::parse($borrower->date);
+
+                if($m == 0)
+                    $prevDate = Carbon::parse($borrower->date);
+                else {
+                    $prev = $months[$m - 1];
+                    $prevDate = Carbon::parse($prev->date);
+                }
+                    
             }
 
             foreach ($current->loaninstallment as $payment) {
@@ -73,22 +80,6 @@ class ViewEmployeeLoanController extends Controller
 
                 if ($payment->lastComputedDate === $today->toDateString()) {
                     break;
-                }
-
-                if ($today->gt($cycleEnd)) {
-            
-                    $daysInMonth = $prevDate->daysInMonth;
-
-                    $interest = $payment->originalBalance * $monthlyRate;
-
-                    $payment->interest = $interest;
-                    $payment->outstandingBalance = $payment->originalBalance + $interest;
-
-                    $payment->lastComputedDate = $today->toDateString();
-                    $payment->save();
-
-                    // move to next month
-                    continue;
                 }
 
                 if ($today->between($cycleStart, $cycleEnd)) {
@@ -108,6 +99,36 @@ class ViewEmployeeLoanController extends Controller
                     $payment->save();
 
                     break;
+
+                } else {
+
+                    if ($m === $months->count() - 1) {
+        
+                        $nextDueDate = Carbon::parse($months->last()->date)->addMonth();
+
+                        if($today->gt($months->last()->date) && $nextDueDate->month != 1)
+                        {
+
+                            $dueDates = DueDates::create([
+                                'loan_amortization_id' => $loanAmortizationId,
+                                'date' => $nextDueDate,
+                                'status' => 'unpaid'
+                            ]);
+
+                            LoanInstallment::create([
+                                'users_id' => $borrower->users_id,
+                                'loan_amortization_id' => $loanAmortizationId,
+                                'due_dates_id' => $dueDates->id,
+                                'interest' => 0,
+                                'principal' => 0,
+                                'outstandingBalance' => $payment->outstandingBalance,
+                                'originalBalance' => $payment->outstandingBalance,
+                                'status' => 'unpaid'
+                            ]);
+
+                            $months->push($dueDates);
+                        }
+                    }
                 }
 
             }
@@ -193,6 +214,7 @@ class ViewEmployeeLoanController extends Controller
         return Inertia::render('employee/special-account/view-employee-loan', [
             'encrypted_id' => $request->encrypted_id,
             'borrower' => $borrower,
+            'today' => $today
         ]);
     }
 }
