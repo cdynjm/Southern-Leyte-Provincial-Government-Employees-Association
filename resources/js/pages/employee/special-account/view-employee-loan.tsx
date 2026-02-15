@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type LoanAmortization, type User } from '@/types';
 import { Head } from '@inertiajs/react';
+import { CheckIcon } from 'lucide-react';
 interface ViewEmployeeLoanProps {
     auth: {
         user: User;
@@ -149,16 +150,13 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
                                         </TableRow>
                                     ) : (
                                         borrower.duedates.map((month, monthIndex) => {
-                                            const startDate = monthIndex === 0 ? null : borrower.duedates[monthIndex - 1].date;
+                                            const startDate = monthIndex === 0 ? borrower.date : borrower.duedates[monthIndex - 1].date;
                                             const endDate = month.date;
 
-                                            // Skip first row if you don't want a "null" range
-                                            if (!startDate) return null;
-
                                             return month.loaninstallment?.map((ln, lnIndex) => (
-                                                <TableRow key={ln.encrypted_id}>
+                                                <TableRow key={lnIndex}>
                                                     {/* Month only on first installment of that month */}
-                                                    <TableCell className="py-[6px] text-center">{lnIndex === 0 ? monthIndex : ''}</TableCell>
+                                                    <TableCell className="py-[6px] text-center">{lnIndex === 0 ? monthIndex + 1 : ''}</TableCell>
 
                                                     {/* Due Date / Date Range */}
                                                     <TableCell className="py-[6px] text-nowrap">
@@ -178,11 +176,14 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
                                                     <TableCell className="py-[6px] text-nowrap">
                                                         {ln.installment ? (
                                                             <>
-                                                                ₱
+                                                                <div className="flex items-center gap-2">
+                                                                    ₱
                                                                 {Number(ln.installment).toLocaleString('en-PH', {
                                                                     minimumFractionDigits: 2,
                                                                     maximumFractionDigits: 2,
                                                                 })}
+                                                                {ln.status === 'paid' ? <CheckIcon className='text-green-600 w-5' /> : ''}
+                                                                </div>
                                                             </>
                                                         ) : (
                                                             <small className={ln.status === 'paid' ? 'text-green-600' : 'text-red-600'}>
@@ -217,11 +218,14 @@ export default function Dashboard({ auth, encrypted_id, borrower }: ViewEmployee
 
                                                     {/* Outstanding Balance */}
                                                     <TableCell className="py-[6px] font-bold text-nowrap">
-                                                        ₱
+                                                        
+                                                            ₱
                                                         {Number(ln.outstandingBalance).toLocaleString('en-PH', {
                                                             minimumFractionDigits: 2,
                                                             maximumFractionDigits: 2,
                                                         })}
+                                                        
+                                                       
                                                     </TableCell>
                                                 </TableRow>
                                             ));

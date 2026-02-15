@@ -14,6 +14,7 @@ use App\Models\Contributions;
 use App\Models\ContributionTypes;
 use App\Models\LoanAmortization;
 use App\Models\LoanInstallment;
+use App\Models\DueDates;
 use Carbon\Carbon;
 
 class ViewEmployeeLoanController extends Controller
@@ -38,6 +39,82 @@ class ViewEmployeeLoanController extends Controller
             $duedate->encrypted_id = $this->aes->encrypt($duedate->id);
             return $duedate;
         });
+
+        $months = DueDates::with('loaninstallment')->where('loan_amortization_id', $loanAmortizationId)
+        ->orderBy('date', 'asc')
+        ->get();
+
+        $monthlyRate = $borrower->rateInMonth / 100;
+        $today = Carbon::parse('2026-03-27');
+
+        for ($m = 0; $m < $months->count(); $m++) {
+
+            $current = $months[$m];
+
+            $lastPrevPayment = $current->loaninstallment
+                ->whereNotNull('paymentDate')
+                ->sortBy('paymentDate')
+                ->last();
+            
+            if($lastPrevPayment) {
+                $prevDate = Carbon::parse($lastPrevPayment->paymentDate);
+            } else {
+                $prevDate = Carbon::parse($borrower->date);
+            }
+
+            foreach ($current->loaninstallment as $payment) {
+
+                $cycleStart = $prevDate->copy()->addDay();
+                $cycleEnd = Carbon::parse($current->date);
+
+                if($payment->status == 'paid') {
+                    continue;
+                }
+
+                if ($payment->lastComputedDate === $today->toDateString()) {
+                    break;
+                }
+
+                if ($today->gt($cycleEnd)) {
+            
+                    $daysInMonth = $prevDate->daysInMonth;
+
+                    $interest = $payment->originalBalance * $monthlyRate;
+
+                    $payment->interest = $interest;
+                    $payment->outstandingBalance = $payment->originalBalance + $interest;
+
+                    $payment->lastComputedDate = $today->toDateString();
+                    $payment->save();
+
+                    // move to next month
+                    continue;
+                }
+
+                if ($today->between($cycleStart, $cycleEnd)) {
+            
+                    $daysInMonth = $prevDate->daysInMonth;
+
+                    $daysGap = $cycleStart->diffInDays($today) + 1;
+
+                    $interest = $payment->originalBalance
+                                * $monthlyRate
+                                * ($daysGap / $daysInMonth);
+
+                    $payment->interest = $interest;
+                    $payment->outstandingBalance = $payment->originalBalance + $interest;
+
+                    $payment->lastComputedDate = $today->toDateString();
+                    $payment->save();
+
+                    break;
+                }
+
+            }
+            
+        }
+
+        $borrower->load('duedates.loaninstallment');
 
 
       /*  $installments = LoanInstallment::where('loan_amortization_id', $loanAmortizationId)

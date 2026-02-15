@@ -21,6 +21,7 @@ class LoanInstallment extends Model
        'interest',
        'principal',
        'outstandingBalance',
+       'originalBalance',
        'lastComputedDate',
        'status'
        

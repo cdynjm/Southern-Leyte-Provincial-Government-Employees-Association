@@ -89,28 +89,21 @@ class EncodeEmployeeLoanController extends Controller
 
         $paymentDate = $loanDate->copy(); // Keep exact loan date (15th stays 15th)
 
-        for ($month = 1; $month <= 2; $month++) {
+        $dueDates = DueDates::create([
+            'loan_amortization_id' => $loanAmortization->id,
+            'date' => $paymentDate->addMonth(),
+            'status' => 'unpaid'
+        ]);
 
-            $dueDates = DueDates::create([
-                'loan_amortization_id' => $loanAmortization->id,
-                'date' => $paymentDate->copy(),
-                'status' => 'unpaid'
-            ]);
-
-            LoanInstallment::create([
-                'users_id' => $employeeId,
-                'loan_amortization_id' => $loanAmortization->id,
-                'due_dates_id' => $dueDates->id,
-                'interest' => 0,
-                'principal' => 0,
-                'outstandingBalance' => $month === 1 || $month === 2 ? $borrowed : null, // only first month has value
-                'status' => 'unpaid'
-            ]);
-
-            
-
-            // Move to same day next month (15 → 15)
-            $paymentDate->addMonth();
-        }
+        LoanInstallment::create([
+            'users_id' => $employeeId,
+            'loan_amortization_id' => $loanAmortization->id,
+            'due_dates_id' => $dueDates->id,
+            'interest' => 0,
+            'principal' => 0,
+            'outstandingBalance' => $borrowed,
+            'originalBalance' => $borrowed,
+            'status' => 'unpaid'
+        ]);
     }
 }
