@@ -45,7 +45,7 @@ class ViewEmployeeLoanController extends Controller
         ->get();
 
         $monthlyRate = $borrower->rateInMonth / 100;
-        $today = Carbon::parse('2026-08-16');
+        $today = Carbon::parse('2026-08-17');
 
         for ($m = 0; $m < $months->count(); $m++) {
 
