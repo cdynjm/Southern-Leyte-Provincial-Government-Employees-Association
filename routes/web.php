@@ -70,7 +70,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/loans', [LoansController::class, 'index'])->name('admin.loans');
             Route::get('/loan-tracker', [LoansController::class, 'loanTracker'])->name('admin.loan-tracker');
             Route::post('/loan-tracker/store-or-update', [LoansController::class, 'storeOrUpdate'])->name('admin.loan-tracker.store-or-update');
-            
+            Route::get('/view-employee-loan/{encrypted_id}', [LoansController::class, 'viewEmployeeLoan'])->name('admin.view-employee-loan');
+            Route::post('/borrowers/search', [LoansController::class, 'search'])->name('admin.borrowers.search');
+            Route::post('/borrowers/clear-search', [LoansController::class, 'clearSearch'])->name('admin.borrowers.clear-search');
         });
 
     Route::prefix('employee')
