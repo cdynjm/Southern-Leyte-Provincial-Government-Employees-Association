@@ -20,7 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type FinancialAccount, type User } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { PencilIcon, Trash2Icon } from 'lucide-react';
+import { PencilIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -40,7 +40,6 @@ interface FinancialAccountProps {
 export default function FinancialAccount({ auth, financialAccount }: FinancialAccountProps) {
     const [openDialog, setOpenDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
-    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
     type FinancialAccountFormData = {
         encrypted_id?: string;
@@ -105,31 +104,6 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
                 toast('Opss, sorry but ...', {
                     description: errors?.deduct || 'Something went wrong.',
                 });
-            },
-        });
-    };
-
-    const deleteForm = useForm({
-        encrypted_id: '',
-    });
-
-    const deleteFinancialAccount = (encrypted_id: string) => {
-        deleteForm.setData('encrypted_id', encrypted_id);
-        setOpenDeleteDialog(true);
-    };
-
-    const removeFinancialAccount = () => {
-        deleteForm.delete(route('admin.financial-account.destroy'), {
-            onSuccess: () => {
-                toast('Deleted', {
-                    description: 'Financial account has been deleted successfully.',
-                    action: {
-                        label: 'Close',
-                        onClick: () => console.log(''),
-                    },
-                });
-                deleteForm.reset();
-                setOpenDeleteDialog(false);
             },
         });
     };
@@ -291,27 +265,6 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
-
-                        <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-                            <DialogContent className="sm:max-w-lg">
-                                <DialogHeader>
-                                    <DialogTitle>Delete Financial Account</DialogTitle>
-                                    <DialogDescription>
-                                        Are you sure you want to delete this financial account? This action cannot be undone.
-                                    </DialogDescription>
-                                </DialogHeader>
-
-                                <DialogFooter>
-                                    <DialogClose asChild>
-                                        <Button variant="outline">Cancel</Button>
-                                    </DialogClose>
-
-                                    <Button variant="destructive" onClick={removeFinancialAccount} disabled={deleteForm.processing}>
-                                        {deleteForm.processing ? 'Deleting...' : 'Delete'}
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
                     </div>
                     <Table>
                         <TableHeader>
@@ -353,14 +306,7 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
                                                 >
                                                     <PencilIcon className="text-gray-600" />
                                                 </Button>
-                                                <Button
-                                                    variant="secondary"
-                                                    className="text-[11px]"
-                                                    size="icon"
-                                                    onClick={() => deleteFinancialAccount(fa.encrypted_id)}
-                                                >
-                                                    <Trash2Icon className="text-red-600" />
-                                                </Button>
+                                               
                                             </div>
                                         </TableCell>
                                     </TableRow>

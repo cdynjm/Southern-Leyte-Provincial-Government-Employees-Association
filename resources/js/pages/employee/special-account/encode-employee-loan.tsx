@@ -84,7 +84,9 @@ export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: Enc
         const { borrowed, processingFee, rateInMonth, date } = createForm.data;
 
         if (!borrowed || !processingFee || !rateInMonth || !date) {
-            toast.error('Please fill in all fields.');
+            toast('Opss, sorry but ...', {
+                description: 'Please fill in all fields.',
+            });
             return;
         }
 
@@ -99,14 +101,16 @@ export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: Enc
                 });
                 createForm.reset();
             },
+            onError: (errors) => {
+                toast('Opss, sorry but ...', {
+                    description: errors?.balance || 'Something went wrong.',
+                });
+            },
         });
     };
 
     const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-    .toISOString()
-    .split("T")[0];
-
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
@@ -229,11 +233,13 @@ export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: Enc
                                 <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
                                     <div>
                                         <p className="text-gray-500">Net Proceeds</p>
-                                        <p className="text-base font-semibold">₱{' '}
-                                                {Number(computation.netProceeds).toLocaleString('en-PH', {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2,
-                                                })}</p>
+                                        <p className="text-base font-semibold">
+                                            ₱{' '}
+                                            {Number(computation.netProceeds).toLocaleString('en-PH', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2,
+                                            })}
+                                        </p>
                                     </div>
 
                                     <div>
@@ -243,11 +249,13 @@ export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: Enc
 
                                     <div>
                                         <p className="text-gray-500">Monthly Installment</p>
-                                        <p className="text-base font-semibold">₱{' '}
-                                                {Number(computation.monthlyInstallment).toLocaleString('en-PH', {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2,
-                                                })}</p>
+                                        <p className="text-base font-semibold">
+                                            ₱{' '}
+                                            {Number(computation.monthlyInstallment).toLocaleString('en-PH', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2,
+                                            })}
+                                        </p>
                                     </div>
                                 </div>
                             </div>

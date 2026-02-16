@@ -175,8 +175,8 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                                 </div>
                             </div>
                             <hr className="my-4" />
-                            <p className='mb-2'>
-                                <small className='text-gray-500'>Note: Daily Interest is computed in real-time by the system</small>
+                            <p className="mb-2">
+                                <small className="text-gray-500">Note: Daily Interest is computed in real-time</small>
                             </p>
                             <Table>
                                 <TableHeader>
@@ -236,8 +236,7 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                                                         {ln.installment ? (
                                                             <>
                                                                 <div className="flex items-center gap-2">
-                                                                     {ln.status === 'paid' ? <CheckIcon className="w-4 text-green-600" /> : ''}
-                                                                    ₱
+                                                                    {ln.status === 'paid' ? <CheckIcon className="w-4 text-green-600" /> : ''}₱
                                                                     {Number(ln.installment).toLocaleString('en-PH', {
                                                                         minimumFractionDigits: 2,
                                                                         maximumFractionDigits: 2,
@@ -277,11 +276,13 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
 
                                                     {/* Outstanding Balance */}
                                                     <TableCell className="py-[6px] font-bold text-nowrap">
-                                                        ₱
-                                                        {Number(ln.outstandingBalance).toLocaleString('en-PH', {
-                                                            minimumFractionDigits: 2,
-                                                            maximumFractionDigits: 2,
-                                                        })}
+                                                        <div className={ln.status === 'paid' ? 'text-green-700' : 'text-red-700'}>
+                                                            ₱
+                                                            {Number(ln.outstandingBalance).toLocaleString('en-PH', {
+                                                                minimumFractionDigits: 2,
+                                                                maximumFractionDigits: 2,
+                                                            })}
+                                                        </div>
                                                     </TableCell>
                                                 </TableRow>
                                             ));

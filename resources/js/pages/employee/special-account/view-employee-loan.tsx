@@ -132,7 +132,7 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                             </div>
                             <hr className="my-4" />
                             <p className="mb-2">
-                                <small className="text-gray-500">Note: Daily Interest is computed in real-time by the system</small>
+                                <small className="text-gray-500">Note: Daily Interest is computed in real-time</small>
                             </p>
                             <Table>
                                 <TableHeader>
@@ -233,11 +233,13 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
 
                                                     {/* Outstanding Balance */}
                                                     <TableCell className="py-[6px] font-bold text-nowrap">
-                                                        ₱
-                                                        {Number(ln.outstandingBalance).toLocaleString('en-PH', {
-                                                            minimumFractionDigits: 2,
-                                                            maximumFractionDigits: 2,
-                                                        })}
+                                                        <div className={ln.status === 'paid' ? 'text-green-700' : 'text-red-700'}>
+                                                            ₱
+                                                            {Number(ln.outstandingBalance).toLocaleString('en-PH', {
+                                                                minimumFractionDigits: 2,
+                                                                maximumFractionDigits: 2,
+                                                            })}
+                                                        </div>
                                                     </TableCell>
                                                 </TableRow>
                                             ));

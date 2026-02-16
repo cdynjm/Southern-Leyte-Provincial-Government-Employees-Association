@@ -20,12 +20,14 @@ use App\Models\DueDates;
 use Carbon\Carbon;
 use Session;
 use App\Traits\HasDateHelpers;
+use App\Traits\HasFinancialAccountHelpers;
 
 class LoansController extends Controller
 {
     protected $aes;
 
     use HasDateHelpers;
+    use HasFinancialAccountHelpers;
 
     public function __construct(AESCipher $aes)
     {
@@ -269,7 +271,8 @@ class LoansController extends Controller
                     'status' => 'paid'
                 ]);
 
-                
+                FinancialAccount::where('id', $this->loanID)->increment('balance', $installment);
+
                 LoanInstallment::where('loan_amortization_id', $loanAmortizationId)
                     ->where('status', 'unpaid')
                     ->update([

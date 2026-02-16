@@ -16,11 +16,15 @@ use App\Models\ContributionTypes;
 use App\Models\LoanAmortization;
 use App\Models\LoanInstallment;
 use App\Models\DueDates;
+use App\Models\FinancialAccount;
 use Carbon\Carbon;
+use App\Traits\HasFinancialAccountHelpers;
 
 class EncodeEmployeeLoanController extends Controller
 {
     protected $aes;
+
+    use HasFinancialAccountHelpers;
 
     public function __construct(AESCipher $aes)
     {
@@ -40,6 +44,15 @@ class EncodeEmployeeLoanController extends Controller
 
     public function store(Request $request)
     {
+
+        $loanBalance = FinancialAccount::where('id', $this->loanID())->value('balance');
+
+        if($loanBalance < $request->borrowed) {
+            return redirect()->back()
+                ->withErrors(['balance' => 'Loanable balance is currently insufficient'])
+                ->withInput();
+        }
+
         $employeeId = $this->aes->decrypt($request->encrypted_id);
 
         $borrowed = (float) $request->borrowed;
