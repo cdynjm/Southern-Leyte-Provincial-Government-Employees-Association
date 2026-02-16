@@ -19,10 +19,13 @@ use App\Models\LoanInstallment;
 use App\Models\DueDates;
 use Carbon\Carbon;
 use Session;
+use App\Traits\HasDateHelpers;
 
 class LoansController extends Controller
 {
     protected $aes;
+
+    use HasDateHelpers;
 
     public function __construct(AESCipher $aes)
     {
@@ -71,7 +74,7 @@ class LoansController extends Controller
         ->get();
 
         $monthlyRate = $borrower->rateInMonth / 100;
-        $today = Carbon::today();
+        $today = $this->todayDate();
 
         if($borrower->paymentStatus === 'unpaid') {
 
@@ -83,7 +86,7 @@ class LoansController extends Controller
                     ->whereNotNull('paymentDate')
                     ->sortBy('paymentDate')
                     ->last();
-                
+               
                 if($lastPrevPayment) {
                     $prevDate = Carbon::parse($lastPrevPayment->paymentDate);
                 } else {
@@ -99,19 +102,23 @@ class LoansController extends Controller
 
                 foreach ($current->loaninstallment as $payment) {
 
-                    $cycleStart = $prevDate->copy()->addDay();
+                    if($prevDate->isSameDay($current->date))
+                       $cycleStart = $prevDate->copy();
+                    else
+                        $cycleStart = $prevDate->copy()->addDay();
+                    
                     $cycleEnd = Carbon::parse($current->date);
-
-                    if($payment->status == 'paid') {
-                        continue;
-                    }
 
                     if ($payment->lastComputedDate === $today->toDateString()) {
                         break;
                     }
 
-                    if ($today->between($cycleStart, $cycleEnd)) {
-                
+                    if ($cycleStart->ne($cycleEnd) && $today->between($cycleStart, $cycleEnd)) {
+                    
+                        if($payment->status == 'paid') {
+                            continue;
+                        }
+                        
                         $daysInMonth = $prevDate->daysInMonth;
 
                         $daysGap = $cycleStart->diffInDays($today) + 1;
@@ -129,7 +136,7 @@ class LoansController extends Controller
                         break;
 
                     } else {
-
+        
                         if ($m === $months->count() - 1) {
             
                             $nextDueDate = Carbon::parse($months->last()->date)->addMonth();
@@ -163,7 +170,6 @@ class LoansController extends Controller
             }
 
             $borrower->load('duedates.loaninstallment');
-
         }
 
         return Inertia::render('admin/loans/view-employee-loan', [
@@ -231,7 +237,7 @@ class LoansController extends Controller
     {
         $loanAmortizationId = $this->aes->decrypt($request->encrypted_id);
         $installment = $request->installment;
-        $paymentDate = $request->paymentDate;
+        $paymentDate = $this->todayDate();
 
         $dueDate = DueDates::with('loaninstallment')
             ->where('loan_amortization_id', $loanAmortizationId)
