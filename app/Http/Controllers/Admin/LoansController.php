@@ -271,7 +271,7 @@ class LoansController extends Controller
                     'status' => 'paid'
                 ]);
 
-                FinancialAccount::where('id', $this->loanID)->increment('balance', $installment);
+                FinancialAccount::where('id', $this->loanID())->increment('balance', $installment);
 
                 LoanInstallment::where('loan_amortization_id', $loanAmortizationId)
                     ->where('status', 'unpaid')
