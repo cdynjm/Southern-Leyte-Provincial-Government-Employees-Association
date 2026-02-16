@@ -14,7 +14,6 @@ class DueDates extends Model
     protected $fillable = [
         'loan_amortization_id',
         'date',
-        'status'
     ];
 
     public function loaninstallment()

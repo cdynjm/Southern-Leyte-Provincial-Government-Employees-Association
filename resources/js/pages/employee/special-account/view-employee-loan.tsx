@@ -25,17 +25,14 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
         },
     ];
 
-    {
-        /* const totals = borrower.loaninstallment?.reduce(
-        (acc, ln) => {
-            acc.installment += Number(ln.installment);
-            acc.interest += Number(ln.interest);
-            acc.principal += Number(ln.principal);
-            return acc;
-        },
-        { installment: 0, interest: 0, principal: 0 },
-    ) ?? { installment: 0, interest: 0, principal: 0 }; */
+    function toLocalDateString(iso: string) {
+        const d = new Date(iso);
+        const tzOffset = d.getTimezoneOffset() * 60000;
+        const localISO = new Date(d.getTime() - tzOffset).toISOString().split('T')[0];
+        return localISO;
     }
+
+    const formattedToday = toLocalDateString(today);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
@@ -72,7 +69,7 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                     </Card>
                     <Card className="shadow-none">
                         <CardContent>
-                            <Label className="font-bold">Loan Amortization Statement</Label>
+                            <Label className="font-bold">Loan Amortization Schedule</Label>
                             <p>
                                 <small>Current Date: </small>
                                 <span className="font-bold text-blue-600">
@@ -134,7 +131,9 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                                 </div>
                             </div>
                             <hr className="my-4" />
-
+                            <p className="mb-2">
+                                <small className="text-gray-500">Note: Daily Interest is computed in real-time by the system</small>
+                            </p>
                             <Table>
                                 <TableHeader>
                                     <TableRow>
@@ -164,8 +163,9 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                                                 <TableRow
                                                     key={lnIndex}
                                                     className={
-                                                        monthIndex === borrower.duedates.length - 1 &&
-                                                        lnIndex === (month.loaninstallment?.length ?? 0) - 1
+                                                        new Date(startDate) <= new Date(formattedToday) &&
+                                                        new Date(formattedToday) <= new Date(endDate) &&
+                                                        borrower.paymentStatus === 'unpaid'
                                                             ? 'bg-yellow-100'
                                                             : ''
                                                     }
@@ -192,12 +192,12 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                                                         {ln.installment ? (
                                                             <>
                                                                 <div className="flex items-center gap-2">
+                                                                     {ln.status === 'paid' ? <CheckIcon className="w-4 text-green-600" /> : ''}
                                                                     ₱
                                                                     {Number(ln.installment).toLocaleString('en-PH', {
                                                                         minimumFractionDigits: 2,
                                                                         maximumFractionDigits: 2,
                                                                     })}
-                                                                    {ln.status === 'paid' ? <CheckIcon className="w-5 text-green-600" /> : ''}
                                                                 </div>
                                                             </>
                                                         ) : (

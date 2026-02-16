@@ -1,13 +1,16 @@
 import FormattedDate from '@/components/formatted-date';
 import { SkeletonCard } from '@/components/skeleton-card';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SkeletonDelay } from '@/components/ui/skeleton-delay';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type LoanAmortization, type User } from '@/types';
-import { Head } from '@inertiajs/react';
-import { CheckIcon } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
+import { CheckCircleIcon, CheckIcon } from 'lucide-react';
+import { toast } from 'sonner';
 interface ViewEmployeeLoanProps {
     auth: {
         user: User;
@@ -17,7 +20,7 @@ interface ViewEmployeeLoanProps {
     today: string;
 }
 
-export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewEmployeeLoanProps) {
+export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }: ViewEmployeeLoanProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'View Employee Loan',
@@ -25,17 +28,55 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
         },
     ];
 
-    {
-        /* const totals = borrower.loaninstallment?.reduce(
-        (acc, ln) => {
-            acc.installment += Number(ln.installment);
-            acc.interest += Number(ln.interest);
-            acc.principal += Number(ln.principal);
-            return acc;
-        },
-        { installment: 0, interest: 0, principal: 0 },
-    ) ?? { installment: 0, interest: 0, principal: 0 }; */
+    function toLocalDateString(iso: string) {
+        const d = new Date(iso);
+        const tzOffset = d.getTimezoneOffset() * 60000;
+        const localISO = new Date(d.getTime() - tzOffset).toISOString().split('T')[0];
+        return localISO;
     }
+
+    const formattedToday = toLocalDateString(today);
+
+    type ViewEmployeeLoanFormData = {
+        encrypted_id?: string;
+        installment: number | '';
+        paymentDate: string;
+    };
+
+    const createForm = useForm<ViewEmployeeLoanFormData>({
+        encrypted_id: encrypted_id,
+        installment: '',
+        paymentDate: formattedToday,
+    });
+
+    const repayLoan = () => {
+        const { encrypted_id, installment, paymentDate } = createForm.data;
+
+        if (!encrypted_id || !installment || !paymentDate) {
+            toast('Opss, Error', {
+                description: 'Please fill in required fields before submitting.',
+            });
+            return;
+        }
+
+        createForm.post(route('admin.repay-loan.store'), {
+            onSuccess: () => {
+                toast('Created', {
+                    description: 'Payment has been recorded and saved successfully.',
+                    action: {
+                        label: 'Close',
+                        onClick: () => console.log(''),
+                    },
+                });
+                createForm.reset();
+            },
+            onError: (errors) => {
+                toast('Opss, sorry but ...', {
+                    description: errors?.installment || 'Something went wrong.',
+                });
+            },
+        });
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
@@ -72,7 +113,7 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                     </Card>
                     <Card className="shadow-none">
                         <CardContent>
-                            <Label className="font-bold">Loan Amortization Statement</Label>
+                            <Label className="font-bold">Loan Amortization Schedule</Label>
                             <p>
                                 <small>Current Date: </small>
                                 <span className="font-bold text-blue-600">
@@ -134,7 +175,9 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                                 </div>
                             </div>
                             <hr className="my-4" />
-
+                            <p className='mb-2'>
+                                <small className='text-gray-500'>Note: Daily Interest is computed in real-time by the system</small>
+                            </p>
                             <Table>
                                 <TableHeader>
                                     <TableRow>
@@ -164,8 +207,9 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                                                 <TableRow
                                                     key={lnIndex}
                                                     className={
-                                                        monthIndex === borrower.duedates.length - 1 &&
-                                                        lnIndex === (month.loaninstallment?.length ?? 0) - 1
+                                                        new Date(startDate) <= new Date(formattedToday) &&
+                                                        new Date(formattedToday) <= new Date(endDate) &&
+                                                        borrower.paymentStatus === 'unpaid'
                                                             ? 'bg-yellow-100'
                                                             : ''
                                                     }
@@ -192,12 +236,12 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                                                         {ln.installment ? (
                                                             <>
                                                                 <div className="flex items-center gap-2">
+                                                                     {ln.status === 'paid' ? <CheckIcon className="w-4 text-green-600" /> : ''}
                                                                     ₱
                                                                     {Number(ln.installment).toLocaleString('en-PH', {
                                                                         minimumFractionDigits: 2,
                                                                         maximumFractionDigits: 2,
                                                                     })}
-                                                                    {ln.status === 'paid' ? <CheckIcon className="w-5 text-green-600" /> : ''}
                                                                 </div>
                                                             </>
                                                         ) : (
@@ -245,6 +289,65 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                                     )}
                                 </TableBody>
                             </Table>
+
+                            {borrower.paymentStatus === 'unpaid' ? (
+                                <>
+                                    <hr className="my-6 border border-2" />
+                                    <div>
+                                        <p className="mb-4 text-[14px] font-bold text-gray-600">REPAY LOAN</p>
+                                        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                            <div className="flex flex-col gap-2">
+                                                <Label className="text-[13px] text-gray-600">Amount to be Paid</Label>
+                                                <Input
+                                                    type="number"
+                                                    min={0}
+                                                    value={createForm.data.installment}
+                                                    onChange={(e) =>
+                                                        createForm.setData('installment', e.target.value === '' ? '' : Number(e.target.value))
+                                                    }
+                                                    placeholder="Enter Amount"
+                                                />
+                                            </div>
+
+                                            <div className="flex w-full items-end gap-2">
+                                                <div className="flex flex-1 flex-col gap-2">
+                                                    <Label className="text-[13px] text-gray-600">
+                                                        Date of Payment <span className="text-green-600">(Current Date)</span>
+                                                    </Label>
+                                                    <Input
+                                                        type="date"
+                                                        className="w-full"
+                                                        value={formattedToday}
+                                                        min={formattedToday}
+                                                        max={formattedToday}
+                                                        readOnly
+                                                        onKeyDown={(e) => e.preventDefault()}
+                                                        onPaste={(e) => e.preventDefault()}
+                                                    />
+                                                </div>
+
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-green-600 text-[13px] hover:bg-green-500"
+                                                    onClick={repayLoan}
+                                                    disabled={createForm.processing}
+                                                >
+                                                    {createForm.processing ? (
+                                                        'Procesing...'
+                                                    ) : (
+                                                        <>
+                                                            {' '}
+                                                            <CheckCircleIcon /> Pay
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                ''
+                            )}
                         </CardContent>
                     </Card>
                 </SkeletonDelay>

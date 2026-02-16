@@ -73,6 +73,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/view-employee-loan/{encrypted_id}', [LoansController::class, 'viewEmployeeLoan'])->name('admin.view-employee-loan');
             Route::post('/borrowers/search', [LoansController::class, 'search'])->name('admin.borrowers.search');
             Route::post('/borrowers/clear-search', [LoansController::class, 'clearSearch'])->name('admin.borrowers.clear-search');
+            Route::post('/repay-loan', [LoansController::class, 'repayLoan'])->name('admin.repay-loan.store');
         });
 
     Route::prefix('employee')
