@@ -2,12 +2,16 @@ import FormattedDate from '@/components/formatted-date';
 import Pagination from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { type Employees, type LoanAmortization, type Paginated } from '@/types';
 import { Link, useForm } from '@inertiajs/react';
 import { CircleMinus, EraserIcon, EyeIcon, KeyboardIcon, LoaderCircle, SearchIcon, Send } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
 interface LoanEncoderProps {
     employees: Paginated<Employees>;
     search: string;
@@ -15,6 +19,8 @@ interface LoanEncoderProps {
 }
 
 export default function LoanEncoder({ employees, search, borrowers }: LoanEncoderProps) {
+    const [openForwardLoanDialog, setOpenForwardLoanDialog] = useState(false);
+
     const searchEmployeeForm = useForm({
         search: search || '',
     });
@@ -35,8 +41,55 @@ export default function LoanEncoder({ employees, search, borrowers }: LoanEncode
         });
     };
 
+    const forwardLoanForm = useForm({
+        encrypted_id: '',
+    });
+
+    const confirmForwardingLoan = (encrypted_id: string) => {
+        forwardLoanForm.setData({ encrypted_id: String(encrypted_id) });
+        setOpenForwardLoanDialog(true);
+    };
+
+    const forwardLoan = () => {
+        forwardLoanForm.patch(route('employee.forward-loan'), {
+            onSuccess: () => {
+                toast('Deleted', {
+                    description: 'Transaction has been processed successfully.',
+                    action: {
+                        label: 'Close',
+                        onClick: () => console.log(''),
+                    },
+                });
+                setOpenForwardLoanDialog(false);
+            },
+            onError: (errors) => {
+                toast('Failed', {
+                    description: errors?.forwarding || 'Something went wrong.',
+                });
+            },
+        });
+    };
+
     return (
         <>
+            <Dialog open={openForwardLoanDialog} onOpenChange={setOpenForwardLoanDialog}>
+                <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Done Processing?</DialogTitle>
+                        <DialogDescription>Are you sure you want to confirm this transaction?</DialogDescription>
+                    </DialogHeader>
+
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+
+                        <Button variant="default" onClick={forwardLoan} disabled={forwardLoanForm.processing}>
+                            {forwardLoanForm.processing ? 'Processing...' : 'Yes'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
             <div className="mb-4 grid grid-cols-1 items-center gap-3">
                 <div className="flex items-center gap-2">
                     <Button
@@ -142,8 +195,8 @@ export default function LoanEncoder({ employees, search, borrowers }: LoanEncode
 
             <Label className="text-uppercase mb-2 flex items-center gap-2 text-sm font-bold text-gray-500">
                 <CircleMinus className="text-red-500" />
-                <span>Loans to be forwarded</span> |{' '}
-                <span className="text-[12px] font-normal">(Loans that are pending and to be forwarded.)</span>
+                <span>Loans to be processed</span> |{' '}
+                <span className="text-[12px] font-normal">(Loans that are pending and to be forwarded/approved.)</span>
             </Label>
 
             <Table>
@@ -153,8 +206,8 @@ export default function LoanEncoder({ employees, search, borrowers }: LoanEncode
                         <TableHead className="text-start text-nowrap">Name</TableHead>
                         <TableHead className="text-center text-nowrap">Amount Borrowed</TableHead>
                         <TableHead className="text-center text-nowrap">Net Proceeds</TableHead>
-                        <TableHead className="text-center text-nowrap">Monthly Installment</TableHead>
-                        <TableHead className="text-center text-nowrap">Date</TableHead>
+                        <TableHead className="text-center text-nowrap">Date Applied</TableHead>
+                        <TableHead className="text-center text-nowrap">Payment Status</TableHead>
                         <TableHead className="text-center text-nowrap">Status</TableHead>
                         <TableHead className="w-[200px] text-center text-nowrap">Actions</TableHead>
                     </TableRow>
@@ -204,20 +257,16 @@ export default function LoanEncoder({ employees, search, borrowers }: LoanEncode
                                         })}
                                     </TableCell>
 
-                                    <TableCell className="py-[6px] text-center font-bold text-nowrap">
-                                        ₱
-                                        {Number(bor.monthlyInstallment).toLocaleString('en-PH', {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2,
-                                        })}
-                                    </TableCell>
-
-                                    <TableCell className="py-[6px] text-center font-normal text-[13px] text-nowrap">
-                                        <FormattedDate date={bor.date} variant="date" />
+                                    <TableCell className="py-[6px] text-center text-[13px] font-normal text-nowrap">
+                                        <FormattedDate date={bor.dateApplied} variant="date" />
                                     </TableCell>
 
                                     <TableCell className="py-[6px] text-center font-bold text-nowrap">
-                                        <Badge variant="destructive">{bor.status}</Badge>
+                                        <Badge variant={bor.paymentStatus === 'unpaid' ? 'destructive' : 'default'}>{bor.paymentStatus}</Badge>
+                                    </TableCell>
+
+                                    <TableCell className="py-[6px] text-center font-bold text-nowrap">
+                                        <Badge variant={bor.status === 'pending' ? 'destructive' : 'default'}>{bor.status}</Badge>
                                     </TableCell>
 
                                     <TableCell className="py-[6px]">
@@ -228,7 +277,13 @@ export default function LoanEncoder({ employees, search, borrowers }: LoanEncode
                                                 </Button>
                                             </Link>
 
-                                            <Button variant="secondary" size="sm" className="text-[13px]">
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                className="text-[13px]"
+                                                disabled={forwardLoanForm.processing}
+                                                onClick={() => confirmForwardingLoan(bor.encrypted_id)}
+                                            >
                                                 <Send />
                                             </Button>
                                         </div>

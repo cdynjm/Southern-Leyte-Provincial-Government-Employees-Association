@@ -69,13 +69,15 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                     </Card>
                     <Card className="shadow-none">
                         <CardContent>
-                            <Label className="font-bold">Loan Amortization Schedule</Label>
-                            <p>
-                                <small>Current Date: </small>
-                                <span className="font-bold text-blue-600">
-                                    <FormattedDate date={today} variant="date" />
-                                </span>
-                            </p>
+                            <div className="flex flex-col items-center justify-between gap-2 lg:flex-row">
+                                <Label className="font-bold">Loan Amortization Schedule</Label>
+                                <div className="flex items-center gap-2">
+                                    <small className="text-[12px]">Current Date: </small>
+                                    <small className="font-bold text-blue-600">
+                                        <FormattedDate date={today} variant="date" />
+                                    </small>
+                                </div>
+                            </div>
                             <hr className="my-4" />
                             <div className="grid grid-cols-1 justify-center gap-4 lg:grid-cols-2">
                                 <div className="flex flex-col gap-2">
@@ -130,123 +132,131 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                                     </Label>
                                 </div>
                             </div>
-                            <hr className="my-4" />
-                            <p className="mb-2">
-                                <small className="text-gray-500">Note: Daily Interest is computed in real-time</small>
-                            </p>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-[50px] text-center">Month</TableHead>
-                                        <TableHead className="text-start text-nowrap">Due Date</TableHead>
-                                        <TableHead className="text-start text-nowrap">Payment Date</TableHead>
-                                        <TableHead className="text-start text-nowrap">Installment</TableHead>
-                                        <TableHead className="text-start text-nowrap">Interest</TableHead>
-                                        <TableHead className="text-start text-nowrap">Principal</TableHead>
-                                        <TableHead className="text-start text-nowrap">Outstanding Balance</TableHead>
-                                    </TableRow>
-                                </TableHeader>
+                            {borrower.status === 'approved' ? (
+                                <>
+                                    <hr className="my-4" />
+                                    <p className="mb-2">
+                                        <small className="text-gray-500">Note: Daily Interest is computed in real-time</small>
+                                    </p>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead className="w-[50px] text-center">Month</TableHead>
+                                                <TableHead className="text-start text-nowrap">Due Date</TableHead>
+                                                <TableHead className="text-start text-nowrap">Payment Date</TableHead>
+                                                <TableHead className="text-start text-nowrap">Installment</TableHead>
+                                                <TableHead className="text-start text-nowrap">Interest</TableHead>
+                                                <TableHead className="text-start text-nowrap">Principal</TableHead>
+                                                <TableHead className="text-start text-nowrap">Outstanding Balance</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
 
-                                <TableBody>
-                                    {borrower.duedates?.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={7} className="text-center text-[13px] text-gray-500">
-                                                No data to be shown.
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        borrower.duedates.map((month, monthIndex) => {
-                                            const startDate = monthIndex === 0 ? borrower.date : borrower.duedates[monthIndex - 1].date;
-                                            const endDate = month.date;
-
-                                            return month.loaninstallment?.map((ln, lnIndex) => (
-                                                <TableRow
-                                                    key={lnIndex}
-                                                    className={
-                                                        new Date(startDate) <= new Date(formattedToday) &&
-                                                        new Date(formattedToday) <= new Date(endDate) &&
-                                                        borrower.paymentStatus === 'unpaid'
-                                                            ? 'bg-yellow-100'
-                                                            : ''
-                                                    }
-                                                >
-                                                    {/* Month only on first installment of that month */}
-                                                    <TableCell className="py-[6px] text-center">{lnIndex === 0 ? monthIndex + 1 : ''}</TableCell>
-
-                                                    {/* Due Date / Date Range */}
-                                                    <TableCell className="py-[6px] text-nowrap">
-                                                        {lnIndex === 0 ? (
-                                                            <FormattedDate date={startDate} endDate={endDate} variant="date-range" />
-                                                        ) : (
-                                                            ''
-                                                        )}
+                                        <TableBody>
+                                            {borrower.duedates?.length === 0 ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={7} className="text-center text-[13px] text-gray-500">
+                                                        No data to be shown.
                                                     </TableCell>
+                                                </TableRow>
+                                            ) : (
+                                                borrower.duedates.map((month, monthIndex) => {
+                                                    const startDate = monthIndex === 0 ? borrower.date : borrower.duedates[monthIndex - 1].date;
+                                                    const endDate = month.date;
 
-                                                    {/* Payment Date */}
-                                                    <TableCell className="py-[6px] text-nowrap">
-                                                        {ln.paymentDate ? <FormattedDate date={ln.paymentDate} variant="date" /> : '-'}
-                                                    </TableCell>
+                                                    return month.loaninstallment?.map((ln, lnIndex) => (
+                                                        <TableRow
+                                                            key={lnIndex}
+                                                            className={
+                                                                new Date(startDate) <= new Date(formattedToday) &&
+                                                                new Date(formattedToday) <= new Date(endDate) &&
+                                                                borrower.paymentStatus === 'unpaid'
+                                                                    ? 'bg-yellow-100'
+                                                                    : ''
+                                                            }
+                                                        >
+                                                            {/* Month only on first installment of that month */}
+                                                            <TableCell className="py-[6px] text-center">
+                                                                {lnIndex === 0 ? monthIndex + 1 : ''}
+                                                            </TableCell>
 
-                                                    {/* Installment */}
-                                                    <TableCell className="py-[6px] text-nowrap">
-                                                        {ln.installment ? (
-                                                            <>
-                                                                <div className="flex items-center gap-2">
-                                                                     {ln.status === 'paid' ? <CheckIcon className="w-4 text-green-600" /> : ''}
+                                                            {/* Due Date / Date Range */}
+                                                            <TableCell className="py-[6px] text-nowrap">
+                                                                {lnIndex === 0 ? (
+                                                                    <FormattedDate date={startDate} endDate={endDate} variant="date-range" />
+                                                                ) : (
+                                                                    ''
+                                                                )}
+                                                            </TableCell>
+
+                                                            {/* Payment Date */}
+                                                            <TableCell className="py-[6px] text-nowrap">
+                                                                {ln.paymentDate ? <FormattedDate date={ln.paymentDate} variant="date" /> : '-'}
+                                                            </TableCell>
+
+                                                            {/* Installment */}
+                                                            <TableCell className="py-[6px] text-nowrap">
+                                                                {ln.installment ? (
+                                                                    <>
+                                                                        <div className="flex items-center gap-2">
+                                                                            {ln.status === 'paid' ? <CheckIcon className="w-4 text-green-600" /> : ''}
+                                                                            ₱
+                                                                            {Number(ln.installment).toLocaleString('en-PH', {
+                                                                                minimumFractionDigits: 2,
+                                                                                maximumFractionDigits: 2,
+                                                                            })}
+                                                                        </div>
+                                                                    </>
+                                                                ) : (
+                                                                    <small className={ln.status === 'paid' ? 'text-green-600' : 'text-red-600'}>
+                                                                        {ln.status}
+                                                                    </small>
+                                                                )}
+                                                            </TableCell>
+
+                                                            {/* Interest */}
+                                                            <TableCell className="py-[6px] text-nowrap">
+                                                                ₱
+                                                                {Number(ln.interest).toLocaleString('en-PH', {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2,
+                                                                })}
+                                                            </TableCell>
+
+                                                            {/* Principal */}
+                                                            <TableCell className="py-[6px] text-nowrap">
+                                                                {ln.principal ? (
+                                                                    <>
+                                                                        ₱
+                                                                        {Number(ln.principal).toLocaleString('en-PH', {
+                                                                            minimumFractionDigits: 2,
+                                                                            maximumFractionDigits: 2,
+                                                                        })}
+                                                                    </>
+                                                                ) : (
+                                                                    <small>-</small>
+                                                                )}
+                                                            </TableCell>
+
+                                                            {/* Outstanding Balance */}
+                                                            <TableCell className="py-[6px] font-bold text-nowrap">
+                                                                <div className={ln.status === 'paid' ? 'text-green-700' : 'text-red-700'}>
                                                                     ₱
-                                                                    {Number(ln.installment).toLocaleString('en-PH', {
+                                                                    {Number(ln.outstandingBalance).toLocaleString('en-PH', {
                                                                         minimumFractionDigits: 2,
                                                                         maximumFractionDigits: 2,
                                                                     })}
                                                                 </div>
-                                                            </>
-                                                        ) : (
-                                                            <small className={ln.status === 'paid' ? 'text-green-600' : 'text-red-600'}>
-                                                                {ln.status}
-                                                            </small>
-                                                        )}
-                                                    </TableCell>
-
-                                                    {/* Interest */}
-                                                    <TableCell className="py-[6px] text-nowrap">
-                                                        ₱
-                                                        {Number(ln.interest).toLocaleString('en-PH', {
-                                                            minimumFractionDigits: 2,
-                                                            maximumFractionDigits: 2,
-                                                        })}
-                                                    </TableCell>
-
-                                                    {/* Principal */}
-                                                    <TableCell className="py-[6px] text-nowrap">
-                                                        {ln.principal ? (
-                                                            <>
-                                                                ₱
-                                                                {Number(ln.principal).toLocaleString('en-PH', {
-                                                                    minimumFractionDigits: 2,
-                                                                    maximumFractionDigits: 2,
-                                                                })}
-                                                            </>
-                                                        ) : (
-                                                            <small>-</small>
-                                                        )}
-                                                    </TableCell>
-
-                                                    {/* Outstanding Balance */}
-                                                    <TableCell className="py-[6px] font-bold text-nowrap">
-                                                        <div className={ln.status === 'paid' ? 'text-green-700' : 'text-red-700'}>
-                                                            ₱
-                                                            {Number(ln.outstandingBalance).toLocaleString('en-PH', {
-                                                                minimumFractionDigits: 2,
-                                                                maximumFractionDigits: 2,
-                                                            })}
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ));
-                                        })
-                                    )}
-                                </TableBody>
-                            </Table>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ));
+                                                })
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </>
+                            ) : (
+                                ''
+                            )}
                         </CardContent>
                     </Card>
                 </SkeletonDelay>

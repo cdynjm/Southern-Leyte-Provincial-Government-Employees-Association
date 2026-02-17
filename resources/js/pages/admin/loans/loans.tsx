@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { SkeletonDelay } from '@/components/ui/skeleton-delay';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type LoanAmortization, type User } from '@/types';
+import { type BreadcrumbItem, type LoanAmortization, type User,  type Paginated } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { EraserIcon, EyeIcon, LoaderCircle, SearchIcon } from 'lucide-react';
+import Pagination from '@/components/pagination';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -22,7 +23,7 @@ interface LoanProps {
         user: User;
     };
     search: string;
-    borrowers: LoanAmortization[];
+    borrowers: Paginated<LoanAmortization>;
 }
 
 export default function Loans({ search, borrowers, auth }: LoanProps) {
@@ -94,14 +95,14 @@ export default function Loans({ search, borrowers, auth }: LoanProps) {
                                     <TableHead className="text-start text-nowrap">Name</TableHead>
                                     <TableHead className="text-center text-nowrap">Amount Borrowed</TableHead>
                                     <TableHead className="text-center text-nowrap">Net Proceeds</TableHead>
-                                    <TableHead className="text-center text-nowrap">Monthly Installment</TableHead>
-                                    <TableHead className="text-center text-nowrap">Date</TableHead>
+                                    <TableHead className="text-center text-nowrap">Date Applied</TableHead>
+                                    <TableHead className="text-center text-nowrap">Payment Status</TableHead>
                                     <TableHead className="text-center text-nowrap">Status</TableHead>
                                     <TableHead className="w-[200px] text-center text-nowrap">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {borrowers.length === 0 ? (
+                                {borrowers.data.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={10} className="text-center text-[13px] text-gray-500">
                                             No borrowers found.
@@ -109,9 +110,9 @@ export default function Loans({ search, borrowers, auth }: LoanProps) {
                                     </TableRow>
                                 ) : (
                                     <>
-                                        {borrowers.map((bor, index) => (
+                                        {borrowers.data.map((bor, index) => (
                                             <TableRow key={bor.encrypted_id}>
-                                                <TableCell className="py-[6px] text-center">{index + 1}</TableCell>
+                                                <TableCell className="py-[6px] text-center">{index + 1 + (borrowers.current_page - 1) * borrowers.per_page}</TableCell>
 
                                                 <TableCell className="py-[6px] text-nowrap">
                                                     <div className="font-bold">{bor.user?.name}</div>
@@ -145,20 +146,18 @@ export default function Loans({ search, borrowers, auth }: LoanProps) {
                                                     })}
                                                 </TableCell>
 
-                                                <TableCell className="py-[6px] text-center font-bold text-nowrap">
-                                                    ₱
-                                                    {Number(bor.monthlyInstallment).toLocaleString('en-PH', {
-                                                        minimumFractionDigits: 2,
-                                                        maximumFractionDigits: 2,
-                                                    })}
-                                                </TableCell>
-
                                                 <TableCell className="py-[6px] text-center text-[13px] font-normal text-nowrap">
-                                                    <FormattedDate date={bor.date} variant="date" />
+                                                    <FormattedDate date={bor.dateApplied} variant="date" />
                                                 </TableCell>
 
                                                 <TableCell className="py-[6px] text-center font-bold text-nowrap">
-                                                    <Badge variant="destructive">{bor.status}</Badge>
+                                                    <Badge variant={bor.paymentStatus === 'unpaid' ? 'destructive' : 'default'}>
+                                                        {bor.paymentStatus}
+                                                    </Badge>
+                                                </TableCell>
+
+                                                <TableCell className="py-[6px] text-center font-bold text-nowrap">
+                                                    <Badge variant={bor.status === 'pending' ? 'destructive' : 'default'}>{bor.status}</Badge>
                                                 </TableCell>
 
                                                 <TableCell className="py-[6px]">
@@ -176,6 +175,7 @@ export default function Loans({ search, borrowers, auth }: LoanProps) {
                                 )}
                             </TableBody>
                         </Table>
+                        <Pagination links={borrowers.links} />
                     </div>
                 </SkeletonDelay>
             </div>

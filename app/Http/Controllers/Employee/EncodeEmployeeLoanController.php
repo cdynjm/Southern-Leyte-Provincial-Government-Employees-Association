@@ -93,11 +93,11 @@ class EncodeEmployeeLoanController extends Controller
             'processingFee' => $processingFee,
             'netProceeds' => $netProceeds,
             'periodInMonths' => $periodInMonths,
-            'rateInMonth' => $rateInMonth * 100, // store as percent
+            'rateInMonth' => $rateInMonth * 100,
             'monthlyInstallment' => $monthlyInstallment,
             'status' => 'pending',
             'paymentStatus' => 'unpaid',
-            'date' => $loanDate, // payment date = loan date
+            'dateApplied' => $loanDate, 
         ]);
 
         $paymentDate = $loanDate->copy(); // Keep exact loan date (15th stays 15th)

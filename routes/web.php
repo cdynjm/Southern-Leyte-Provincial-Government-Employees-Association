@@ -81,6 +81,8 @@ Route::middleware(['auth'])->group(function () {
         ->group(function () {
 
             Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('employee.dashboard');
+            Route::get('/view-employee-loan/{encrypted_id}', [ViewEmployeeLoanController::class, 'index'])->name('employee.view-employee-loan');
+            Route::patch('/forward-loan', [EmployeeDashboardController::class, 'forwardLoan'])->name('employee.forward-loan');
             
                 Route::middleware('loan.encoder')->group(function () {
                             
@@ -89,8 +91,6 @@ Route::middleware(['auth'])->group(function () {
                     
                     Route::get('/encode-employee-loan/{encrypted_id}', [EncodeEmployeeLoanController::class, 'index'])->name('employee.encode-employee-loan');
                     Route::post('/encode-employee-loan', [EncodeEmployeeLoanController::class, 'store'])->name('employee.encode-employee-loan.store');
-
-                    Route::get('/view-employee-loan/{encrypted_id}', [ViewEmployeeLoanController::class, 'index'])->name('employee.view-employee-loan');
 
                 });
 

@@ -217,7 +217,7 @@ export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: Enc
                                     />
                                 </div>
                                 <div>
-                                    <Label className="text-[13px] text-gray-500">Date of Loan</Label>
+                                    <Label className="text-[13px] text-gray-500">Date of Application</Label>
                                     <Input
                                         value={createForm.data.date}
                                         min={firstDayOfMonth}

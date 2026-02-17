@@ -8,15 +8,24 @@ use Inertia\Inertia;
 use Inertia\Response;
 use App\Http\Controllers\Security\AESCipher;
 use Session;
+use Carbon\Carbon;
 
 use App\Models\User;
 use App\Models\Contributions;
 use App\Models\ContributionTypes;
 use App\Models\LoanAmortization;
+use App\Models\LoanTracker;
+use App\Models\FinancialAccount;
+
+use App\Traits\HasFinancialAccountHelpers;
+use App\Traits\HasDateHelpers;
 
 class DashboardController extends Controller
 {
     protected $aes;
+
+     use HasFinancialAccountHelpers;
+     use HasDateHelpers;
 
     public function __construct(AESCipher $aes)
     {
@@ -38,7 +47,7 @@ class DashboardController extends Controller
         });
 
         $borrowers = LoanAmortization::with('user')->where('tracker', auth()->user()->loantracker->tracker)
-            ->orderBy('date', 'desc')
+            ->orderBy('dateApplied', 'desc')
             ->get()->map(function ($borrower) {
                 $borrower->encrypted_id = $this->aes->encrypt($borrower->id);
                 return $borrower;
@@ -49,6 +58,37 @@ class DashboardController extends Controller
             'borrowers' => $borrowers,
             'search' => $search,
         ]);
+    }
+
+    public function forwardLoan(Request $request)
+    {
+        $loanAmortizationId = $this->aes->decrypt($request->encrypted_id);
+
+        $loanAmortization = LoanAmortization::where('id', $loanAmortizationId)
+        ->where('tracker', auth()->user()->loantracker->tracker)->first();
+        
+        if($loanAmortization) {
+
+            $loanTracker = LoanTracker::orderBy('tracker', 'desc')->value('tracker');
+            
+            if($loanTracker == $loanAmortization->tracker)
+            {
+                $loanAmortization->update([
+                    'status' => 'approved',
+                    'date' => $this->todayDate()->toDateString()
+                ]);
+
+                FinancialAccount::where('id', $this->loanID())->decrement('balance', $loanAmortization->borrowed);
+
+            }
+
+             $loanAmortization->increment('tracker');
+
+        } else {
+            return redirect()->back()
+                ->withErrors(['forwarding' => 'This transaction has already been processed at your station'])
+                ->withInput();
+        }
     }
 
     public function search(Request $request)

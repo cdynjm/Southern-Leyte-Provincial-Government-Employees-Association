@@ -160,6 +160,7 @@ export interface LoanAmortization {
     rateInMonth: number;
     monthlyInstallment: number;
     date: string;
+    dateApplied: string;
     status: string;
     paymentStatus: string;
 }
@@ -176,6 +177,8 @@ export interface LoanInstallment {
     interest: number;
     principal: number;
     outstandingBalance: number;
+    originalBalance: number;
+    lastComputedDate: string;
     status: string;
 }
 
@@ -183,7 +186,6 @@ export interface DueDates {
     id: number;
     encrypted_id: string;
     date: string;
-    status: string;
     loaninstallment?: LoanInstallment[];
     loanamortization?: LoanAmortization;
 }

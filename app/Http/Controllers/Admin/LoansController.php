@@ -44,9 +44,8 @@ class LoansController extends Controller
                     $q->where('name', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('date', 'desc')
-            ->get()
-            ->map(function ($borrower) {
+            ->orderBy('dateApplied', 'desc')
+            ->paginate(30)->through(function ($borrower) {
                 $borrower->encrypted_id = $this->aes->encrypt($borrower->id);
                 return $borrower;
         });
@@ -78,7 +77,7 @@ class LoansController extends Controller
         $monthlyRate = $borrower->rateInMonth / 100;
         $today = $this->todayDate();
 
-        if($borrower->paymentStatus === 'unpaid') {
+        if($borrower->paymentStatus === 'unpaid' && $borrower->status === 'approved') {
 
             for ($m = 0; $m < $months->count(); $m++) {
 
@@ -239,7 +238,7 @@ class LoansController extends Controller
     {
         $loanAmortizationId = $this->aes->decrypt($request->encrypted_id);
         $installment = $request->installment;
-        $paymentDate = $this->todayDate();
+        $paymentDate = $this->todayDate()->toDateString();
 
         $dueDate = DueDates::with('loaninstallment')
             ->where('loan_amortization_id', $loanAmortizationId)
@@ -285,6 +284,7 @@ class LoansController extends Controller
                 }
 
                 if ($paymentDate != $dueDate->date) {
+                    
                     LoanInstallment::create([
                         'users_id' => $loanInstallment->users_id,
                         'loan_amortization_id' => $loanAmortizationId,
@@ -295,6 +295,30 @@ class LoansController extends Controller
                         'originalBalance' => $newOutstandingBalance,
                         'status' => 'unpaid',
                         'lastComputedDate' => $loanInstallment->lastComputedDate
+                    ]);
+
+                } else {
+
+                    $nextDueDate = Carbon::parse($dueDate->date)->addMonth();
+
+                    $borrower = LoanAmortization::where('id', $loanAmortizationId)->first();
+
+                    $loanInstallment->refresh();
+
+                    $dueDates = DueDates::create([
+                        'loan_amortization_id' => $loanAmortizationId,
+                        'date' => $nextDueDate,
+                    ]);
+
+                    LoanInstallment::create([
+                        'users_id' => $borrower->users_id,
+                        'loan_amortization_id' => $loanAmortizationId,
+                        'due_dates_id' => $dueDates->id,
+                        'interest' => 0,
+                        'principal' => 0,
+                        'outstandingBalance' => $loanInstallment->outstandingBalance,
+                        'originalBalance' => $loanInstallment->outstandingBalance,
+                        'status' => 'unpaid'
                     ]);
                 }
             }

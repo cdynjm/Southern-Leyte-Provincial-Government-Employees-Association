@@ -21,6 +21,7 @@ class LoanAmortization extends Model
         'rateInMonth',
         'monthlyInstallment',
         'date',
+        'dateApplied',
         'status',
         'paymentStatus'
     ];

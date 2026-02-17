@@ -31,12 +31,17 @@ class ViewEmployeeLoanController extends Controller
 
     public function index(Request $request)
     {
+
         $loanAmortizationId = $this->aes->decrypt($request->encrypted_id);
 
         $borrower = LoanAmortization::with([
             'user',
             'duedates.loaninstallment'
         ])->findOrFail($loanAmortizationId);
+
+        if(auth()->user()->loanTracker->tracker != $borrower->tracker) {
+            return redirect()->route('employee.dashboard');
+        }
 
         $borrower->duedates = $borrower->duedates->map(function ($duedate) {
             $duedate->encrypted_id = $this->aes->encrypt($duedate->id);
@@ -50,7 +55,7 @@ class ViewEmployeeLoanController extends Controller
         $monthlyRate = $borrower->rateInMonth / 100;
         $today = $this->todayDate();
 
-         if($borrower->paymentStatus === 'unpaid') {
+         if($borrower->paymentStatus === 'unpaid' && $borrower->status === 'approved') {
 
             for ($m = 0; $m < $months->count(); $m++) {
 

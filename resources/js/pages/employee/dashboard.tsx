@@ -55,8 +55,8 @@ export default function Dashboard({ auth, employees, borrowers, search }: Dashbo
                                         <span className="ms-1 font-bold text-blue-600">{auth.user.loantracker?.description}</span>
                                     </span>
                                 </Label>
-                                <hr />
-                                <LoanOfficer auth={auth} />
+                                <hr className='my-4' />
+                                <LoanOfficer borrowers={borrowers} />
                             </>
                         )}
                     </div>
