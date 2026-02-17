@@ -143,7 +143,7 @@ export default function LoanEncoder({ employees, search, borrowers }: LoanEncode
             <Label className="text-uppercase mb-2 flex items-center gap-2 text-sm font-bold text-gray-500">
                 <CircleMinus className="text-red-500" />
                 <span>Loans to be forwarded</span> |{' '}
-                <span className="text-[12px] font-normal">(Loans you have encoded that are pending to be forwarded to the loan officer.)</span>
+                <span className="text-[12px] font-normal">(Loans that are pending and to be forwarded.)</span>
             </Label>
 
             <Table>
