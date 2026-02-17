@@ -46,12 +46,21 @@ class DashboardController extends Controller
             return $employee;
         });
 
-        $borrowers = LoanAmortization::with('user')->where('tracker', auth()->user()->loantracker->tracker)
-            ->orderBy('dateApplied', 'desc')
-            ->get()->map(function ($borrower) {
-                $borrower->encrypted_id = $this->aes->encrypt($borrower->id);
-                return $borrower;
-            });
+        if(auth()->user()->loantracker?->tracker) {
+            $borrowers = LoanAmortization::with('user')->where('tracker', auth()->user()->loantracker->tracker)
+                ->orderBy('dateApplied', 'desc')
+                ->paginate(30)->through(function ($borrower) {
+                    $borrower->encrypted_id = $this->aes->encrypt($borrower->id);
+                    return $borrower;
+                });
+        } else {
+            $borrowers = LoanAmortization::with('user')->where('users_id', auth()->user()->id)
+                ->orderBy('dateApplied', 'desc')
+                ->paginate(30)->through(function ($borrower) {
+                    $borrower->encrypted_id = $this->aes->encrypt($borrower->id);
+                    return $borrower;
+                });
+        }
 
         return Inertia::render('employee/dashboard', [
             'employees' => $employees,

@@ -2,9 +2,10 @@ import { SkeletonCard } from '@/components/skeleton-card';
 import { Label } from '@/components/ui/label';
 import { SkeletonDelay } from '@/components/ui/skeleton-delay';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Employees, type Paginated, type User, type LoanAmortization } from '@/types';
+import { type BreadcrumbItem, type Employees, type LoanAmortization, type Paginated, type User } from '@/types';
 import { Head } from '@inertiajs/react';
 import { FolderPen } from 'lucide-react';
+import BorrowersComponent from './components/borrowers-component';
 import LoanEncoder from './special-account/loan-encoder';
 import LoanOfficer from './special-account/loan-officer';
 
@@ -19,7 +20,7 @@ interface DashboardProps {
         user: User;
     };
     employees: Paginated<Employees>;
-    borrowers: LoanAmortization[];
+    borrowers: Paginated<LoanAmortization>
     search: string;
 }
 
@@ -41,7 +42,7 @@ export default function Dashboard({ auth, employees, borrowers, search }: Dashbo
                                     </span>
                                 </Label>
 
-                                <LoanEncoder employees={employees} search={search} borrowers={borrowers} />
+                                <LoanEncoder employees={employees} search={search} borrowers={borrowers} auth={auth} />
                             </>
                         )}
 
@@ -55,14 +56,21 @@ export default function Dashboard({ auth, employees, borrowers, search }: Dashbo
                                         <span className="ms-1 font-bold text-blue-600">{auth.user.loantracker?.description}</span>
                                     </span>
                                 </Label>
-                                <hr className='my-4' />
-                                <LoanOfficer borrowers={borrowers} />
+                                <hr className="my-4" />
+                                <LoanOfficer borrowers={borrowers} auth={auth} />
+                            </>
+                        )}
+
+                        {auth.user.specialAccount == 'No' && (
+                            <>
+                                <div className="flex flex-col gap-1">
+                                    <Label className="text-sm font-bold text-gray-500">List of Loans</Label>
+                                </div>
+                                <BorrowersComponent borrowers={borrowers} auth={auth} />
                             </>
                         )}
                     </div>
-                    <div>
-
-                    </div>
+                    <div></div>
                 </SkeletonDelay>
             </div>
         </AppLayout>

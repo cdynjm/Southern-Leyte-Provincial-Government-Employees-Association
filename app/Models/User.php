@@ -82,4 +82,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(LoanTracker::class, 'users_id');
     }
+
+    
+    public function canViewLoan(LoanAmortization $borrower): bool
+    {
+        if ($this->specialAccount !== 'No')
+            return $this->loanTracker?->tracker === $borrower->tracker;
+
+        return $this->id === $borrower->users_id;
+    }
+
 }

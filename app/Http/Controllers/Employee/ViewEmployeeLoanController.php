@@ -17,6 +17,7 @@ use App\Models\LoanInstallment;
 use App\Models\DueDates;
 use Carbon\Carbon;
 use App\Traits\HasDateHelpers;
+use Illuminate\Support\Facades\Gate;
 
 class ViewEmployeeLoanController extends Controller
 {
@@ -39,9 +40,7 @@ class ViewEmployeeLoanController extends Controller
             'duedates.loaninstallment'
         ])->findOrFail($loanAmortizationId);
 
-        if(auth()->user()->loanTracker->tracker != $borrower->tracker) {
-            return redirect()->route('employee.dashboard');
-        }
+        $this->authorize('view-loan-transaction', $borrower);
 
         $borrower->duedates = $borrower->duedates->map(function ($duedate) {
             $duedate->encrypted_id = $this->aes->encrypt($duedate->id);
