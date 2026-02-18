@@ -86,10 +86,15 @@ class User extends Authenticatable
     
     public function canViewLoan(LoanAmortization $borrower): bool
     {
-        if ($this->specialAccount !== 'No')
-            return $this->loanTracker?->tracker === $borrower->tracker;
-
-        return $this->id === $borrower->users_id;
+        if ($this->specialAccount != 'No' && (int) $this->loantracker?->tracker === (int) $borrower->tracker) {
+            return true;
+        }
+        else if($this->specialAccount != 'No' && (int) $this->id === (int) $borrower->users_id) {
+            return true;
+        }
+        else {
+            return $this->id === $borrower->users_id;
+        }
     }
 
 }

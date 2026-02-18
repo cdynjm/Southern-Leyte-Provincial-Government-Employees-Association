@@ -123,6 +123,11 @@ const employeeNavItems: NavItem[] = [
         href: route('employee.dashboard'),
         icon: LayoutGrid,
     },
+    {
+        title: 'Your Loans',
+        icon: PhilippinePeso,
+        href: route('employee.loans'),
+    },
 ];
 
 export function AppSidebar() {

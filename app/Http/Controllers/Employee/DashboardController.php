@@ -56,7 +56,7 @@ class DashboardController extends Controller
         } else {
             $borrowers = LoanAmortization::with('user')->where('users_id', auth()->user()->id)
                 ->orderBy('dateApplied', 'desc')
-                ->paginate(30)->through(function ($borrower) {
+                ->paginate(10)->through(function ($borrower) {
                     $borrower->encrypted_id = $this->aes->encrypt($borrower->id);
                     return $borrower;
                 });

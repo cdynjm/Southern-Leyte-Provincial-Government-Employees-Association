@@ -2,85 +2,21 @@ import FormattedDate from '@/components/formatted-date';
 import Pagination from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { type LoanAmortization, type User, type Paginated } from '@/types';
-import { Link, useForm } from '@inertiajs/react';
-import { CircleMinus, EyeIcon, Send } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { type LoanAmortization, type Paginated, type User } from '@/types';
+import { Link } from '@inertiajs/react';
+import { EyeIcon } from 'lucide-react';
 
-interface BorrowersComponentProps {
+interface LoanComponentProps {
     auth: {
         user: User;
     };
     borrowers: Paginated<LoanAmortization>;
 }
 
-export default function BorrowersComponent({ borrowers, auth }: BorrowersComponentProps) {
-    const [openForwardLoanDialog, setOpenForwardLoanDialog] = useState(false);
-
-    const forwardLoanForm = useForm({
-        encrypted_id: '',
-    });
-
-    const confirmForwardingLoan = (encrypted_id: string) => {
-        forwardLoanForm.setData({ encrypted_id: String(encrypted_id) });
-        setOpenForwardLoanDialog(true);
-    };
-
-    const forwardLoan = () => {
-        forwardLoanForm.patch(route('employee.forward-loan'), {
-            onSuccess: () => {
-                toast('Deleted', {
-                    description: 'Transaction has been processed successfully.',
-                    action: {
-                        label: 'Close',
-                        onClick: () => console.log(''),
-                    },
-                });
-                setOpenForwardLoanDialog(false);
-            },
-            onError: (errors) => {
-                toast('Failed', {
-                    description: errors?.forwarding || 'Something went wrong.',
-                });
-            },
-        });
-    };
-
+export default function LoansComponent({ borrowers }: LoanComponentProps) {
     return (
         <>
-            <Dialog open={openForwardLoanDialog} onOpenChange={setOpenForwardLoanDialog}>
-                <DialogContent className="sm:max-w-lg">
-                    <DialogHeader>
-                        <DialogTitle>Done Processing?</DialogTitle>
-                        <DialogDescription>Are you sure you want to confirm this transaction?</DialogDescription>
-                    </DialogHeader>
-
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
-                        </DialogClose>
-
-                        <Button variant="default" onClick={forwardLoan} disabled={forwardLoanForm.processing}>
-                            {forwardLoanForm.processing ? 'Processing...' : 'Yes'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            {auth.user.specialAccount != 'No' ? (
-                <Label className="text-uppercase mb-2 flex items-center gap-2 text-sm font-bold text-gray-500">
-                    <CircleMinus className="text-red-500" />
-                    <span>Loans to be processed</span> |{' '}
-                    <span className="text-[12px] font-normal">(Loans that are pending and to be forwarded/approved.)</span>
-                </Label>
-            ) : (
-                ''
-            )}
-
             <Table>
                 <TableHeader>
                     <TableRow className="">
@@ -98,14 +34,16 @@ export default function BorrowersComponent({ borrowers, auth }: BorrowersCompone
                     {borrowers.data.length === 0 ? (
                         <TableRow>
                             <TableCell colSpan={10} className="text-center text-[13px] text-gray-500">
-                                No pending loans found.
+                                No borrowers found.
                             </TableCell>
                         </TableRow>
                     ) : (
                         <>
                             {borrowers.data.map((bor, index) => (
                                 <TableRow key={bor.encrypted_id}>
-                                    <TableCell className="py-[6px] text-center">{index + 1}</TableCell>
+                                    <TableCell className="py-[6px] text-center">
+                                        {index + 1 + (borrowers.current_page - 1) * borrowers.per_page}
+                                    </TableCell>
 
                                     <TableCell className="py-[6px] text-nowrap">
                                         <Link href={route('employee.view-employee-loan', { encrypted_id: bor.encrypted_id })}>
@@ -160,20 +98,6 @@ export default function BorrowersComponent({ borrowers, auth }: BorrowersCompone
                                                     <EyeIcon />
                                                 </Button>
                                             </Link>
-
-                                            {auth.user.specialAccount != 'No' ? (
-                                                <Button
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    className="text-[13px]"
-                                                    disabled={forwardLoanForm.processing}
-                                                    onClick={() => confirmForwardingLoan(bor.encrypted_id)}
-                                                >
-                                                    <Send />
-                                                </Button>
-                                            ) : (
-                                                ''
-                                            )}
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -182,7 +106,7 @@ export default function BorrowersComponent({ borrowers, auth }: BorrowersCompone
                     )}
                 </TableBody>
             </Table>
-             <Pagination links={borrowers.links} />
+            <Pagination links={borrowers.links} />
         </>
     );
 }

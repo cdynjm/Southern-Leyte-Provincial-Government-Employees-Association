@@ -1,4 +1,5 @@
 import FormattedDate from '@/components/formatted-date';
+import Pagination from '@/components/pagination';
 import { SkeletonCard } from '@/components/skeleton-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,10 +8,9 @@ import { Label } from '@/components/ui/label';
 import { SkeletonDelay } from '@/components/ui/skeleton-delay';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type LoanAmortization, type User,  type Paginated } from '@/types';
+import { type BreadcrumbItem, type LoanAmortization, type Paginated, type User } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { EraserIcon, EyeIcon, LoaderCircle, SearchIcon } from 'lucide-react';
-import Pagination from '@/components/pagination';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -112,13 +112,17 @@ export default function Loans({ search, borrowers, auth }: LoanProps) {
                                     <>
                                         {borrowers.data.map((bor, index) => (
                                             <TableRow key={bor.encrypted_id}>
-                                                <TableCell className="py-[6px] text-center">{index + 1 + (borrowers.current_page - 1) * borrowers.per_page}</TableCell>
+                                                <TableCell className="py-[6px] text-center">
+                                                    {index + 1 + (borrowers.current_page - 1) * borrowers.per_page}
+                                                </TableCell>
 
                                                 <TableCell className="py-[6px] text-nowrap">
-                                                    <div className="font-bold">{bor.user?.name}</div>
-                                                    <small>
-                                                        {bor.user?.employeeID} | <span className="text-gray-500">{bor.user?.position}</span>
-                                                    </small>
+                                                    <Link href={route('admin.view-employee-loan', { encrypted_id: bor.encrypted_id })}>
+                                                        <div className="font-bold">{bor.user?.name}</div>
+                                                        <small>
+                                                            {bor.user?.employeeID} | <span className="text-gray-500">{bor.user?.position}</span>
+                                                        </small>
+                                                    </Link>
                                                 </TableCell>
 
                                                 <TableCell className="py-[6px] text-center text-nowrap">

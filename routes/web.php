@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\LoansController;
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
 use App\Http\Controllers\Employee\EncodeEmployeeLoanController;
 use App\Http\Controllers\Employee\ViewEmployeeLoanController;
+use App\Http\Controllers\Employee\LoansController as EmployeeLoansController;
 
 Route::get('/', function () {
 
@@ -81,6 +82,7 @@ Route::middleware(['auth'])->group(function () {
         ->group(function () {
 
             Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('employee.dashboard');
+            Route::get('/loans', [EmployeeLoansController::class, 'index'])->name('employee.loans');
             Route::get('/view-employee-loan/{encrypted_id}', [ViewEmployeeLoanController::class, 'index'])->name('employee.view-employee-loan');
             Route::patch('/forward-loan', [EmployeeDashboardController::class, 'forwardLoan'])->name('employee.forward-loan');
             
@@ -94,8 +96,7 @@ Route::middleware(['auth'])->group(function () {
 
                 });
 
-                Route::middleware('loan.officer')->group(function () {
-                    
+                Route::middleware(['loan.encoder', 'loan.officer'])->group(function () {
                 });
         });
 });

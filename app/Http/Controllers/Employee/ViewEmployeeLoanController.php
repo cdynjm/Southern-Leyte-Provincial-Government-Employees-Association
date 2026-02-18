@@ -18,12 +18,14 @@ use App\Models\DueDates;
 use Carbon\Carbon;
 use App\Traits\HasDateHelpers;
 use Illuminate\Support\Facades\Gate;
+use App\Traits\DailyInterestComputation;
 
 class ViewEmployeeLoanController extends Controller
 {
     protected $aes;
 
     use HasDateHelpers;
+    use DailyInterestComputation;
 
     public function __construct(AESCipher $aes)
     {
@@ -51,104 +53,9 @@ class ViewEmployeeLoanController extends Controller
         ->orderBy('date', 'asc')
         ->get();
 
-        $monthlyRate = $borrower->rateInMonth / 100;
         $today = $this->todayDate();
 
-         if($borrower->paymentStatus === 'unpaid' && $borrower->status === 'approved') {
-
-            for ($m = 0; $m < $months->count(); $m++) {
-
-                $current = $months[$m];
-
-                $lastPrevPayment = $current->loaninstallment
-                    ->whereNotNull('paymentDate')
-                    ->sortBy('paymentDate')
-                    ->last();
-               
-                if($lastPrevPayment) {
-                    $prevDate = Carbon::parse($lastPrevPayment->paymentDate);
-                } else {
-
-                    if($m == 0)
-                        $prevDate = Carbon::parse($borrower->date);
-                    else {
-                        $prev = $months[$m - 1];
-                        $prevDate = Carbon::parse($prev->date);
-                    }
-                        
-                }
-
-                foreach ($current->loaninstallment as $payment) {
-
-                    if($prevDate->isSameDay($current->date))
-                       $cycleStart = $prevDate->copy();
-                    else
-                        $cycleStart = $prevDate->copy()->addDay();
-                    
-                    $cycleEnd = Carbon::parse($current->date);
-
-                    if ($payment->lastComputedDate === $today->toDateString()) {
-                        break;
-                    }
-
-                    if ($cycleStart->ne($cycleEnd) && $today->between($cycleStart, $cycleEnd)) {
-                    
-                        if($payment->status == 'paid') {
-                            continue;
-                        }
-                        
-                        $daysInMonth = $prevDate->daysInMonth;
-
-                        $daysGap = $cycleStart->diffInDays($today) + 1;
-
-                        $interest = $payment->originalBalance
-                                    * $monthlyRate
-                                    * ($daysGap / $daysInMonth);
-
-                        $payment->interest = $interest;
-                        $payment->outstandingBalance = $payment->originalBalance + $interest;
-
-                        $payment->lastComputedDate = $today->toDateString();
-                        $payment->save();
-
-                        break;
-
-                    } else {
-        
-                        if ($m === $months->count() - 1) {
-            
-                            $nextDueDate = Carbon::parse($months->last()->date)->addMonth();
-
-                            if($today->gt($months->last()->date) && $nextDueDate->month != 1)
-                            {
-
-                                $dueDates = DueDates::create([
-                                    'loan_amortization_id' => $loanAmortizationId,
-                                    'date' => $nextDueDate,
-                                ]);
-
-                                LoanInstallment::create([
-                                    'users_id' => $borrower->users_id,
-                                    'loan_amortization_id' => $loanAmortizationId,
-                                    'due_dates_id' => $dueDates->id,
-                                    'interest' => 0,
-                                    'principal' => 0,
-                                    'outstandingBalance' => $payment->outstandingBalance,
-                                    'originalBalance' => $payment->outstandingBalance,
-                                    'status' => 'unpaid'
-                                ]);
-
-                                $months->push($dueDates);
-                            }
-                        }
-                    }
-
-                }
-                
-            }
-
-            $borrower->load('duedates.loaninstallment');
-        }
+        $this->dailyInterestComputation($borrower, $months, $today, $loanAmortizationId);
 
         return Inertia::render('employee/special-account/view-employee-loan', [
             'encrypted_id' => $request->encrypted_id,
