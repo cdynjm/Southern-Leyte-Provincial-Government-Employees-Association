@@ -38,8 +38,12 @@ class LoansController extends Controller
     public function index()
     {
         $search = session('search');
+        $status = session('status', 'unpaid');
 
         $borrowers = LoanAmortization::with('user')
+            ->when(filled($status), function ($query) use ($status) {
+                $query->where('paymentStatus', $status);
+            })
             ->when(filled($search), function ($query) use ($search) {
                 $query->whereHas('user', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
@@ -55,6 +59,7 @@ class LoansController extends Controller
         return Inertia::render('admin/loans/loans', [
             'borrowers' => $borrowers,
             'search' => $search,
+            'status' => $status
         ]);
     }
 
@@ -237,12 +242,18 @@ class LoansController extends Controller
     public function search(Request $request)
     {
         Session::put('search', $request->search);
+        Session::put('status', $request->status);
         return redirect()->route('admin.loans');
     }
 
     public function clearSearch()
     {
         Session::forget('search');
+
+        if(session('status') == 'paid') {
+            Session::forget('status');
+        }
+        
         return redirect()->route('admin.loans');
     }
 }

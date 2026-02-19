@@ -11,6 +11,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type LoanAmortization, type Paginated, type User } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { EraserIcon, EyeIcon, LoaderCircle, SearchIcon } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -23,16 +24,19 @@ interface LoanProps {
         user: User;
     };
     search: string;
+    status: string;
     borrowers: Paginated<LoanAmortization>;
 }
 
-export default function Loans({ search, borrowers, auth }: LoanProps) {
+export default function Loans({ search, borrowers, auth, status }: LoanProps) {
     const searchEmployeeForm = useForm({
         search: search || '',
+        status: status || ''
     });
 
     const clearEmployeeForm = useForm({
         search: '',
+        status: ''
     });
 
     const searchEmployee = () => {
@@ -43,27 +47,28 @@ export default function Loans({ search, borrowers, auth }: LoanProps) {
         clearEmployeeForm.post(route('admin.borrowers.clear-search'), {
             onSuccess: () => {
                 searchEmployeeForm.setData('search', '');
+                searchEmployeeForm.setData('status', 'unpaid');
             },
         });
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
-            <Head title="Dashboard" />
+            <Head title="Loans" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <SkeletonDelay skeleton={<SkeletonCard />}>
-                    <div className="flex flex-col">
-                        <div className="mb-4 grid grid-cols-1 items-center gap-3 lg:grid-cols-2">
-                            <div>
+                    <div>
                                 <Label className="text-sm font-bold text-gray-500">List of Employees Loan</Label>
                             </div>
-                            <div className="flex items-center gap-2">
+                    <div className="flex flex-col">
+                        <div className="mb-4 grid grid-cols-1 items-center gap-3 lg:grid-cols-2">
+                            <div className='flex items-center gap-2'>
                                 <Button
                                     size="icon"
                                     variant="secondary"
                                     onClick={clearSearch}
                                     disabled={searchEmployeeForm.processing}
-                                    className={!search ? 'hidden' : 'text-red-600'}
+                                    className={!search && !status ? 'hidden' : 'text-red-600'}
                                 >
                                     {clearEmployeeForm.processing ? (
                                         <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -71,6 +76,19 @@ export default function Loans({ search, borrowers, auth }: LoanProps) {
                                         <EraserIcon className="h-4 w-4" />
                                     )}
                                 </Button>
+                                <Select value={searchEmployeeForm.data.status} onValueChange={(value) => searchEmployeeForm.setData('status', value)}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+
+                                <SelectContent>
+                                    <SelectItem value="unpaid">Unpaid</SelectItem>
+                                    <SelectItem value="paid">Paid</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                
                                 <Input
                                     type="text"
                                     placeholder="Search borrowers..."
