@@ -93,6 +93,11 @@ class DashboardController extends Controller
 
             }
 
+             if(auth()->user()?->loantracker->tracker == 2)
+                $loanAmortization->update(['validatedBy' => auth()->user()->name]);
+             if(auth()->user()?->loantracker->tracker == 3)
+                $loanAmortization->update(['approvedBy' => auth()->user()->name]);
+
              $loanAmortization->increment('tracker');
 
         } else {

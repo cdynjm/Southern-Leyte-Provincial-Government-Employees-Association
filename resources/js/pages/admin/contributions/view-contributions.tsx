@@ -202,6 +202,7 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
                                 <TableHead className="text-center text-nowrap">Month</TableHead>
                                 <TableHead className="text-center text-nowrap">Year</TableHead>
                                 <TableHead className="text-center text-nowrap">Amount</TableHead>
+                                <TableHead className="text-center text-nowrap">Processed By</TableHead>
                                 <TableHead className="text-center text-nowrap">Updated on</TableHead>
                                 <TableHead className="w-[100px] text-center text-nowrap">Actions</TableHead>
                             </TableRow>
@@ -246,6 +247,8 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
                                                     <TableCell className="text-center text-nowrap">{con.year}</TableCell>
 
                                                     <TableCell className="text-center font-bold text-nowrap">₱{con.amount}</TableCell>
+
+                                                    <TableCell className="text-center text-nowrap">{con.processedBy}</TableCell>
 
                                                     <TableCell className="text-center text-nowrap text-blue-600">
                                                         <FormattedDate date={con.updated_at} />

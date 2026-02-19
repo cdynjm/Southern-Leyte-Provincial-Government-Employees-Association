@@ -84,6 +84,7 @@ class ContributionsController extends Controller
                 'year' => $request->year,
                 'month' => $month,
                 'amount' => $monthlyAmount,
+                'processedBy' => auth()->user()->name
             ]);
         }
 

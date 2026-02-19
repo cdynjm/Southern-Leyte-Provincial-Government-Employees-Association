@@ -23,7 +23,10 @@ class LoanAmortization extends Model
         'date',
         'dateApplied',
         'status',
-        'paymentStatus'
+        'paymentStatus',
+        'encodedBy',
+        'validatedBy',
+        'approvedBy'
     ];
 
     public function user()

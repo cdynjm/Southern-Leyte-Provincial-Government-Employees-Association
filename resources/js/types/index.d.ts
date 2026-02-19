@@ -94,6 +94,15 @@ export interface Employees {
     loantracker:? LoanTracker;
 }
 
+export interface Admins {
+    id: number;
+    encrypted_id: string;
+    name: string;
+    email: string;
+    role: string;
+    created_at: string;
+}
+
 export interface Contributions {
     id: number;
     encrypted_id: string;
@@ -106,6 +115,7 @@ export interface Contributions {
     updated_at: string;
     employee?: Employees;
     contributiontype?: ContributionTypes;
+    processedBy: string;
 }
 
 export interface ContributionTypes {
@@ -163,6 +173,9 @@ export interface LoanAmortization {
     dateApplied: string;
     status: string;
     paymentStatus: string;
+    encodedBy: string;
+    validatedBy: string;
+    approvedBy: string;
 }
 
 export interface LoanInstallment {
@@ -180,6 +193,7 @@ export interface LoanInstallment {
     originalBalance: number;
     lastComputedDate: string;
     status: string;
+    processedBy: string;
 }
 
 export interface DueDates {

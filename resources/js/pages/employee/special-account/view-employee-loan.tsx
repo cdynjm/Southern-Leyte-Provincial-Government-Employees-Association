@@ -132,12 +132,26 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                                     </Label>
                                 </div>
                             </div>
+
+                            <hr className="my-4" />
+                            <div className="flex flex-col gap-2">
+                                <Label className="text-gray-600">
+                                    <small>Encoded by: </small><b className="">{borrower.encodedBy ? borrower.encodedBy : ''}</b>
+                                </Label>
+
+                                <Label className="text-gray-600">
+                                    <small>Validated by:</small> <b className="">{borrower.validatedBy ? borrower.validatedBy : ''}</b>
+                                </Label>
+
+                                <Label className="text-gray-600">
+                                    <small>Approved by:</small> <b className="">{borrower.approvedBy ? borrower.approvedBy : ''}</b>
+                                </Label>
+                            </div>
+
                             {borrower.status === 'approved' ? (
                                 <>
                                     <hr className="my-4" />
-                                    <p className="mb-2">
-                                        <small className="text-gray-500">Note: Daily Interest is computed in real-time</small>
-                                    </p>
+                                    
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
@@ -148,6 +162,7 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                                                 <TableHead className="text-start text-nowrap">Interest</TableHead>
                                                 <TableHead className="text-start text-nowrap">Principal</TableHead>
                                                 <TableHead className="text-start text-nowrap">Outstanding Balance</TableHead>
+                                                <TableHead className="text-start text-nowrap">Processed</TableHead>
                                             </TableRow>
                                         </TableHeader>
 
@@ -246,6 +261,9 @@ export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewE
                                                                         maximumFractionDigits: 2,
                                                                     })}
                                                                 </div>
+                                                            </TableCell>
+                                                            <TableCell className="py-[6px] font-normal text-nowrap">
+                                                                <small>{ln.processedBy ? ln.processedBy : '-'}</small>
                                                             </TableCell>
                                                         </TableRow>
                                                     ));

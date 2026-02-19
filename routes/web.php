@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\OfficesController;
 use App\Http\Controllers\Admin\ContributionsController;
 use App\Http\Controllers\Admin\FinancialAccountController;
 use App\Http\Controllers\Admin\LoansController;
+use App\Http\Controllers\Admin\AdminsController;
 
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
 use App\Http\Controllers\Employee\EncodeEmployeeLoanController;
@@ -75,6 +76,10 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/borrowers/search', [LoansController::class, 'search'])->name('admin.borrowers.search');
             Route::post('/borrowers/clear-search', [LoansController::class, 'clearSearch'])->name('admin.borrowers.clear-search');
             Route::post('/repay-loan', [LoansController::class, 'repayLoan'])->name('admin.repay-loan.store');
+
+            Route::get('/admins', [AdminsController::class, 'index'])->name('admin.admins');
+            Route::post('/admins/store', [AdminsController::class, 'store'])->name('admin.admin.store');
+            Route::put('/admins/update', [AdminsController::class, 'update'])->name('admin.admin.update');
         });
 
     Route::prefix('employee')

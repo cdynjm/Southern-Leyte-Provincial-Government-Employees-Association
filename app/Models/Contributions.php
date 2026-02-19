@@ -17,6 +17,7 @@ class Contributions extends Model
         'month',
         'year',
         'amount',
+        'processedBy'
     ];
 
     public function user()

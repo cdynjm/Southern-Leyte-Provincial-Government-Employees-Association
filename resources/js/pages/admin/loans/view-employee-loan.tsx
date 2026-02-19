@@ -177,12 +177,87 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                                     </Label>
                                 </div>
                             </div>
+
+                            <hr className="my-4" />
+                            <div className="flex flex-col gap-2">
+                                <Label className="text-gray-600">
+                                    <small>Encoded by: </small><b className="">{borrower.encodedBy ? borrower.encodedBy : ''}</b>
+                                </Label>
+
+                                <Label className="text-gray-600">
+                                    <small>Validated by:</small> <b className="">{borrower.validatedBy ? borrower.validatedBy : ''}</b>
+                                </Label>
+
+                                <Label className="text-gray-600">
+                                    <small>Approved by:</small> <b className="">{borrower.approvedBy ? borrower.approvedBy : ''}</b>
+                                </Label>
+                            </div>
+
                             {borrower.status === 'approved' ? (
                                 <>
                                     <hr className="my-4" />
-                                    <p className="mb-2">
-                                        <small className="text-gray-500">Note: Daily Interest is computed in real-time</small>
-                                    </p>
+                                    
+
+                                    {borrower.paymentStatus === 'unpaid' ? (
+                                        <>
+                                            
+                                            <div>
+                                                <p className="mb-4 text-[14px] font-bold text-gray-600">REPAY LOAN</p>
+                                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                                    <div className="flex flex-col gap-2">
+                                                        <Label className="text-[13px] text-gray-600">Amount to be Paid</Label>
+                                                        <Input
+                                                            type="number"
+                                                            min={0}
+                                                            value={createForm.data.installment}
+                                                            onChange={(e) =>
+                                                                createForm.setData('installment', e.target.value === '' ? '' : Number(e.target.value))
+                                                            }
+                                                            placeholder="Enter Amount"
+                                                        />
+                                                    </div>
+
+                                                    <div className="flex w-full items-end gap-2">
+                                                        <div className="flex flex-1 flex-col gap-2">
+                                                            <Label className="text-[13px] text-gray-600">
+                                                                Date of Payment <span className="text-green-600">(Current Date)</span>
+                                                            </Label>
+                                                            <Input
+                                                                type="date"
+                                                                className="w-full"
+                                                                value={formattedToday}
+                                                                min={formattedToday}
+                                                                max={formattedToday}
+                                                                readOnly
+                                                                onKeyDown={(e) => e.preventDefault()}
+                                                                onPaste={(e) => e.preventDefault()}
+                                                            />
+                                                        </div>
+
+                                                        <Button
+                                                            size="sm"
+                                                            className="bg-green-600 text-[13px] hover:bg-green-500"
+                                                            onClick={repayLoan}
+                                                            disabled={createForm.processing}
+                                                        >
+                                                            {createForm.processing ? (
+                                                                'Procesing...'
+                                                            ) : (
+                                                                <>
+                                                                    {' '}
+                                                                    <CheckCircleIcon /> Pay
+                                                                </>
+                                                            )}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr className="my-6 border border-2" />
+                                        </>
+                                    ) : (
+                                        ''
+                                    )}
+
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
@@ -193,6 +268,7 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                                                 <TableHead className="text-start text-nowrap">Interest</TableHead>
                                                 <TableHead className="text-start text-nowrap">Principal</TableHead>
                                                 <TableHead className="text-start text-nowrap">Outstanding Balance</TableHead>
+                                                <TableHead className="text-start text-nowrap">Processed</TableHead>
                                             </TableRow>
                                         </TableHeader>
 
@@ -292,6 +368,9 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                                                                     })}
                                                                 </div>
                                                             </TableCell>
+                                                             <TableCell className="py-[6px] font-normal text-nowrap">
+                                                                <small>{ln.processedBy ? ln.processedBy : '-'}</small>
+                                                            </TableCell>
                                                         </TableRow>
                                                     ));
                                                 })
@@ -299,64 +378,7 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                                         </TableBody>
                                     </Table>
 
-                                    {borrower.paymentStatus === 'unpaid' ? (
-                                        <>
-                                            <hr className="my-6 border border-2" />
-                                            <div>
-                                                <p className="mb-4 text-[14px] font-bold text-gray-600">REPAY LOAN</p>
-                                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                                                    <div className="flex flex-col gap-2">
-                                                        <Label className="text-[13px] text-gray-600">Amount to be Paid</Label>
-                                                        <Input
-                                                            type="number"
-                                                            min={0}
-                                                            value={createForm.data.installment}
-                                                            onChange={(e) =>
-                                                                createForm.setData('installment', e.target.value === '' ? '' : Number(e.target.value))
-                                                            }
-                                                            placeholder="Enter Amount"
-                                                        />
-                                                    </div>
-
-                                                    <div className="flex w-full items-end gap-2">
-                                                        <div className="flex flex-1 flex-col gap-2">
-                                                            <Label className="text-[13px] text-gray-600">
-                                                                Date of Payment <span className="text-green-600">(Current Date)</span>
-                                                            </Label>
-                                                            <Input
-                                                                type="date"
-                                                                className="w-full"
-                                                                value={formattedToday}
-                                                                min={formattedToday}
-                                                                max={formattedToday}
-                                                                readOnly
-                                                                onKeyDown={(e) => e.preventDefault()}
-                                                                onPaste={(e) => e.preventDefault()}
-                                                            />
-                                                        </div>
-
-                                                        <Button
-                                                            size="sm"
-                                                            className="bg-green-600 text-[13px] hover:bg-green-500"
-                                                            onClick={repayLoan}
-                                                            disabled={createForm.processing}
-                                                        >
-                                                            {createForm.processing ? (
-                                                                'Procesing...'
-                                                            ) : (
-                                                                <>
-                                                                    {' '}
-                                                                    <CheckCircleIcon /> Pay
-                                                                </>
-                                                            )}
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        ''
-                                    )}
+                                    
                                 </>
                             ) : (
                                 ''

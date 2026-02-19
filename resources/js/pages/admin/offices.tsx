@@ -34,7 +34,7 @@ interface OfficesProps {
     offices: Offices[];
 }
 
-export default function Employees({ auth, offices }: OfficesProps) {
+export default function Offices({ auth, offices }: OfficesProps) {
     const [openDialog, setOpenDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);

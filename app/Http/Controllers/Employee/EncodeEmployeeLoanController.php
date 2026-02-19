@@ -98,6 +98,7 @@ class EncodeEmployeeLoanController extends Controller
             'status' => 'pending',
             'paymentStatus' => 'unpaid',
             'dateApplied' => $loanDate, 
+            'encodedBy' => auth()->user()->name
         ]);
 
         $paymentDate = $loanDate->copy(); // Keep exact loan date (15th stays 15th)

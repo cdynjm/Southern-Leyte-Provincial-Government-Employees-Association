@@ -24,6 +24,7 @@ import {
     PhilippinePeso,
     Navigation,
     BanknoteIcon,
+    UserCog,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -57,6 +58,11 @@ const adminNavItems: NavItem[] = [
         title: 'Offices',
         href: route('admin.offices'),
         icon: BriefcaseBusiness,
+    },
+    {
+        title: 'Admins',
+        href: route('admin.admins'),
+        icon: UserCog,
     },
     {
         title: 'Financial Account',

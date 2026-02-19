@@ -33,7 +33,7 @@ export default function BorrowersComponent({ borrowers, auth }: BorrowersCompone
     const forwardLoan = () => {
         forwardLoanForm.patch(route('employee.forward-loan'), {
             onSuccess: () => {
-                toast('Deleted', {
+                toast('Processed', {
                     description: 'Transaction has been processed successfully.',
                     action: {
                         label: 'Close',

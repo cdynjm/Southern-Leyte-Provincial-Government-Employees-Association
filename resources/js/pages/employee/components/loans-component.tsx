@@ -34,7 +34,7 @@ export default function LoansComponent({ borrowers }: LoanComponentProps) {
                     {borrowers.data.length === 0 ? (
                         <TableRow>
                             <TableCell colSpan={10} className="text-center text-[13px] text-gray-500">
-                                No borrowers found.
+                                No loans found.
                             </TableCell>
                         </TableRow>
                     ) : (

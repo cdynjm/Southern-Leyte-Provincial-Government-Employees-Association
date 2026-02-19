@@ -23,7 +23,8 @@ class LoanInstallment extends Model
        'outstandingBalance',
        'originalBalance',
        'lastComputedDate',
-       'status'
+       'status',
+       'processedBy'
        
     ];
 

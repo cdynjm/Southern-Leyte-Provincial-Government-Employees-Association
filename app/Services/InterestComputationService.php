@@ -85,7 +85,7 @@ class InterestComputationService
             
                             $nextDueDate = Carbon::parse($months->last()->date)->addMonth();
 
-                            if($today->gt($months->last()->date) && $nextDueDate->month != 1)
+                            if($today->gt($months->last()->date))
                             {
 
                                 $daysInMonth = $prev->daysInMonth;

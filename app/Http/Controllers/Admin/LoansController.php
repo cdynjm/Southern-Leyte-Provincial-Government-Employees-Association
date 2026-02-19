@@ -174,6 +174,7 @@ class LoansController extends Controller
                     'principal' => $installment - $loanInstallment->interest,
                     'outstandingBalance' => $newOutstandingBalance,
                     'paymentDate' => $paymentDate,
+                    'processedBy' => auth()->user()->name,
                     'status' => 'paid'
                 ]);
 
