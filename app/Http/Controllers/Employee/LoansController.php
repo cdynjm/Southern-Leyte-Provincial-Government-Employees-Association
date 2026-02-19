@@ -36,6 +36,7 @@ class LoansController extends Controller
     {
 
         $borrowers = LoanAmortization::with('user')->where('users_id', auth()->user()->id)
+            ->orderBy('paymentStatus', 'desc')
             ->orderBy('dateApplied', 'desc')
             ->paginate(30)->through(function ($borrower) {
                 $borrower->encrypted_id = $this->aes->encrypt($borrower->id);

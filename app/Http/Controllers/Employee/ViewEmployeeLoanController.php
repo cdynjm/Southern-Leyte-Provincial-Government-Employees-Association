@@ -18,21 +18,20 @@ use App\Models\DueDates;
 use Carbon\Carbon;
 use App\Traits\HasDateHelpers;
 use Illuminate\Support\Facades\Gate;
-use App\Traits\DailyInterestComputation;
+use App\Services\InterestComputationService;
 
 class ViewEmployeeLoanController extends Controller
 {
     protected $aes;
 
     use HasDateHelpers;
-    use DailyInterestComputation;
 
     public function __construct(AESCipher $aes)
     {
         $this->aes = $aes;
     }
 
-    public function index(Request $request)
+    public function index(Request $request, InterestComputationService $interestComputationService)
     {
 
         $loanAmortizationId = $this->aes->decrypt($request->encrypted_id);
@@ -55,7 +54,7 @@ class ViewEmployeeLoanController extends Controller
 
         $today = $this->todayDate();
 
-        $this->dailyInterestComputation($borrower, $months, $today, $loanAmortizationId);
+        $interestComputationService->InterestComputation($borrower, $months, $today, $loanAmortizationId);
 
         return Inertia::render('employee/special-account/view-employee-loan', [
             'encrypted_id' => $request->encrypted_id,

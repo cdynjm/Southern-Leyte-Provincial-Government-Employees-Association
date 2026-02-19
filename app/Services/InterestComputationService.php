@@ -1,15 +1,15 @@
-<?php
+<?php 
 
-namespace App\Traits;
+namespace App\Services;
 
 use App\Models\LoanAmortization;
 use App\Models\LoanInstallment;
 use App\Models\DueDates;
 use Carbon\Carbon;
 
-trait DailyInterestComputation
+class InterestComputationService
 {
-    public function dailyInterestComputation($borrower, $months, $today, $loanAmortizationId)
+    public function InterestComputation($borrower, $months, $today, $loanAmortizationId)
     {
         $monthlyRate = $borrower->rateInMonth / 100;
 

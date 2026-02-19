@@ -21,7 +21,7 @@ use Carbon\Carbon;
 use Session;
 use App\Traits\HasDateHelpers;
 use App\Traits\HasFinancialAccountHelpers;
-use App\Traits\DailyInterestComputation;
+use App\Services\InterestComputationService;
 
 class LoansController extends Controller
 {
@@ -29,7 +29,6 @@ class LoansController extends Controller
 
     use HasDateHelpers;
     use HasFinancialAccountHelpers;
-    use DailyInterestComputation;
 
     public function __construct(AESCipher $aes)
     {
@@ -46,6 +45,7 @@ class LoansController extends Controller
                     $q->where('name', 'like', "%{$search}%");
                 });
             })
+            ->orderBy('paymentStatus', 'desc')
             ->orderBy('dateApplied', 'desc')
             ->paginate(30)->through(function ($borrower) {
                 $borrower->encrypted_id = $this->aes->encrypt($borrower->id);
@@ -58,7 +58,7 @@ class LoansController extends Controller
         ]);
     }
 
-    public function viewEmployeeLoan(Request $request)
+    public function viewEmployeeLoan(Request $request, InterestComputationService $interestComputationService)
     {
         $loanAmortizationId = $this->aes->decrypt($request->encrypted_id);
 
@@ -78,7 +78,7 @@ class LoansController extends Controller
 
         $today = $this->todayDate();
 
-        $this->dailyInterestComputation($borrower, $months, $today, $loanAmortizationId);
+        $interestComputationService->InterestComputation($borrower, $months, $today, $loanAmortizationId);
 
         return Inertia::render('admin/loans/view-employee-loan', [
             'encrypted_id' => $request->encrypted_id,
