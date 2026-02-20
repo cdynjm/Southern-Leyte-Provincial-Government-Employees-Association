@@ -105,7 +105,7 @@ class EncodeEmployeeLoanController extends Controller
 
         $dueDates = DueDates::create([
             'loan_amortization_id' => $loanAmortization->id,
-            'date' => $paymentDate->addMonth(),
+           // 'date' => $paymentDate->addMonth(),
             'status' => 'unpaid'
         ]);
 

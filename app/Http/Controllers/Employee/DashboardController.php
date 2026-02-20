@@ -16,6 +16,7 @@ use App\Models\ContributionTypes;
 use App\Models\LoanAmortization;
 use App\Models\LoanTracker;
 use App\Models\FinancialAccount;
+use App\Models\DueDates;
 
 use App\Traits\HasFinancialAccountHelpers;
 use App\Traits\HasDateHelpers;
@@ -87,6 +88,10 @@ class DashboardController extends Controller
                 $loanAmortization->update([
                     'status' => 'approved',
                     'date' => $this->todayDate()->toDateString()
+                ]);
+                
+                DueDates::where('loan_amortization_id', $loanAmortizationId)->update([
+                    'date' => $this->todayDate()->addMonth()->toDateString()
                 ]);
 
                 FinancialAccount::where('id', $this->loanID())->decrement('balance', $loanAmortization->borrowed);
