@@ -46,10 +46,9 @@ export default function Admins({ auth, admins }: AdminsProps) {
     });
 
     const addAdmin = () => {
-
         const { name, email, password } = createForm.data;
 
-        if(!name || !email || !password) {
+        if (!name || !email || !password) {
             toast('Opss, Error', {
                 description: 'Please fill in required fields before submitting.',
             });
@@ -88,16 +87,15 @@ export default function Admins({ auth, admins }: AdminsProps) {
             encrypted_id: String(admin.encrypted_id),
             name: String(admin.name),
             email: String(admin.email),
-            password: ''
+            password: '',
         });
         setOpenEditDialog(true);
     };
 
     const updateAdmin = () => {
-        
         const { name, email } = updateForm.data;
 
-        if(!name || !email) {
+        if (!name || !email) {
             toast('Opss, Error', {
                 description: 'Please fill in required fields before submitting.',
             });
@@ -283,7 +281,10 @@ export default function Admins({ auth, admins }: AdminsProps) {
                                     <TableRow key={ad.encrypted_id}>
                                         <TableCell className="py-[6px] text-center">{index + 1}</TableCell>
 
-                                        <TableCell className="py-[6px] text-start text-nowrap">{ad.name}</TableCell>
+                                        <TableCell className="py-[6px] text-start text-nowrap">
+                                            <div className="font-bold">{ad.name}</div>
+                                            <small>{ad.email}</small>
+                                        </TableCell>
                                         <TableCell className="py-[6px] text-start text-nowrap">{ad.role}</TableCell>
                                         <TableCell className="py-[6px]">
                                             <div className="flex items-center justify-center gap-2">
