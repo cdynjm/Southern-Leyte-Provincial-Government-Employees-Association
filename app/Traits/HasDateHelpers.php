@@ -8,6 +8,6 @@ trait HasDateHelpers
 {
     public function todayDate()
     {
-        return Carbon::parse('2026-10-24');
+        return Carbon::today();
     }
 }
