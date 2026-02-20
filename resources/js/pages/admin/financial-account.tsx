@@ -232,8 +232,10 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
                                                 <small>Available Balance:</small>
                                                 <span className="text-[16px] font-bold text-green-600">
                                                     ₱{' '}
-                                                    {financialAccount.find((fa) => fa.encrypted_id === updateForm.data.deduct_from_account)
-                                                        ?.balance ?? 0}
+                                                    {Number(financialAccount.find((fa) => fa.encrypted_id === updateForm.data.deduct_from_account)?.balance ?? 0).toLocaleString('en-PH', {
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2,
+                                                    })}
                                                 </span>
                                             </p>
                                         )}

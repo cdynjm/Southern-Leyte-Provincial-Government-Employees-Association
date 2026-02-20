@@ -26,7 +26,7 @@ export default function Dashboard({ auth, regulars, joborders, financialAccount 
                     {/* Other dashboard cards */}
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2">
                         {/* Regulars */}
-                        <Card className="relative border bg-white shadow-sm">
+                        <Card className="relative border bg-white shadow-sm hover:shadow-md">
                             <CardContent className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-500">Regulars</p>
@@ -40,7 +40,7 @@ export default function Dashboard({ auth, regulars, joborders, financialAccount 
                         </Card>
 
                         {/* Job Orders */}
-                        <Card className="relative border bg-white shadow-sm">
+                        <Card className="relative border bg-white shadow-sm hover:shadow-md">
                             <CardContent className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-500">Job Orders</p>
