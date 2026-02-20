@@ -1,6 +1,7 @@
 import { SkeletonCard } from '@/components/skeleton-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogClose,
@@ -16,11 +17,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SkeletonDelay } from '@/components/ui/skeleton-delay';
 import { Switch } from '@/components/ui/switch';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type FinancialAccount, type User } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { PencilIcon } from 'lucide-react';
+import { Landmark, PencilIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -266,54 +266,49 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
                             </DialogContent>
                         </Dialog>
                     </div>
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="">
-                                <TableHead className="w-[50px] text-center">#</TableHead>
-                                <TableHead className="text-start text-nowrap">Account</TableHead>
-                                <TableHead className="text-center text-nowrap">Balance</TableHead>
-                                <TableHead className="w-[200px] text-center text-nowrap">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {financialAccount.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="text-center text-[13px] text-gray-500">
-                                        No Data Found
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                financialAccount.map((fa, index) => (
-                                    <TableRow key={fa.encrypted_id}>
-                                        <TableCell className="py-[6px] text-center">{index + 1}</TableCell>
-                                        <TableCell className="py-[6px] text-nowrap">{fa.name}</TableCell>
-                                        <TableCell className="py-[6px] text-center font-bold text-nowrap">
-                                            <Badge variant="secondary" className="text-[15px] font-bold">
-                                                ₱{' '}
-                                                {Number(fa.balance).toLocaleString('en-PH', {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2,
-                                                })}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="py-[6px]">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <Button
-                                                    variant="secondary"
-                                                    className="text-[11px]"
-                                                    size="icon"
-                                                    onClick={() => editFinancialAccount(fa)}
-                                                >
-                                                    <PencilIcon className="text-gray-600" />
-                                                </Button>
-                                               
+
+                    {financialAccount.length === 0 ? (
+                        <div className="py-10 text-center text-sm text-muted-foreground">No Data Found</div>
+                    ) : (
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                            {financialAccount.map((fa, index) => (
+                                <Card key={fa.encrypted_id} className="rounded-2xl shadow-sm transition-all hover:shadow-md">
+                                    <CardHeader className="flex flex-row items-start justify-between">
+                                        <div>
+                                            <p className="mb-2 text-xs text-muted-foreground">Account #{index + 1}</p>
+                                            <CardTitle className="text-lg font-semibold">
+                                                <div className="flex min-w-0 items-center gap-2">
+                                                    <Landmark className="shrink-0 text-green-600" />
+                                                    <span className="flex-1 truncate text-sm">{fa.name}</span>
+                                                </div>
+                                            </CardTitle>
+                                        </div>
+                                        <Button variant="secondary" size="icon" className="h-8 w-8" onClick={() => editFinancialAccount(fa)}>
+                                            <PencilIcon className="h-4 w-4" />
+                                        </Button>
+                                    </CardHeader>
+
+                                    <CardContent>
+                                        <div className="mt-0">
+                                            <p className="text-xs text-muted-foreground">Available Balance</p>
+
+                                            <div className="mt-1 flex items-center gap-2">
+                                                <span className="text-2xl font-bold tracking-tight">
+                                                    ₱{' '}
+                                                    {Number(fa.balance).toLocaleString('en-PH', {
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2,
+                                                    })}
+                                                </span>
+
+                                                <Badge variant="secondary">SOLEPGEA</Badge>
                                             </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
                 </SkeletonDelay>
             </div>
         </AppLayout>
