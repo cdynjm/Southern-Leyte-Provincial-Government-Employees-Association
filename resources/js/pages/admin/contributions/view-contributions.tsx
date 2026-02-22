@@ -211,7 +211,7 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
                         <TableBody>
                             {contributionsByType.length === 0 ? (
                                 <TableRow className="hover:bg-transparent">
-                                    <TableCell colSpan={6} className="text-center text-gray-500">
+                                    <TableCell colSpan={10} className="text-center text-gray-500">
                                         No Data Found
                                     </TableCell>
                                 </TableRow>
@@ -220,7 +220,7 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
                                     <React.Fragment key={group.type.id}>
                                         {/* CONTRIBUTION TYPE TITLE ROW */}
                                         <TableRow>
-                                            <TableCell colSpan={6} className="bg-gray-50 py-2 text-sm font-semibold text-gray-700 uppercase">
+                                            <TableCell colSpan={10} className="bg-gray-50 py-2 text-sm font-semibold text-gray-700 uppercase">
                                                 <HandCoins className="mr-2 inline-block h-4 w-4 text-gray-500" />
                                                 {group.type.description}
                                             </TableCell>
@@ -229,7 +229,7 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
                                         {/* CONTRIBUTION ROWS */}
                                         {group.contributions.data.length === 0 ? (
                                             <TableRow className="hover:bg-transparent">
-                                                <TableCell colSpan={6} className="text-center text-gray-500">
+                                                <TableCell colSpan={10} className="text-center text-gray-500">
                                                     No Data Found
                                                 </TableCell>
                                             </TableRow>
@@ -265,7 +265,7 @@ export default function ViewContributions({ auth, encrypted_id, employee, contri
 
                                         {/* PAGINATION ROW */}
                                         <TableRow className="hover:bg-transparent">
-                                            <TableCell colSpan={6} className="py-4">
+                                            <TableCell colSpan={10} className="py-4">
                                                 <Pagination links={group.contributions.links} />
                                             </TableCell>
                                         </TableRow>
