@@ -31,7 +31,7 @@ class ContributionsController extends Controller
         $officeEncrypted = session('office');
         $office = $officeEncrypted != '' ? $this->aes->decrypt($officeEncrypted) : '';
 
-        $employees = User::with('office')
+        $employees = User::with(['office', 'contributions'])
             ->where('role', 'employee')
             ->when(filled($search), function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%");
@@ -43,11 +43,27 @@ class ContributionsController extends Controller
                 $query->where('employmentType', $type);
             })
             ->orderBy('name', 'asc')
-            ->paginate(30)
+            ->paginate(50)
             ->through(function ($employee) {
+
                 $employee->encrypted_id = $this->aes->encrypt($employee->id);
+
+                if ($employee->contributions) {
+                    $employee->contributions->transform(function ($contribution) {
+
+                        $contribution->encrypted_id =
+                            $this->aes->encrypt($contribution->id);
+
+                        $contribution->encrypted_contribution_types_id =
+                            $this->aes->encrypt($contribution->contribution_types_id);
+
+                        return $contribution;
+                    });
+                }
+
                 return $employee;
             });
+
 
         $contributionTypes = ContributionTypes::orderBy('description', 'asc')->get()->map(function ($contributionType) {
             $contributionType->encrypted_id = $this->aes->encrypt($contributionType->id);

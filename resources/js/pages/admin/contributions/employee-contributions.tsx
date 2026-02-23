@@ -34,7 +34,7 @@ interface ContributionsProps {
 
 export default function Contributions({ auth, employees, search, office, contributionTypes, offices, type }: ContributionsProps) {
     const generateYears = () => {
-        const startYear = 2023;
+        const startYear = 2026;
         const currentYear = new Date().getFullYear();
         const years = [];
 
@@ -261,9 +261,9 @@ export default function Contributions({ auth, employees, search, office, contrib
                                         </TableCell>
                                         <TableCell className="py-[6px] text-nowrap">
                                             <Link href={route('admin.contributions.view', { encrypted_id: emp.encrypted_id })}>
-                                                <div className='font-bold'>{emp.name}</div>
+                                                <div className="font-bold">{emp.name}</div>
                                                 <small>
-                                                    {emp.office?.officeName} | <span className='text-gray-500'>{emp.position}</span>
+                                                    {emp.office?.officeName} | <span className="text-gray-500">{emp.position}</span>
                                                 </small>
                                             </Link>
                                         </TableCell>
@@ -337,59 +337,109 @@ export default function Contributions({ auth, employees, search, office, contrib
 
                                                 <DropdownMenuContent align="start" className="max-h-60 w-full overflow-auto">
                                                     <div className="grid grid-cols-1 gap-2 p-2">
-                                                        {/* Select / Deselect All */}
-                                                        <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={rowValues[emp.encrypted_id]?.month?.length === months.length}
-                                                                onChange={(e) => {
-                                                                    setRowValues((prev) => ({
-                                                                        ...prev,
-                                                                        [emp.encrypted_id]: {
-                                                                            ...prev[emp.encrypted_id],
-                                                                            month: e.target.checked
-                                                                                ? months.map((m) => m.value) // Select all
-                                                                                : [], // Deselect all
-                                                                        },
-                                                                    }));
-                                                                }}
-                                                            />
-                                                            Select All
-                                                        </label>
+                                                        
+                                                        {(() => {
+                                                            const selectedYear = rowValues[emp.encrypted_id]?.year;
+                                                            const selectedType = rowValues[emp.encrypted_id]?.contributionTypes;
 
-                                                        {/* Individual month checkboxes */}
-                                                        {months.map((month) => {
+                                                            if (!selectedType) {
+                                                                return (
+                                                                    <div className="text-sm text-muted-foreground">
+                                                                        Select contribution type first
+                                                                    </div>
+                                                                );
+                                                            }
+
+                                                            if (!selectedYear) {
+                                                                return <div className="text-sm text-muted-foreground">Select year first</div>;
+                                                            }
+
+                                                            const paidMonthsForYear =
+                                                                emp.contributions
+                                                                    ?.filter(
+                                                                        (c) =>
+                                                                            String(c.year) === String(selectedYear) &&
+                                                                            String(c.encrypted_contribution_types_id) === String(selectedType),
+                                                                    )
+                                                                    .map((c) => String(c.month).padStart(2, '0')) ?? [];
+
                                                             const selectedMonths = rowValues[emp.encrypted_id]?.month ?? [];
 
-                                                            return (
-                                                                <label key={month.value} className="flex cursor-pointer items-center gap-2 text-sm">
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        checked={selectedMonths.includes(month.value)}
-                                                                        onChange={(e) => {
-                                                                            setRowValues((prev) => {
-                                                                                const current = prev[emp.encrypted_id]?.month ?? [];
+                                                            const unpaidMonths = months.filter((month) => !paidMonthsForYear.includes(month.value));
 
-                                                                                return {
+                                                            return (
+                                                                <>
+                                                                    {/* Select All */}
+                                                                    <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={
+                                                                                unpaidMonths.length > 0 &&
+                                                                                unpaidMonths.every((m) => selectedMonths.includes(m.value))
+                                                                            }
+                                                                            onChange={(e) => {
+                                                                                setRowValues((prev) => ({
                                                                                     ...prev,
                                                                                     [emp.encrypted_id]: {
                                                                                         ...prev[emp.encrypted_id],
                                                                                         month: e.target.checked
-                                                                                            ? [...current, month.value]
-                                                                                            : current.filter((m) => m !== month.value),
+                                                                                            ? unpaidMonths.map((m) => m.value)
+                                                                                            : [],
                                                                                     },
-                                                                                };
-                                                                            });
-                                                                        }}
-                                                                    />
-                                                                    {month.label}
-                                                                </label>
+                                                                                }));
+                                                                            }}
+                                                                        />
+                                                                        Select All
+                                                                    </label>
+
+                                                                    {/* Show all months */}
+                                                                    {months.map((month) => {
+                                                                        const isPaid = paidMonthsForYear.includes(month.value);
+
+                                                                        return (
+                                                                            <label
+                                                                                key={month.value}
+                                                                                className={`flex items-center gap-2 text-sm ${
+                                                                                    isPaid ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                                                                                }`}
+                                                                            >
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    disabled={isPaid}
+                                                                                    checked={selectedMonths.includes(month.value)}
+                                                                                    onChange={(e) => {
+                                                                                        if (isPaid) return;
+
+                                                                                        setRowValues((prev) => {
+                                                                                            const current = prev[emp.encrypted_id]?.month ?? [];
+
+                                                                                            return {
+                                                                                                ...prev,
+                                                                                                [emp.encrypted_id]: {
+                                                                                                    ...prev[emp.encrypted_id],
+                                                                                                    month: e.target.checked
+                                                                                                        ? [...current, month.value]
+                                                                                                        : current.filter((m) => m !== month.value),
+                                                                                                },
+                                                                                            };
+                                                                                        });
+                                                                                    }}
+                                                                                />
+                                                                                {month.label}
+                                                                                {isPaid && (
+                                                                                    <span className="text-xs text-muted-foreground">(Paid)</span>
+                                                                                )}
+                                                                            </label>
+                                                                        );
+                                                                    })}
+                                                                </>
                                                             );
-                                                        })}
+                                                        })()}
                                                     </div>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
+
                                         <TableCell className="py-[6px] text-center text-nowrap">
                                             <div className="flex justify-center">
                                                 <Input

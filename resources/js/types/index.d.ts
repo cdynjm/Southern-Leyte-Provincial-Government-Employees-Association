@@ -108,6 +108,7 @@ export interface Contributions {
     encrypted_id: string;
     users_id: number;
     contribution_types_id: number;
+    encrypted_contribution_types_id: string;
     year: number;
     month: number;
     amount: number;
