@@ -2,10 +2,11 @@ import { SkeletonCard } from '@/components/skeleton-card';
 import { Label } from '@/components/ui/label';
 import { SkeletonDelay } from '@/components/ui/skeleton-delay';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Employees, type LoanAmortization, type Paginated, type User } from '@/types';
+import { type BreadcrumbItem, type Contributions, type Employees, type LoanAmortization, type Paginated, type User } from '@/types';
 import { Head } from '@inertiajs/react';
 import { FolderPen } from 'lucide-react';
 import BorrowersComponent from './components/borrowers-component';
+import UnpaidMonthlyDuesComponent from './components/unpaid-monthly-dues-component';
 import LoanEncoder from './special-account/loan-encoder';
 import LoanOfficer from './special-account/loan-officer';
 
@@ -20,11 +21,13 @@ interface DashboardProps {
         user: User;
     };
     employees: Paginated<Employees>;
-    borrowers: Paginated<LoanAmortization>
+    borrowers: Paginated<LoanAmortization>;
     search: string;
+    pendingContributions: Contributions[];
+    year: number;
 }
 
-export default function Dashboard({ auth, employees, borrowers, search }: DashboardProps) {
+export default function Dashboard({ auth, employees, borrowers, search, pendingContributions, year }: DashboardProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="Dashboard" />
@@ -63,14 +66,24 @@ export default function Dashboard({ auth, employees, borrowers, search }: Dashbo
 
                         {auth.user.specialAccount == 'No' && (
                             <>
-                                <div className="flex flex-col gap-1">
-                                    <Label className="text-sm font-bold text-gray-500">List of Loans</Label>
+                                <div>
+                                    <div className="mb-2 flex flex-col gap-1">
+                                        <Label className="text-sm font-bold text-gray-500">List of Loans</Label>
+                                    </div>
+                                    <BorrowersComponent borrowers={borrowers} auth={auth} />
                                 </div>
-                                <BorrowersComponent borrowers={borrowers} auth={auth} />
+                                <hr className="my-8 border border-2" />
+
+                                <div>
+                                    <div className="mb-2 flex flex-col gap-1">
+                                        <Label className="text-sm font-bold text-gray-500">List of Unpaid Monthly Dues</Label>
+                                    </div>
+                                    <UnpaidMonthlyDuesComponent pendingContributions={pendingContributions} year={year} />
+                                </div>
                             </>
                         )}
                     </div>
-                    <div></div>
+                   
                 </SkeletonDelay>
             </div>
         </AppLayout>

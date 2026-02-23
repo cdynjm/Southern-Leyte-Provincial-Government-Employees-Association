@@ -1,30 +1,22 @@
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
-import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-} from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
+    BanknoteIcon,
+    BriefcaseBusiness,
     CreditCard,
     FileText,
     FolderIcon,
     HandCoins,
+    Landmark,
     LayoutGrid,
+    Navigation,
+    PhilippinePeso,
+    UserCog,
     UsersIcon,
     Wallet2Icon,
-    BriefcaseBusiness,
-    Landmark,
-    PhilippinePeso,
-    Navigation,
-    BanknoteIcon,
-    UserCog,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -118,8 +110,8 @@ const adminNavItems: NavItem[] = [
     {
         title: 'Withdrawals',
         icon: CreditCard,
-        href: ''
-    }
+        href: '',
+    },
 ];
 
 // employee nav
@@ -134,20 +126,19 @@ const employeeNavItems: NavItem[] = [
         icon: PhilippinePeso,
         href: route('employee.loans'),
     },
+    {
+        title: 'Unpaid Contribution',
+        icon: Wallet2Icon,
+        href: route('employee.unpaid'),
+    },
 ];
 
 export function AppSidebar() {
     const { auth } = usePage<PageProps>().props;
 
-    const navItems: NavItem[] =
-        auth.user.role === 'admin'
-            ? adminNavItems
-            : employeeNavItems;
+    const navItems: NavItem[] = auth.user.role === 'admin' ? adminNavItems : employeeNavItems;
 
-    const dashboardRoute =
-        auth.user.role === 'admin'
-            ? route('admin.dashboard')
-            : route('employee.dashboard');
+    const dashboardRoute = auth.user.role === 'admin' ? route('admin.dashboard') : route('employee.dashboard');
 
     return (
         <Sidebar collapsible="icon" variant="inset" className="border-r border-r-gray-100">

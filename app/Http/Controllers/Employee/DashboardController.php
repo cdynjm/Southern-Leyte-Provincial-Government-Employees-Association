@@ -20,6 +20,7 @@ use App\Models\DueDates;
 
 use App\Traits\HasFinancialAccountHelpers;
 use App\Traits\HasDateHelpers;
+use App\Traits\HasContributionTypeHelpers;
 
 class DashboardController extends Controller
 {
@@ -27,6 +28,7 @@ class DashboardController extends Controller
 
      use HasFinancialAccountHelpers;
      use HasDateHelpers;
+     use HasContributionTypeHelpers;
 
     public function __construct(AESCipher $aes)
     {
@@ -65,10 +67,18 @@ class DashboardController extends Controller
                 });
         }
 
+        $pendingContributions = Contributions::with('contributionType')
+                ->where('users_id', auth()->user()->id)
+                ->where('contribution_types_id', $this->contributionTypeId())
+                ->orderBy('created_at', 'desc')
+                ->get();
+
         return Inertia::render('employee/dashboard', [
             'employees' => $employees,
             'borrowers' => $borrowers,
             'search' => $search,
+            'pendingContributions' => $pendingContributions,
+            'year' => $this->year()
         ]);
     }
 

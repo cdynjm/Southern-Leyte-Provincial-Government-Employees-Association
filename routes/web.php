@@ -14,6 +14,7 @@ use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardContro
 use App\Http\Controllers\Employee\EncodeEmployeeLoanController;
 use App\Http\Controllers\Employee\ViewEmployeeLoanController;
 use App\Http\Controllers\Employee\LoansController as EmployeeLoansController;
+use App\Http\Controllers\Employee\UnpaidController;
 
 Route::get('/', function () {
 
@@ -88,6 +89,7 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('employee.dashboard');
             Route::get('/loans', [EmployeeLoansController::class, 'index'])->name('employee.loans');
+            Route::get('/unpaid', [UnpaidController::class, 'index'])->name('employee.unpaid');
             Route::get('/view-employee-loan/{encrypted_id}', [ViewEmployeeLoanController::class, 'index'])->name('employee.view-employee-loan');
             Route::patch('/forward-loan', [EmployeeDashboardController::class, 'forwardLoan'])->name('employee.forward-loan');
             
