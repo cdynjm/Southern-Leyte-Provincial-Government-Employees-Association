@@ -165,7 +165,7 @@ export default function Contributions({ auth, employees, search, office, contrib
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
-            <Head title="Employees" />
+            <Head title="Contributions" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <SkeletonDelay skeleton={<SkeletonCard />}>
                     <div className="grid grid-cols-1">

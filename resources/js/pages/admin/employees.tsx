@@ -43,7 +43,7 @@ interface EmployeesProps {
     offices: Offices[];
 }
 
-export default function Offices({ auth, employees, employeesWithSpecialAccount, offices, search, office, type }: EmployeesProps) {
+export default function Employees({ auth, employees, employeesWithSpecialAccount, offices, search, office, type }: EmployeesProps) {
     const [showPassword, setShowPassword] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);

@@ -17,7 +17,7 @@ interface ViewEmployeeLoanProps {
     today: string;
 }
 
-export default function Dashboard({ auth, encrypted_id, borrower, today }: ViewEmployeeLoanProps) {
+export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }: ViewEmployeeLoanProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'View Employee Loan',

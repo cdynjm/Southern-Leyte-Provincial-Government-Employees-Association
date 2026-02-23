@@ -23,7 +23,7 @@ interface LoanProps {
 export default function Loans({ borrowers, auth }: LoanProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
-            <Head title="Dashboard" />
+            <Head title="Loans" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <SkeletonDelay skeleton={<SkeletonCard />}>
                     <div className="flex flex-col">
