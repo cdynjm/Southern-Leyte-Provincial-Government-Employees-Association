@@ -3,11 +3,13 @@
 namespace App\Traits;
 
 use Carbon\Carbon;
+use App\Models\Date;
 
 trait HasDateHelpers
 {
     public function todayDate()
     {
-        return Carbon::today();
+        $date = Date::first();
+        return Carbon::parse($date->date);
     }
 }

@@ -19,11 +19,13 @@ use App\Models\DueDates;
 use App\Models\FinancialAccount;
 use Carbon\Carbon;
 use App\Traits\HasFinancialAccountHelpers;
+use App\Traits\HasDateHelpers;
 
 class EncodeEmployeeLoanController extends Controller
 {
     protected $aes;
 
+    use HasDateHelpers;
     use HasFinancialAccountHelpers;
 
     public function __construct(AESCipher $aes)
@@ -36,9 +38,12 @@ class EncodeEmployeeLoanController extends Controller
 
         $employee = User::where('id', $this->aes->decrypt($request->encrypted_id))->first();
 
+        $today = $this->todayDate();
+
         return Inertia::render('employee/special-account/encode-employee-loan', [
             'encrypted_id' => $request->encrypted_id,
             'employee' => $employee,
+            'today' => $today,
         ]);
     }
 

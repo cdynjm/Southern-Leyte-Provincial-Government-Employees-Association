@@ -16,9 +16,10 @@ interface EncodeEmployeeLoanProps {
     };
     encrypted_id: string;
     employee: Employees;
+    today: string;
 }
 
-export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: EncodeEmployeeLoanProps) {
+export default function EncodeEmployeeLoan({ auth, encrypted_id, employee, today }: EncodeEmployeeLoanProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Encode Employee Loan',
@@ -26,12 +27,21 @@ export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: Enc
         },
     ];
 
+    function toLocalDateString(iso: string) {
+        const d = new Date(iso);
+        const tzOffset = d.getTimezoneOffset() * 60000;
+        const localISO = new Date(d.getTime() - tzOffset).toISOString().split('T')[0];
+        return localISO;
+    }
+
+    const formattedToday = toLocalDateString(today);
+
     const createForm = useForm({
         encrypted_id: encrypted_id,
         borrowed: '',
         processingFee: '',
         rateInMonth: '',
-        date: '',
+        date: formattedToday,
     });
 
     const computation = useMemo(() => {
@@ -109,8 +119,8 @@ export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: Enc
         });
     };
 
-    const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+    // const currentDate = new Date();
+    //  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
@@ -219,11 +229,13 @@ export default function EncodeEmployeeLoan({ auth, encrypted_id, employee }: Enc
                                 <div>
                                     <Label className="text-[13px] text-gray-500">Date of Application</Label>
                                     <Input
-                                        value={createForm.data.date}
-                                        min={firstDayOfMonth}
-                                        onChange={(e) => createForm.setData('date', e.target.value)}
                                         type="date"
-                                        placeholder="Select date of loan"
+                                        value={formattedToday}
+                                        min={formattedToday}
+                                        max={formattedToday}
+                                        readOnly
+                                        onKeyDown={(e) => e.preventDefault()}
+                                        onPaste={(e) => e.preventDefault()}
                                         className="mt-1"
                                     />
                                 </div>
