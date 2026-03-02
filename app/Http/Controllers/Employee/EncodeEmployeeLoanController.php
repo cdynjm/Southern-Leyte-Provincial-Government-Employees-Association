@@ -61,7 +61,14 @@ class EncodeEmployeeLoanController extends Controller
         $employeeId = $this->aes->decrypt($request->encrypted_id);
 
         $borrowed = (float) $request->borrowed;
-        $processingFee = (float) $request->processingFee;
+
+        if ($borrowed <= 5000) {
+            $calculatedProcessingFee = 50;
+        } else {
+            $calculatedProcessingFee = $borrowed * 0.01;
+        } // 1% processing fee
+
+        $processingFee = (float) $calculatedProcessingFee;
         $rateInMonth = (float) $request->rateInMonth / 100; // convert % to decimal
 
         // Net Proceeds
@@ -69,26 +76,6 @@ class EncodeEmployeeLoanController extends Controller
 
         // Use loan date from request
         $loanDate = Carbon::parse($request->date);
-        $loanMonth = $loanDate->month;
-
-        // Determine period in months
-        // If loan in December → 1-time payment
-        if ($loanMonth == 12) {
-            $periodInMonths = 1;
-        } else {
-            $periodInMonths = 12 - $loanMonth;
-        }
-
-        // ---- PMT Formula (same as Excel) ----
-        // PMT = (r * PV) / (1 - (1 + r)^(-n))
-        if ($rateInMonth > 0) {
-            $monthlyInstallment = ($rateInMonth * $borrowed) /
-                (1 - pow(1 + $rateInMonth, -$periodInMonths));
-        } else {
-            $monthlyInstallment = $borrowed / $periodInMonths;
-        }
-
-        $monthlyInstallment = round($monthlyInstallment, 2);
 
         // Save to database
         $loanAmortization = LoanAmortization::create([
@@ -97,9 +84,9 @@ class EncodeEmployeeLoanController extends Controller
             'borrowed' => $borrowed,
             'processingFee' => $processingFee,
             'netProceeds' => $netProceeds,
-            'periodInMonths' => $periodInMonths,
+           // 'periodInMonths' => $periodInMonths,
             'rateInMonth' => $rateInMonth * 100,
-            'monthlyInstallment' => $monthlyInstallment,
+          //  'monthlyInstallment' => $monthlyInstallment,
             'status' => 'pending',
             'paymentStatus' => 'unpaid',
             'dateApplied' => $loanDate, 

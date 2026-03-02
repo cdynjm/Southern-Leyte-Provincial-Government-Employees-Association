@@ -50,13 +50,22 @@ class DashboardController extends Controller
         });
 
         if(auth()->user()->loantracker?->tracker) {
-            $borrowers = LoanAmortization::with('user')->where('tracker', auth()->user()->loantracker->tracker)
+
+            $tracker = auth()->user()->loantracker->tracker;
+
+            $borrowers = LoanAmortization::with('user')
+                ->where('tracker', $tracker)
+                ->when($tracker == 1, function ($query) {
+                    $query->where('encodedBy', auth()->user()->name);
+                })
                 ->orderBy('paymentStatus', 'desc')
                 ->orderBy('dateApplied', 'desc')
-                ->paginate(30)->through(function ($borrower) {
+                ->paginate(30)
+                ->through(function ($borrower) {
                     $borrower->encrypted_id = $this->aes->encrypt($borrower->id);
                     return $borrower;
                 });
+                
         } else {
             $borrowers = LoanAmortization::with('user')->where('users_id', auth()->user()->id)
                 ->orderBy('paymentStatus', 'desc')
@@ -105,6 +114,35 @@ class DashboardController extends Controller
                 ]);
 
                 FinancialAccount::where('id', $this->loanID())->decrement('balance', $loanAmortization->borrowed);
+
+                $borrowed = $loanAmortization->borrowed;
+                $rateInMonth = (float) $loanAmortization->rateInMonth / 100;
+
+                $loanMonth = $this->todayDate()->month;
+
+                // Determine period in months
+                // If loan in December → 1-time payment
+                if ($loanMonth == 12) {
+                    $periodInMonths = 1;
+                } else {
+                    $periodInMonths = 12 - $loanMonth;
+                }
+
+                // ---- PMT Formula (same as Excel) ----
+                // PMT = (r * PV) / (1 - (1 + r)^(-n))
+                if ($rateInMonth > 0) {
+                    $monthlyInstallment = ($rateInMonth * $borrowed) /
+                        (1 - pow(1 + $rateInMonth, -$periodInMonths));
+                } else {
+                    $monthlyInstallment = $borrowed / $periodInMonths;
+                }
+
+                $monthlyInstallment = round($monthlyInstallment, 2);
+
+                LoanAmortization::where('id', $loanAmortizationId)->update([
+                    'periodInMonths' => $periodInMonths,
+                    'monthlyInstallment' => $monthlyInstallment
+                ]);
 
             }
 

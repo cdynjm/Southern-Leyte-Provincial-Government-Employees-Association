@@ -46,7 +46,7 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
     const createForm = useForm<ViewEmployeeLoanFormData>({
         encrypted_id: encrypted_id,
         installment: '',
-        paymentDate: formattedToday,
+        paymentDate: '',
     });
 
     const repayLoan = () => {
@@ -225,12 +225,15 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                                                             <Input
                                                                 type="date"
                                                                 className="w-full"
-                                                                value={formattedToday}
-                                                                min={formattedToday}
+                                                                
+                                                                /* min={formattedToday}
                                                                 max={formattedToday}
                                                                 readOnly
                                                                 onKeyDown={(e) => e.preventDefault()}
-                                                                onPaste={(e) => e.preventDefault()}
+                                                                onPaste={(e) => e.preventDefault()} */
+                                                                onChange={(e) =>
+                                                                createForm.setData('paymentDate', e.target.value)
+                                                            }
                                                             />
                                                         </div>
 

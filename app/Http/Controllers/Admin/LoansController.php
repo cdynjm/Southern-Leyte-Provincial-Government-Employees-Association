@@ -120,25 +120,39 @@ class LoansController extends Controller
 
     public function storeOrUpdate(Request $request)
     {
-            DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request) {
+
             $existingTrackers = LoanTracker::all()->keyBy('users_id');
 
             $submittedUserIds = collect($request->trackers)
                 ->map(fn($tracker) => $this->aes->decrypt($tracker['officer']))
                 ->toArray();
 
-            $existingTrackers->whereNotIn('users_id', $submittedUserIds)->each(function($tracker) {
-                $tracker->delete();
-            });
+            // Delete removed users
+            $existingTrackers
+                ->whereNotIn('users_id', $submittedUserIds)
+                ->each(function ($tracker) {
+                    $tracker->delete();
+                });
 
-            foreach ($request->trackers as $index => $trackerData) {
+            // Description → Tracker mapping
+            $trackerMap = [
+                'ENCODER'   => 1,
+                'VALIDATOR' => 2,
+                'APPROVER'  => 3,
+            ];
+
+            foreach ($request->trackers as $trackerData) {
+
                 $userId = $this->aes->decrypt($trackerData['officer']);
                 $description = $trackerData['description'] ?? null;
+
+                $trackerNumber = $trackerMap[$description] ?? null;
 
                 LoanTracker::updateOrCreate(
                     ['users_id' => $userId],
                     [
-                        'tracker' => $index + 1,
+                        'tracker' => $trackerNumber,
                         'description' => $description,
                     ]
                 );
@@ -150,7 +164,7 @@ class LoansController extends Controller
     {
         $loanAmortizationId = $this->aes->decrypt($request->encrypted_id);
         $installment = $request->installment;
-        $paymentDate = $this->todayDate()->toDateString();
+        $paymentDate = $request->paymentDate->toDateString();
 
         $dueDate = DueDates::with('loaninstallment')
             ->where('loan_amortization_id', $loanAmortizationId)
