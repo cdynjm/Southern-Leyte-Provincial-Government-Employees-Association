@@ -10,6 +10,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type LoanAmortization, type User } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { CheckCircleIcon, CheckIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 interface ViewEmployeeLoanProps {
     auth: {
@@ -18,9 +19,26 @@ interface ViewEmployeeLoanProps {
     encrypted_id: string;
     borrower: LoanAmortization;
     today: string;
+    cycleStart: string;
+    cycleEnd: string;
+    originalBalance: number;
+    daysInMonth: number;
+    monthlyRate: number;
+    dueDates: number;
 }
 
-export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }: ViewEmployeeLoanProps) {
+export default function ViewEmployeeLoan({
+    auth,
+    encrypted_id,
+    borrower,
+    today,
+    cycleStart,
+    cycleEnd,
+    monthlyRate,
+    originalBalance,
+    daysInMonth,
+    dueDates,
+}: ViewEmployeeLoanProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'View Employee Loan',
@@ -46,7 +64,7 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
     const createForm = useForm<ViewEmployeeLoanFormData>({
         encrypted_id: encrypted_id,
         installment: '',
-        paymentDate: '',
+        paymentDate: formattedToday,
     });
 
     const repayLoan = () => {
@@ -77,6 +95,45 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
             },
         });
     };
+
+    const [selectedDate, setSelectedDate] = useState(() => {
+        if (!cycleStart || !today || !daysInMonth) return '' as string;
+        const todayDate = new Date(today.split(' ')[0]);
+        const cycleEndDate = new Date(cycleEnd.split(' ')[0]);
+
+        if (cycleEndDate > todayDate) {
+            return todayDate.toISOString().split('T')[0];
+        }
+
+        return cycleEndDate.toISOString().split('T')[0];
+    });
+
+    const interest = useMemo(() => {
+        if (!cycleStart || !today || !daysInMonth) return 0;
+
+        const balance = Number(originalBalance);
+        const rate = Number(monthlyRate);
+        const monthDays = Number(daysInMonth);
+
+        if (!balance || !rate || !monthDays) return 0;
+
+        const safeRate = rate > 1 ? rate / 100 : rate;
+
+        const start = new Date(cycleStart.split(' ')[0]);
+        if (dueDates === 1) start.setDate(start.getDate() + 1);
+        const end = new Date(selectedDate);
+
+        const diffTime = end.getTime() - start.getTime();
+        const daysGap = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+        const computed = balance * safeRate * (daysGap / monthDays);
+
+        return Number(computed.toFixed(2));
+    }, [originalBalance, monthlyRate, daysInMonth, cycleStart, today, selectedDate, dueDates]);
+
+    const updatedBalance = useMemo(() => {
+        return Number((Number(originalBalance) + interest).toFixed(2));
+    }, [originalBalance, interest]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
@@ -113,17 +170,18 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                     </Card>
                     <Card className="shadow-none">
                         <CardContent>
-                            
-                            <div className="flex flex-col lg:flex-row items-center justify-between gap-2">
+                            <div className="flex flex-col items-center justify-between gap-2 lg:flex-row">
                                 <Label className="font-bold">Loan Amortization Schedule</Label>
-                                <div className='flex items-center gap-2'>
-                                    <small className='text-[12px]'>Current Date: </small>
-                                    <small className='font-bold text-blue-600'><FormattedDate date={today} variant='date' /></small>
+                                <div className="flex items-center gap-2">
+                                    <small className="text-[12px]">Current Date: </small>
+                                    <small className="font-bold text-blue-600">
+                                        <FormattedDate date={today} variant="date" />
+                                    </small>
                                 </div>
                             </div>
-                            
+
                             <hr className="my-4" />
-                            
+
                             <div className="grid grid-cols-1 justify-center gap-4 lg:grid-cols-2">
                                 <div className="flex flex-col gap-2">
                                     <Label className="text-gray-600">
@@ -181,7 +239,8 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                             <hr className="my-4" />
                             <div className="flex flex-col gap-2">
                                 <Label className="text-gray-600">
-                                    <small>Encoded by: </small><b className="">{borrower.encodedBy ? borrower.encodedBy : ''}</b>
+                                    <small>Encoded by: </small>
+                                    <b className="">{borrower.encodedBy ? borrower.encodedBy : ''}</b>
                                 </Label>
 
                                 <Label className="text-gray-600">
@@ -193,14 +252,12 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                                 </Label>
                             </div>
 
-                            {borrower.status === 'approved' ? (
+                            {borrower.status === 'approved' && (
                                 <>
                                     <hr className="my-4" />
-                                    
 
                                     {borrower.paymentStatus === 'unpaid' ? (
                                         <>
-                                            
                                             <div>
                                                 <p className="mb-4 text-[14px] font-bold text-gray-600">REPAY LOAN</p>
                                                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -225,15 +282,12 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                                                             <Input
                                                                 type="date"
                                                                 className="w-full"
-                                                                
-                                                                /* min={formattedToday}
-                                                                max={formattedToday}
-                                                                readOnly
+                                                                min={cycleStart}
+                                                                max={cycleEnd}
+                                                                value={createForm.data.paymentDate || ''}
                                                                 onKeyDown={(e) => e.preventDefault()}
-                                                                onPaste={(e) => e.preventDefault()} */
-                                                                onChange={(e) =>
-                                                                createForm.setData('paymentDate', e.target.value)
-                                                            }
+                                                                onPaste={(e) => e.preventDefault()}
+                                                                onChange={(e) => createForm.setData('paymentDate', e.target.value)}
                                                             />
                                                         </div>
 
@@ -371,7 +425,7 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                                                                     })}
                                                                 </div>
                                                             </TableCell>
-                                                             <TableCell className="py-[6px] font-normal text-nowrap">
+                                                            <TableCell className="py-[6px] font-normal text-nowrap">
                                                                 <small>{ln.processedBy ? ln.processedBy : '-'}</small>
                                                             </TableCell>
                                                         </TableRow>
@@ -381,10 +435,54 @@ export default function ViewEmployeeLoan({ auth, encrypted_id, borrower, today }
                                         </TableBody>
                                     </Table>
 
-                                    
+                                    <hr className="my-6 border border-2" />
+                                    <div className="mt-4">
+                                        <h4 className="mb-4 font-bold">BALANCE CALCULATOR</h4>
+
+                                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                            {/* LEFT SIDE – DATE PICKER */}
+                                            <div className="flex flex-col gap-2">
+                                                <Label>Select Date</Label>
+                                                <Input
+                                                    type="date"
+                                                    className="w-full"
+                                                    min={cycleStart.split(' ')[0]}
+                                                    max={cycleEnd.split(' ')[0]}
+                                                    value={selectedDate}
+                                                    onChange={(e) => setSelectedDate(e.target.value)}
+                                                    onKeyDown={(e) => e.preventDefault()}
+                                                    onPaste={(e) => e.preventDefault()}
+                                                />
+                                            </div>
+
+                                            {/* RIGHT SIDE – TABLE */}
+                                            <div>
+                                                <Table>
+                                                    <TableBody>
+                                                        <TableRow>
+                                                            <TableCell className="font-medium">As of</TableCell>
+                                                            <TableCell className="text-right font-bold text-green-600">
+                                                                <FormattedDate date={selectedDate} variant="date" />
+                                                            </TableCell>
+                                                        </TableRow>
+
+                                                        <TableRow>
+                                                            <TableCell className="font-medium">Computed Interest</TableCell>
+                                                            <TableCell className="text-right">₱ {interest.toLocaleString()}</TableCell>
+                                                        </TableRow>
+
+                                                        <TableRow>
+                                                            <TableCell className="text-base font-bold">Updated Balance</TableCell>
+                                                            <TableCell className="text-right text-lg font-bold">
+                                                                ₱ {updatedBalance.toLocaleString()}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </>
-                            ) : (
-                                ''
                             )}
                         </CardContent>
                     </Card>

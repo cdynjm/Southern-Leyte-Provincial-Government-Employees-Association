@@ -16,6 +16,7 @@ use App\Models\Contributions;
 use App\Models\ContributionTypes;
 use App\Models\Offices;
 use App\Models\FinancialAccount;
+use App\Models\Logs;
 
 class FinancialAccountController extends Controller
 {
@@ -84,7 +85,49 @@ class FinancialAccountController extends Controller
                 $deductAccount->decrement('balance', $request->deduct_amount);
 
                 $financialAccount->increment('balance', $request->deduct_amount);
+
+                Logs::create([
+                    'users_id' => auth()->user()->id,
+                    'name' => auth()->user()->name,
+                    'description' => "Deducted  ₱" . number_format($request->deduct_amount, 2) . " from {$deductAccount->name} to update {$financialAccount->name} balance."
+                ]);
             }
+
+            if($request->boolean('deposit_enabled'))
+            {
+                if ($request->deposit_amount <= 0) {
+                    return redirect()->back()
+                        ->withErrors(['deduct' => 'Deposit amount must be greater than zero.'])
+                        ->withInput();
+                }
+                
+                $financialAccount->increment('balance', $request->deposit_amount);
+
+                Logs::create([
+                    'users_id' => auth()->user()->id,
+                    'name' => auth()->user()->name,
+                    'description' => "Deposited  ₱" . number_format($request->deposit_amount, 2) . " into {$financialAccount->name}."
+                ]);
+            }
+
+            if($request->boolean('withdraw_enabled'))
+            {
+                if ($financialAccount->balance < $request->withdraw_amount || $request->withdraw_amount <= 0 || !$request->withdraw_purpose) {
+                    return redirect()->back()
+                        ->withErrors(['deduct' => 'Invalid withdrawal amount or purpose.'])
+                        ->withInput();
+                }
+
+                $financialAccount->decrement('balance', $request->withdraw_amount);
+
+                Logs::create([
+                    'users_id' => auth()->user()->id,
+                    'name' => auth()->user()->name,
+                    'description' => "Amount of  ₱" . number_format($request->withdraw_amount, 2) . " withdrawn from {$financialAccount->name} for purpose: {$request->withdraw_purpose}."
+                ]);
+            }
+
+
         });
     }
 

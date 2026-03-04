@@ -5,13 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SkeletonDelay } from '@/components/ui/skeleton-delay';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type LoanAmortization, type Paginated, type User } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { EraserIcon, EyeIcon, LoaderCircle, SearchIcon } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -31,12 +31,12 @@ interface LoanProps {
 export default function Loans({ search, borrowers, auth, status }: LoanProps) {
     const searchEmployeeForm = useForm({
         search: search || '',
-        status: status || ''
+        status: status || '',
     });
 
     const clearEmployeeForm = useForm({
         search: '',
-        status: ''
+        status: '',
     });
 
     const searchEmployee = () => {
@@ -58,11 +58,11 @@ export default function Loans({ search, borrowers, auth, status }: LoanProps) {
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <SkeletonDelay skeleton={<SkeletonCard />}>
                     <div>
-                                <Label className="text-sm font-bold text-gray-500">List of Employees Loan</Label>
-                            </div>
+                        <Label className="text-sm font-bold text-gray-500">List of Employees Loan</Label>
+                    </div>
                     <div className="flex flex-col">
                         <div className="mb-4 grid grid-cols-1 items-center gap-3 lg:grid-cols-2">
-                            <div className='flex items-center gap-2'>
+                            <div className="flex items-center gap-2">
                                 <Button
                                     size="icon"
                                     variant="secondary"
@@ -77,18 +77,17 @@ export default function Loans({ search, borrowers, auth, status }: LoanProps) {
                                     )}
                                 </Button>
                                 <Select value={searchEmployeeForm.data.status} onValueChange={(value) => searchEmployeeForm.setData('status', value)}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Status" />
-                                </SelectTrigger>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Status" />
+                                    </SelectTrigger>
 
-                                <SelectContent>
-                                    <SelectItem value="unpaid">Unpaid</SelectItem>
-                                    <SelectItem value="paid">Paid</SelectItem>
-                                </SelectContent>
-                            </Select>
+                                    <SelectContent>
+                                        <SelectItem value="unpaid">Unpaid</SelectItem>
+                                        <SelectItem value="paid">Paid</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="flex items-center gap-2">
-                                
                                 <Input
                                     type="text"
                                     placeholder="Search borrowers..."

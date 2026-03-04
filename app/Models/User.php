@@ -83,6 +83,11 @@ class User extends Authenticatable
         return $this->hasOne(LoanTracker::class, 'users_id');
     }
 
+    public function logs()
+    {
+        return $this->hasMany(Logs::class, 'users_id');
+    }
+
     
     public function canViewLoan(LoanAmortization $borrower): bool
     {

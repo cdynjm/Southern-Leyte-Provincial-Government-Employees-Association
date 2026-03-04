@@ -109,11 +109,22 @@ class DashboardController extends Controller
                     'date' => $this->todayDate()->toDateString()
                 ]);
                 
-                DueDates::where('loan_amortization_id', $loanAmortizationId)->update([
-                    'date' => $this->todayDate()->addMonth()->toDateString()
-                ]);
+                $today = $this->todayDate()->copy()->addMonth();
+                $endOfYear = Carbon::create($this->todayDate()->year, 12, 31);
 
-                FinancialAccount::where('id', $this->loanID())->decrement('balance', $loanAmortization->borrowed);
+                // Due Date Logic
+                if ($today->month == 1 || $today->month == 12) {
+                    $dueDate = $endOfYear;
+                } else {
+                    $dueDate = $today;
+                }
+
+                DueDates::where('loan_amortization_id', $loanAmortizationId)
+                    ->update([
+                        'date' => $dueDate->toDateString()
+                    ]);
+
+                FinancialAccount::where('id', $this->loanID())->decrement('balance', $loanAmortization->netProceeds);
 
                 $borrowed = $loanAmortization->borrowed;
                 $rateInMonth = (float) $loanAmortization->rateInMonth / 100;

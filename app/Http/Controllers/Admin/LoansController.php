@@ -85,10 +85,62 @@ class LoansController extends Controller
 
         $interestComputationService->InterestComputation($borrower, $months, $today, $loanAmortizationId);
 
+        $dueDates = DueDates::with('loaninstallment')->where('loan_amortization_id', $loanAmortizationId)->get();
+
+        if($dueDates->sortBy('date')->first()->loaninstallment->count() == 1) {
+            $cycleStart = $borrower->date;
+            $daysInMonth = Carbon::parse($cycleStart)->daysInMonth;
+        }
+        else {
+
+            $lastPrevPayment = $dueDates->sortByDesc('date')->first()->loaninstallment
+                ->whereNotNull('paymentDate')
+                ->sortBy('paymentDate')
+                ->last();
+            
+            if($lastPrevPayment) {
+                $cycleStart = Carbon::parse($lastPrevPayment->paymentDate)->addDay()->toDateString();
+            } else {
+                $cycleStart = Carbon::parse($dueDates->sortByDesc('date')
+                ->skip(1)
+                ->first()
+                ?->date)
+                ->copy()
+                ->addDay()
+                ->toDateString();
+            }
+
+            if($dueDates->count() == 1) {
+                 $daysInMonth = Carbon::parse($borrower->date)->daysInMonth;
+            } else {
+                $daysInMonth = Carbon::parse(
+                    $dueDates->sortByDesc('date')
+                        ->skip(1)
+                        ->first()
+                        ?->date
+                )->daysInMonth;
+            }
+            
+        }
+
+        $originalBalance = $dueDates->sortByDesc('date')->first()->loaninstallment
+                ->whereNull('paymentDate')
+                ->last()?->originalBalance;
+
+        $cycleEnd = $dueDates->sortByDesc('date')->first();
+
+        $monthlyRate = $borrower->rateInMonth / 100;
+
         return Inertia::render('admin/loans/view-employee-loan', [
             'encrypted_id' => $request->encrypted_id,
             'borrower' => $borrower,
-            'today' => $today
+            'today' => $today->toDateString(),
+            'cycleStart' => $cycleStart ? $cycleStart : null,
+            'cycleEnd' => $cycleEnd ? $cycleEnd->date : null,
+            'originalBalance' => $originalBalance,
+            'daysInMonth' => $daysInMonth,
+            'monthlyRate' => $monthlyRate * 100,
+            'dueDates' => $dueDates->sortBy('date')->first()->loaninstallment->count()
         ]);
     }
 
@@ -160,16 +212,24 @@ class LoansController extends Controller
         });
     }
 
-    public function repayLoan(Request $request)
+    public function repayLoan(Request $request, InterestComputationService $interestComputationService)
     {
         $loanAmortizationId = $this->aes->decrypt($request->encrypted_id);
         $installment = $request->installment;
-        $paymentDate = $request->paymentDate->toDateString();
+        $paymentDate = $request->paymentDate;
 
-        $dueDate = DueDates::with('loaninstallment')
-            ->where('loan_amortization_id', $loanAmortizationId)
-            ->orderBy('date', 'desc')
-            ->first();
+        $borrower = LoanAmortization::with([
+            'user',
+            'duedates.loaninstallment'
+        ])->findOrFail($loanAmortizationId);
+
+        $months = DueDates::with('loaninstallment')->where('loan_amortization_id', $loanAmortizationId)
+        ->orderBy('date', 'asc')
+        ->get();
+
+        $today = Carbon::parse($paymentDate);
+
+        $dueDate = $months->sortByDesc('date')->first();
 
         if ($dueDate && $dueDate->loaninstallment) {
         
@@ -179,6 +239,10 @@ class LoansController extends Controller
                 ->first();
 
             if ($loanInstallment) {
+                
+                $interestComputationService->InterestComputation($borrower, $months, $today, $loanAmortizationId);
+
+                $loanInstallment->refresh();
 
                 if($installment > $loanInstallment->outstandingBalance){
                     return redirect()->back()
@@ -228,25 +292,32 @@ class LoansController extends Controller
 
                     $nextDueDate = Carbon::parse($dueDate->date)->addMonth();
 
+                    if ($nextDueDate->month == 12) {
+                        $nextDueDate->day(31);
+                    }
+
                     $borrower = LoanAmortization::where('id', $loanAmortizationId)->first();
 
                     $loanInstallment->refresh();
 
-                    $dueDates = DueDates::create([
-                        'loan_amortization_id' => $loanAmortizationId,
-                        'date' => $nextDueDate,
-                    ]);
+                    if($nextDueDate->month !== 1)
+                    {
+                        $dueDates = DueDates::create([
+                            'loan_amortization_id' => $loanAmortizationId,
+                            'date' => $nextDueDate,
+                        ]);
 
-                    LoanInstallment::create([
-                        'users_id' => $borrower->users_id,
-                        'loan_amortization_id' => $loanAmortizationId,
-                        'due_dates_id' => $dueDates->id,
-                        'interest' => 0,
-                        'principal' => 0,
-                        'outstandingBalance' => $loanInstallment->outstandingBalance,
-                        'originalBalance' => $loanInstallment->outstandingBalance,
-                        'status' => 'unpaid'
-                    ]);
+                        LoanInstallment::create([
+                            'users_id' => $borrower->users_id,
+                            'loan_amortization_id' => $loanAmortizationId,
+                            'due_dates_id' => $dueDates->id,
+                            'interest' => 0,
+                            'principal' => 0,
+                            'outstandingBalance' => $loanInstallment->outstandingBalance,
+                            'originalBalance' => $loanInstallment->outstandingBalance,
+                            'status' => 'unpaid'
+                        ]);
+                    }
                 }
             }
         }

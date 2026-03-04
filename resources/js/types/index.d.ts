@@ -70,6 +70,7 @@ export interface User {
     [key: string]: unknown;
     contributions: Contributions[];
     loantracker:? LoanTracker;
+    logs?: Logs[];
 } 
 
 export interface Employees {
@@ -203,6 +204,16 @@ export interface DueDates {
     date: string;
     loaninstallment?: LoanInstallment[];
     loanamortization?: LoanAmortization;
+}
+
+export interface Logs {
+    id: number;
+    users_id: number;
+    encrypted_id: string;
+    name: string;
+    description: string;
+    created_at: string;
+    user?: User;
 }
 export interface ContributionGroup {
     type: ContributionTypes;

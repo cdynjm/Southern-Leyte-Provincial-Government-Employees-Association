@@ -57,11 +57,10 @@ class InterestComputationService
                     }
 
                     if ($cycleStart->ne($cycleEnd) && $today->between($cycleStart, $cycleEnd)) {
-                    
                         
                         if($payment->status == 'paid') {
                             continue;
-                        }
+                        } 
                         
                         $daysInMonth = $prev->daysInMonth;
 
@@ -80,12 +79,27 @@ class InterestComputationService
                         break;
 
                     } else {
-        
-                        if ($m === $months->count() - 1) {
+            
+                        if ($m === $months->count() - 1 ) {
             
                             $nextDueDate = Carbon::parse($months->last()->date)->addMonth();
 
-                            if($today->gt($months->last()->date))
+                            if ($nextDueDate->month == 12) {
+                                $nextDueDate->day(31);
+                            }
+                            
+                            if($m == 0 && $today->eq($borrower->date))
+                            {
+                                $payment->interest = 0;
+                                $payment->outstandingBalance = $payment->originalBalance;
+
+                                $payment->lastComputedDate = $today->toDateString();
+                                $payment->save();
+
+                                $payment->refresh();
+                            }
+
+                            if($today->gte($months->last()->date))
                             {
 
                                 $daysInMonth = $prev->daysInMonth;
@@ -104,23 +118,27 @@ class InterestComputationService
 
                                 $payment->refresh();
 
-                                $dueDates = DueDates::create([
-                                    'loan_amortization_id' => $loanAmortizationId,
-                                    'date' => $nextDueDate,
-                                ]);
+                                if($nextDueDate->month !== 1 && $today->gt($months->last()->date))
+                                {
+                                        $dueDates = DueDates::create([
+                                        'loan_amortization_id' => $loanAmortizationId,
+                                        'date' => $nextDueDate,
+                                    ]);
 
-                                LoanInstallment::create([
-                                    'users_id' => $borrower->users_id,
-                                    'loan_amortization_id' => $loanAmortizationId,
-                                    'due_dates_id' => $dueDates->id,
-                                    'interest' => 0,
-                                    'principal' => 0,
-                                    'outstandingBalance' => $payment->outstandingBalance,
-                                    'originalBalance' => $payment->outstandingBalance,
-                                    'status' => 'unpaid'
-                                ]);
+                                    LoanInstallment::create([
+                                        'users_id' => $borrower->users_id,
+                                        'loan_amortization_id' => $loanAmortizationId,
+                                        'due_dates_id' => $dueDates->id,
+                                        'interest' => 0,
+                                        'principal' => 0,
+                                        'outstandingBalance' => $payment->outstandingBalance,
+                                        'originalBalance' => $payment->outstandingBalance,
+                                        'status' => 'unpaid'
+                                    ]);
 
-                                $months->push($dueDates);
+                                    $months->push($dueDates);
+                                }
+
                             }
                         }
                     }

@@ -6,12 +6,12 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     BanknoteIcon,
     BriefcaseBusiness,
-    CreditCard,
     FileText,
     FolderIcon,
     HandCoins,
     Landmark,
     LayoutGrid,
+    LogsIcon,
     Navigation,
     PhilippinePeso,
     UserCog,
@@ -108,9 +108,9 @@ const adminNavItems: NavItem[] = [
         ],
     },
     {
-        title: 'Withdrawals',
-        icon: CreditCard,
-        href: '',
+        title: 'Logs',
+        icon: LogsIcon,
+        href: route('admin.logs'),
     },
 ];
 

@@ -45,9 +45,17 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
         encrypted_id?: string;
         name: string;
         balance: number | '';
+
         deduct_enabled?: boolean;
         deduct_from_account?: string;
         deduct_amount?: number | '';
+
+        deposit_enabled?: boolean;
+        deposit_amount?: number | '';
+
+        withdraw_enabled?: boolean;
+        withdraw_amount?: number | '';
+        withdraw_purpose?: string;
     };
 
     const createForm = useForm<FinancialAccountFormData>({
@@ -75,9 +83,18 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
         encrypted_id: '',
         name: '',
         balance: '',
+
         deduct_enabled: false,
         deduct_from_account: '',
         deduct_amount: '',
+
+        deposit_enabled: false,
+        deposit_amount: '',
+
+        withdraw_enabled: false,
+        withdraw_amount: '',
+        withdraw_purpose: '',
+
     });
 
     const editFinancialAccount = (financialAccount: FinancialAccount) => {
@@ -105,6 +122,22 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
                     description: errors?.deduct || 'Something went wrong.',
                 });
             },
+        });
+    };
+
+    const handleExclusiveToggle = (
+        field: 'deduct_enabled' | 'deposit_enabled' | 'withdraw_enabled',
+        checked: boolean
+        ) => {
+        updateForm.setData({
+            ...updateForm.data,
+
+            deduct_enabled: false,
+            deposit_enabled: false,
+            withdraw_enabled: false,
+
+            // enable only the selected one if checked = true
+            [field]: checked,
         });
     };
 
@@ -162,7 +195,7 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
                         </Dialog>
 
                         <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
-                            <DialogContent className="sm:max-w-lg">
+                            <DialogContent className="sm:max-w-xl">
                                 <DialogHeader>
                                     <DialogTitle>Edit Financial Account</DialogTitle>
                                     <DialogDescription>Update financial account details below.</DialogDescription>
@@ -184,6 +217,7 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
                                     <Label>Current Balance</Label>
                                     <Input
                                         type="number"
+                                        readOnly
                                         value={updateForm.data.balance}
                                         placeholder="Enter Current Balance"
                                         onChange={(e) => updateForm.setData('balance', e.target.value === '' ? '' : Number(e.target.value))}
@@ -196,7 +230,7 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
                                     <Switch
                                         id="deduct-switch"
                                         checked={!!updateForm.data.deduct_enabled}
-                                        onCheckedChange={(checked) => updateForm.setData('deduct_enabled', checked)}
+                                        onCheckedChange={(checked) => handleExclusiveToggle('deduct_enabled', checked)}
                                     />
                                     <Label htmlFor="deduct-switch" className="cursor-pointer">
                                         Deduct from another financial account
@@ -253,6 +287,84 @@ export default function FinancialAccount({ auth, financialAccount }: FinancialAc
                                                 }
                                             />
                                         </div>
+                                    </div>
+                                )}
+
+                                {/* Deposit Toggle */}
+                                <div className="flex items-center justify-start gap-2 pt-2">
+                                    <Switch
+                                        id="deposit-switch"
+                                        checked={!!updateForm.data.deposit_enabled}
+                                        onCheckedChange={(checked) => handleExclusiveToggle('deposit_enabled', checked)}
+                                    />
+                                    <Label htmlFor="deposit-switch" className="cursor-pointer">
+                                        Deposit to this financial account
+                                    </Label>
+                                </div>
+
+                                {/* Deposit Fields */}
+                                {updateForm.data.deposit_enabled && (
+                                    <div className="flex flex-col gap-3 rounded-md border p-3">
+
+                                        {/* Deposit amount */}
+                                        <div className="flex flex-col gap-2">
+                                            <Label>Deposit Amount</Label>
+                                            <Input
+                                                type="number"
+                                                min={0}
+                                                placeholder="Enter amount to deposit"
+                                                value={updateForm.data.deposit_amount}
+                                                onChange={(e) =>
+                                                    updateForm.setData('deposit_amount', e.target.value === '' ? '' : Number(e.target.value))
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Withdraw Toggle */}
+                                <div className="flex items-center justify-start gap-2 pt-2">
+                                    <Switch
+                                        id="withdraw-switch"
+                                        checked={!!updateForm.data.withdraw_enabled}
+                                        onCheckedChange={(checked) => handleExclusiveToggle('withdraw_enabled', checked)}
+                                    />
+                                    <Label htmlFor="withdraw-switch" className="cursor-pointer">
+                                        Withdraw from this financial account
+                                    </Label>
+                                </div>
+
+                                {/* Withdrawal Fields */}
+                                {updateForm.data.withdraw_enabled && (
+                                    <div className="flex flex-col gap-3 rounded-md border p-3">
+
+                                        {/* Withdrawal amount */}
+                                        <div className="flex flex-col gap-2">
+                                            <Label>Withdrawal Amount</Label>
+                                            <Input
+                                                type="number"
+                                                min={0}
+                                                placeholder="Enter amount to withdraw"
+                                                value={updateForm.data.withdraw_amount}
+                                                onChange={(e) =>
+                                                    updateForm.setData('withdraw_amount', e.target.value === '' ? '' : Number(e.target.value))
+                                                }
+                                            />
+                                        </div>
+
+                                        {/* Withdrawal purpose */}
+                                        <div className="flex flex-col gap-2">
+                                            <Label>Withdrawal Purpose</Label>
+                                            <Input
+                                               
+                                                placeholder="Enter description/purpose for withdrawal"
+                                                value={updateForm.data.withdraw_purpose}
+                                                onChange={(e) =>
+                                                    updateForm.setData('withdraw_purpose', e.target.value)
+                                                }
+                                            />
+                                        </div>
+                                        
                                     </div>
                                 )}
 
