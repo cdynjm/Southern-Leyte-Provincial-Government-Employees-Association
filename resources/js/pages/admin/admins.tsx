@@ -219,7 +219,7 @@ export default function Admins({ auth, admins, permissions }: AdminsProps) {
                         </Dialog>
 
                         <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
-                            <DialogContent className="sm:max-w-[500px]">
+                            <DialogContent className="sm:max-w-[800px]">
                                 <DialogHeader>
                                     <DialogTitle>Edit Admin</DialogTitle>
                                     <DialogDescription>Update the admin details below.</DialogDescription>
@@ -301,6 +301,7 @@ export default function Admins({ auth, admins, permissions }: AdminsProps) {
                             <TableRow className="">
                                 <TableHead className="w-[50px] text-center">#</TableHead>
                                 <TableHead className="text-start text-nowrap">Name</TableHead>
+                                <TableHead className="text-start text-nowrap">Permissions</TableHead>
                                 <TableHead className="text-start text-nowrap">Role</TableHead>
                                 <TableHead className="w-[200px] text-center text-nowrap">Actions</TableHead>
                             </TableRow>
@@ -315,14 +316,39 @@ export default function Admins({ auth, admins, permissions }: AdminsProps) {
                             ) : (
                                 admins.map((ad, index) => (
                                     <TableRow key={ad.encrypted_id}>
-                                        <TableCell className="py-[6px] text-center">{index + 1}</TableCell>
+                                        <TableCell className="py-[6px] text-center align-top">{index + 1}</TableCell>
 
-                                        <TableCell className="py-[6px] text-start text-nowrap">
+                                        <TableCell className="py-[6px] text-start align-top text-nowrap">
                                             <div className="font-bold">{ad.name}</div>
                                             <small>{ad.email}</small>
                                         </TableCell>
-                                        <TableCell className="py-[6px] text-start text-nowrap">{ad.role}</TableCell>
-                                        <TableCell className="py-[6px]">
+                                        <TableCell className="py-[6px] text-start text-nowrap">
+                                            {permissions && permissions.length > 0 ? (
+                                                <div className="flex flex-col gap-2">
+                                                    {permissions.map((perm) => {
+                                                        const hasPermission = ad.adminpermissions?.some(
+                                                            (p) => p.permission?.encrypted_id === perm.encrypted_id,
+                                                        );
+
+                                                        return (
+                                                            <p
+                                                                key={perm.encrypted_id}
+                                                                className={`rounded px-2 py-1 text-sm capitalize transition ${
+                                                                    hasPermission ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-500'
+                                                                } `}
+                                                            >
+                                                                {perm.pages}
+                                                            </p>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-500">No permissions</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="py-[6px] text-start align-top text-nowrap">{ad.role}</TableCell>
+
+                                        <TableCell className="py-[6px] align-top">
                                             <div className="flex items-center justify-center gap-2">
                                                 <Button variant="secondary" className="text-[11px]" size="icon" onClick={() => editAdmin(ad)}>
                                                     <PencilIcon className="text-gray-600" />
