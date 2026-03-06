@@ -108,7 +108,7 @@ class ContributionsController extends Controller
             Logs::create([
                 'users_id' => auth()->user()->id,
                 'name' => auth()->user()->name,
-                'description' => "Added contribution for {$contribution->user->name}: {$contribution->contributiontype->description} with an amount of ₱ " . number_format($contribution->amount, 2) . " for {$contribution->month}/{$contribution->year}.",
+                'description' => "Added contribution for {$contribution->user->name}: {$contribution->contributiontype->description} with an amount of ₱" . number_format($contribution->amount, 2) . " for {$contribution->month}/{$contribution->year}.",
             ]);
         }
 
