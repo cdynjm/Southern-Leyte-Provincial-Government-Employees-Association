@@ -74,7 +74,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::delete('/contribution-types/destroy', [ContributionsController::class, 'destroyContributionType'])->name('admin.contribution-type.destroy');
             });
 
-            Route::middleware('admin.permission:financial-account')->group(function () {
+            Route::middleware('admin.permission:financial-accounts')->group(function () {
                 Route::get('/financial-account', [FinancialAccountController::class, 'index'])->name('admin.financial-account');
                 Route::post('/financial-account/store', [FinancialAccountController::class, 'store'])->name('admin.financial-account.store');
                 Route::put('/financial-account/update', [FinancialAccountController::class, 'update'])->name('admin.financial-account.update');
