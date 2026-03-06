@@ -17,7 +17,7 @@ class CheckAdminPermission
             ->exists();
 
         if (!$hasPermission) {
-            abort(403, 'Unauthorized');
+            return redirect()->route('admin.dashboard');
         }
 
         return $next($request);
