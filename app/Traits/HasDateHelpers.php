@@ -10,6 +10,6 @@ trait HasDateHelpers
     public function todayDate()
     {
         $date = Date::first();
-        return Carbon::parse($date->date);
+        return Carbon::today();
     }
 }
