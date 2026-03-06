@@ -21,6 +21,7 @@ export interface NavItem {
     icon?: LucideIcon | null;
     isActive?: boolean;
     children?: NavItem[];
+    permission?: string;
 }
 
 export interface SharedData {
@@ -71,6 +72,7 @@ export interface User {
     contributions: Contributions[];
     loantracker:? LoanTracker;
     logs?: Logs[];
+    adminpermissions?: AdminPermissions[];
 } 
 
 export interface Employees {
@@ -102,6 +104,7 @@ export interface Admins {
     email: string;
     role: string;
     created_at: string;
+    adminpermissions?: AdminPermissions[];
 }
 
 export interface Contributions {
@@ -214,6 +217,19 @@ export interface Logs {
     description: string;
     created_at: string;
     user?: User;
+}
+
+export interface AdminPermissions {
+    id: number;
+    encrypted_id: string;
+    user?: User;
+    permission?: Permissions;
+}
+export interface Permissions {
+    id: number;
+    encrypted_id: string;
+    pages: string;
+    adminpermissions?: AdminPermissions[];
 }
 export interface ContributionGroup {
     type: ContributionTypes;

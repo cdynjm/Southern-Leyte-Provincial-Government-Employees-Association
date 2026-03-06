@@ -45,7 +45,16 @@ class HandleInertiaRequests extends Middleware
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user()
-                ? $request->user()->load('loantracker') : null
+                    ? $request->user()->load('loantracker')
+                    : null,
+
+                'permissions' => $request->user()
+                    ? $request->user()
+                        ->adminpermissions()
+                        ->with('permission')
+                        ->get()
+                        ->pluck('permission.pages')
+                    : [],
             ],
             'ziggy' => fn (): array => [
                 ...(new Ziggy)->toArray(),

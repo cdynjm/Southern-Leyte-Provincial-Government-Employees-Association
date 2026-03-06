@@ -13,9 +13,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SkeletonDelay } from '@/components/ui/skeleton-delay';
+import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type Admins, type BreadcrumbItem, type User } from '@/types';
+import { type Admins, type BreadcrumbItem, type Permissions, type User } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Eye, EyeOff, PencilIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -32,9 +33,10 @@ interface AdminsProps {
         user: User;
     };
     admins: Admins[];
+    permissions: Permissions[];
 }
 
-export default function Admins({ auth, admins }: AdminsProps) {
+export default function Admins({ auth, admins, permissions }: AdminsProps) {
     const [showPassword, setShowPassword] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -80,6 +82,7 @@ export default function Admins({ auth, admins }: AdminsProps) {
         name: '',
         email: '',
         password: '',
+        permissions: [] as string[],
     });
 
     const editAdmin = (admin: Admins) => {
@@ -88,8 +91,24 @@ export default function Admins({ auth, admins }: AdminsProps) {
             name: String(admin.name),
             email: String(admin.email),
             password: '',
+
+            permissions: admin.adminpermissions?.map((p) => p.permission?.encrypted_id).filter((id): id is string => id !== undefined) || [],
         });
+
         setOpenEditDialog(true);
+    };
+
+    const togglePermission = (encryptedId: string) => {
+        const current = updateForm.data.permissions;
+
+        if (current.includes(encryptedId)) {
+            updateForm.setData(
+                'permissions',
+                current.filter((id) => id !== encryptedId),
+            );
+        } else {
+            updateForm.setData('permissions', [...current, encryptedId]);
+        }
     };
 
     const updateAdmin = () => {
@@ -210,7 +229,7 @@ export default function Admins({ auth, admins }: AdminsProps) {
                                     <Label>Name</Label>
                                     <Input
                                         value={updateForm.data.name}
-                                        onChange={(e) => createForm.setData('name', e.target.value)}
+                                        onChange={(e) => updateForm.setData('name', e.target.value)}
                                         placeholder="Enter Name"
                                         required
                                     />
@@ -220,7 +239,7 @@ export default function Admins({ auth, admins }: AdminsProps) {
                                     <Label>Username</Label>
                                     <Input
                                         value={updateForm.data.email}
-                                        onChange={(e) => createForm.setData('email', e.target.value)}
+                                        onChange={(e) => updateForm.setData('email', e.target.value)}
                                         placeholder="Enter Username"
                                         required
                                     />
@@ -245,6 +264,23 @@ export default function Admins({ auth, admins }: AdminsProps) {
                                         >
                                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </button>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-3 border-t pt-4">
+                                    <Label className="font-semibold">Permissions</Label>
+
+                                    <div className="grid gap-3">
+                                        {permissions.map((perm) => (
+                                            <div key={perm.encrypted_id} className="flex items-center justify-between rounded-md border p-3">
+                                                <span className="text-sm capitalize">{perm.pages}</span>
+
+                                                <Switch
+                                                    checked={updateForm.data.permissions.includes(perm.encrypted_id)}
+                                                    onCheckedChange={() => togglePermission(perm.encrypted_id)}
+                                                />
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 

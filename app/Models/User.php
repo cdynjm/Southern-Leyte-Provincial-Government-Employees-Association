@@ -88,6 +88,11 @@ class User extends Authenticatable
         return $this->hasMany(Logs::class, 'users_id');
     }
 
+    public function adminpermissions()
+    {
+        return $this->hasMany(AdminPermissions::class, 'users_id');
+    }
+
     
     public function canViewLoan(LoanAmortization $borrower): bool
     {

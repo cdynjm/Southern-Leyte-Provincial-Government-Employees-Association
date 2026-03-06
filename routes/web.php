@@ -42,50 +42,66 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
-            Route::get('/employees', [EmployeesController::class, 'index'])->name('admin.employees');
-            Route::post('/employees/store', [EmployeesController::class, 'store'])->name('admin.employee.store');
-            Route::put('/employees/update', [EmployeesController::class, 'update'])->name('admin.employee.update');
-            Route::delete('/employees/destroy', [EmployeesController::class, 'destroy'])->name('admin.employee.destroy');
-            Route::post('/employees/search', [EmployeesController::class, 'search'])->name('admin.employees.search');
-            Route::post('/employees/clear-search', [EmployeesController::class, 'clearSearch'])->name('admin.employees.clear-search');
+            Route::middleware('admin.permission:employees')->group(function () {
+                Route::get('/employees', [EmployeesController::class, 'index'])->name('admin.employees');
+                Route::post('/employees/store', [EmployeesController::class, 'store'])->name('admin.employee.store');
+                Route::put('/employees/update', [EmployeesController::class, 'update'])->name('admin.employee.update');
+                Route::delete('/employees/destroy', [EmployeesController::class, 'destroy'])->name('admin.employee.destroy');
+                Route::post('/employees/search', [EmployeesController::class, 'search'])->name('admin.employees.search');
+                Route::post('/employees/clear-search', [EmployeesController::class, 'clearSearch'])->name('admin.employees.clear-search');
+            });
 
-            Route::get('/offices', [OfficesController::class, 'index'])->name('admin.offices');
-            Route::post('/offices/store', [OfficesController::class, 'store'])->name('admin.office.store');
-            Route::put('/offices/update', [OfficesController::class, 'update'])->name('admin.office.update');
-            Route::delete('/offices/destroy', [OfficesController::class, 'destroy'])->name('admin.office.destroy');
+            Route::middleware('admin.permission:offices')->group(function () {
+                Route::get('/offices', [OfficesController::class, 'index'])->name('admin.offices');
+                Route::post('/offices/store', [OfficesController::class, 'store'])->name('admin.office.store');
+                Route::put('/offices/update', [OfficesController::class, 'update'])->name('admin.office.update');
+                Route::delete('/offices/destroy', [OfficesController::class, 'destroy'])->name('admin.office.destroy');
+            });
 
-            Route::get('/contributions', [ContributionsController::class, 'employeeContributions'])->name('admin.contributions');
-            Route::get('/contributions/{encrypted_id}', [ContributionsController::class, 'viewContributions'])->name('admin.contributions.view');
-            Route::post('/contributions/search', [ContributionsController::class, 'search'])->name('admin.contributions.search');
-            Route::post('/contributions/clear-search', [ContributionsController::class, 'clearSearch'])->name('admin.contributions.clear-search');
-            Route::post('/contributions/store', [ContributionsController::class, 'store'])->name('admin.contribution.store');
-            Route::delete('/contributions/destroy', [ContributionsController::class, 'destroy'])->name('admin.contribution.destroy');
-            
-            Route::get('/contribution-types', [ContributionsController::class, 'contributionTypes'])->name('admin.contribution-types');
-            Route::post('/contribution-types/store', [ContributionsController::class, 'storeContributionType'])->name('admin.contribution-type.store');
-            Route::put('/contribution-types/update', [ContributionsController::class, 'updateContributionType'])->name('admin.contribution-type.update');
-            Route::delete('/contribution-types/destroy', [ContributionsController::class, 'destroyContributionType'])->name('admin.contribution-type.destroy');
-        
-            Route::get('/financial-account', [FinancialAccountController::class, 'index'])->name('admin.financial-account');
-            Route::post('/financial-account/store', [FinancialAccountController::class, 'store'])->name('admin.financial-account.store');
-            Route::put('/financial-account/update', [FinancialAccountController::class, 'update'])->name('admin.financial-account.update');
-            Route::delete('/financial-account/destroy', [FinancialAccountController::class, 'destroy'])->name('admin.financial-account.destroy');
-       
-            Route::get('/loans', [LoansController::class, 'index'])->name('admin.loans');
-            Route::get('/loan-tracker', [LoansController::class, 'loanTracker'])->name('admin.loan-tracker');
-            Route::post('/loan-tracker/store-or-update', [LoansController::class, 'storeOrUpdate'])->name('admin.loan-tracker.store-or-update');
-            Route::get('/view-employee-loan/{encrypted_id}', [LoansController::class, 'viewEmployeeLoan'])->name('admin.view-employee-loan');
-            Route::post('/borrowers/search', [LoansController::class, 'search'])->name('admin.borrowers.search');
-            Route::post('/borrowers/clear-search', [LoansController::class, 'clearSearch'])->name('admin.borrowers.clear-search');
-            Route::post('/repay-loan', [LoansController::class, 'repayLoan'])->name('admin.repay-loan.store');
+            Route::middleware('admin.permission:contributions')->group(function () {
+                Route::get('/contributions', [ContributionsController::class, 'employeeContributions'])->name('admin.contributions');
+                Route::get('/contributions/{encrypted_id}', [ContributionsController::class, 'viewContributions'])->name('admin.contributions.view');
+                Route::post('/contributions/search', [ContributionsController::class, 'search'])->name('admin.contributions.search');
+                Route::post('/contributions/clear-search', [ContributionsController::class, 'clearSearch'])->name('admin.contributions.clear-search');
+                Route::post('/contributions/store', [ContributionsController::class, 'store'])->name('admin.contribution.store');
+                Route::delete('/contributions/destroy', [ContributionsController::class, 'destroy'])->name('admin.contribution.destroy');
+            });
 
-            Route::get('/admins', [AdminsController::class, 'index'])->name('admin.admins');
-            Route::post('/admins/store', [AdminsController::class, 'store'])->name('admin.admin.store');
-            Route::put('/admins/update', [AdminsController::class, 'update'])->name('admin.admin.update');
+            Route::middleware('admin.permission:contributions-types')->group(function () {
+                Route::get('/contribution-types', [ContributionsController::class, 'contributionTypes'])->name('admin.contribution-types');
+                Route::post('/contribution-types/store', [ContributionsController::class, 'storeContributionType'])->name('admin.contribution-type.store');
+                Route::put('/contribution-types/update', [ContributionsController::class, 'updateContributionType'])->name('admin.contribution-type.update');
+                Route::delete('/contribution-types/destroy', [ContributionsController::class, 'destroyContributionType'])->name('admin.contribution-type.destroy');
+            });
 
-            Route::get('/logs', [LogsController::class, 'index'])->name('admin.logs');
-            Route::post('/logs/search', [LogsController::class, 'search'])->name('admin.logs.search');
-            Route::post('/logs/clear-search', [LogsController::class, 'clearSearch'])->name('admin.logs.clear-search');
+            Route::middleware('admin.permission:financial-account')->group(function () {
+                Route::get('/financial-account', [FinancialAccountController::class, 'index'])->name('admin.financial-account');
+                Route::post('/financial-account/store', [FinancialAccountController::class, 'store'])->name('admin.financial-account.store');
+                Route::put('/financial-account/update', [FinancialAccountController::class, 'update'])->name('admin.financial-account.update');
+                Route::delete('/financial-account/destroy', [FinancialAccountController::class, 'destroy'])->name('admin.financial-account.destroy');
+            });
+
+            Route::middleware('admin.permission:loans')->group(function () {
+                Route::get('/loans', [LoansController::class, 'index'])->name('admin.loans');
+                Route::get('/loan-tracker', [LoansController::class, 'loanTracker'])->name('admin.loan-tracker');
+                Route::post('/loan-tracker/store-or-update', [LoansController::class, 'storeOrUpdate'])->name('admin.loan-tracker.store-or-update');
+                Route::get('/view-employee-loan/{encrypted_id}', [LoansController::class, 'viewEmployeeLoan'])->name('admin.view-employee-loan');
+                Route::post('/borrowers/search', [LoansController::class, 'search'])->name('admin.borrowers.search');
+                Route::post('/borrowers/clear-search', [LoansController::class, 'clearSearch'])->name('admin.borrowers.clear-search');
+                Route::post('/repay-loan', [LoansController::class, 'repayLoan'])->name('admin.repay-loan.store');
+            });
+
+            Route::middleware('admin.permission:admins')->group(function () {
+                Route::get('/admins', [AdminsController::class, 'index'])->name('admin.admins');
+                Route::post('/admins/store', [AdminsController::class, 'store'])->name('admin.admin.store');
+                Route::put('/admins/update', [AdminsController::class, 'update'])->name('admin.admin.update');
+            });
+
+            Route::middleware('admin.permission:logs')->group(function () {
+                Route::get('/logs', [LogsController::class, 'index'])->name('admin.logs');
+                Route::post('/logs/search', [LogsController::class, 'search'])->name('admin.logs.search');
+                Route::post('/logs/clear-search', [LogsController::class, 'clearSearch'])->name('admin.logs.clear-search');
+            });
         });
 
     Route::prefix('employee')

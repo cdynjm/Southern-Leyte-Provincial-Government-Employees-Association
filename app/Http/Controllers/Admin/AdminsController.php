@@ -16,6 +16,8 @@ use App\Models\Contributions;
 use App\Models\ContributionTypes;
 use App\Models\Offices;
 use App\Models\FinancialAccount;
+use App\Models\AdminPermissions;
+use App\Models\Permissions;
 
 class AdminsController extends Controller
 {
@@ -28,13 +30,36 @@ class AdminsController extends Controller
 
     public function index()
     {
-        $admins = User::where('role', 'admin')->orderBy('name', 'asc')->get()->map(function ($admin) {
+        $admins = User::with('adminpermissions.permission')
+        ->where('role', 'admin')
+        ->orderBy('name', 'asc')
+        ->get()
+        ->map(function ($admin) {
+
             $admin->encrypted_id = $this->aes->encrypt($admin->id);
-            return $admin;
+
+            if ($admin->adminpermissions) {
+                $admin->adminpermissions->each(function ($adminPermission) {
+
+                    if ($adminPermission->permission) {
+                        $adminPermission->permission->encrypted_id =
+                            $this->aes->encrypt($adminPermission->permission->id);
+                    }
+
+                });
+            }
+
+        return $admin;
+    });
+
+        $permissions = Permissions::get()->map(function ($per) {
+            $per->encrypted_id = $this->aes->encrypt($per->id);
+            return $per;
         });
 
         return Inertia::render('admin/admins', [
-            'admins' => $admins
+            'admins' => $admins,
+            'permissions' => $permissions
         ]);
     }
 
@@ -57,7 +82,6 @@ class AdminsController extends Controller
             'role' => 'admin'
         ]);
     }
-
     public function update(Request $request)
     {
         $id = $this->aes->decrypt($request->encrypted_id);
@@ -69,8 +93,11 @@ class AdminsController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->ignore($id),
             ],
-            'password' => ['required', 'string'],
+            'password' => ['nullable', 'string'],
+            'permissions' => ['array'],
+            'permissions.*' => ['string']
         ]);
+
 
         $data = [
             'name' => strtoupper($validated['name']),
@@ -82,5 +109,35 @@ class AdminsController extends Controller
         }
 
         User::where('id', $id)->update($data);
+
+        $requestedPermissions = collect($request->permissions ?? [])
+            ->map(fn($encId) => $this->aes->decrypt($encId))
+            ->filter();
+
+        $currentPermissions = AdminPermissions::where('users_id', $id)
+            ->pluck('permissions_id');
+
+        $toRemove = $currentPermissions->diff($requestedPermissions);
+
+        if ($toRemove->isNotEmpty()) {
+            AdminPermissions::where('users_id', $id)
+                ->whereIn('permissions_id', $toRemove)
+                ->delete();
+        }
+
+        $toAdd = $requestedPermissions->diff($currentPermissions);
+
+        $insertData = $toAdd->map(function ($permissionId) use ($id) {
+            return [
+                'users_id' => $id,
+                'permissions_id' => $permissionId,
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+        });
+
+        if ($insertData->isNotEmpty()) {
+            AdminPermissions::insert($insertData->toArray());
+        }
     }
 }

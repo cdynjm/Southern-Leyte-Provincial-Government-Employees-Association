@@ -10,6 +10,7 @@ use App\Http\Middleware\Admin;
 use App\Http\Middleware\Employee;
 use App\Http\Middleware\LoanEncoder;
 use App\Http\Middleware\LoanOfficer;
+use App\Http\Middleware\CheckAdminPermission;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'admin' => Admin::class,
+            'admin.permission' => CheckAdminPermission::class,
             'employee' => Employee::class,
             'loan.encoder' => LoanEncoder::class,
             'loan.officer' => LoanOfficer::class,
