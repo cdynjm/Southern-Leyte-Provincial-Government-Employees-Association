@@ -29,6 +29,7 @@ interface ProfileProps {
     status?: string;
     auth: {
         user: User;
+        permissions: string[];
     };
 }
 
@@ -57,7 +58,9 @@ export default function Profile({ mustVerifyEmail, status, auth }: ProfileProps)
                     <form onSubmit={submit} className="space-y-6">
                         <div className="grid gap-2">
                             <Label htmlFor="name">Name</Label>
-
+                            <small className="text-red-600">
+                                Names cannot be changed for transparency reasons. To update your name, please contact the administrator.
+                            </small>
                             <Input
                                 id="name"
                                 className="mt-1 block w-full"
@@ -66,6 +69,7 @@ export default function Profile({ mustVerifyEmail, status, auth }: ProfileProps)
                                 required
                                 autoComplete="name"
                                 placeholder="Full name"
+                                readOnly
                             />
 
                             <InputError className="mt-2" message={errors.name} />
@@ -125,7 +129,7 @@ export default function Profile({ mustVerifyEmail, status, auth }: ProfileProps)
                     </form>
                 </div>
 
-                {auth.user.role === 'admin' && (
+                {auth.user.role === 'admin' && auth.permissions?.includes('account-deletion') && (
                     <div className="mt-10 border-t pt-6">
                         <DeleteUser />
                     </div>
