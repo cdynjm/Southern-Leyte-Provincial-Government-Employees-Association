@@ -14,6 +14,7 @@ use App\Models\Contributions;
 use App\Models\ContributionTypes;
 use App\Models\Offices;
 use App\Models\FinancialAccount;
+use App\Models\Logs;
 
 class ContributionsController extends Controller
 {
@@ -94,13 +95,20 @@ class ContributionsController extends Controller
         $monthlyAmount = $request->amount / count($months);
 
         foreach ($months as $month) {
-            Contributions::create([
+
+            $contribution = Contributions::create([
                 'users_id' => $id,
                 'contribution_types_id' => $contributionTypeId,
                 'year' => $request->year,
                 'month' => $month,
                 'amount' => $monthlyAmount,
                 'processedBy' => auth()->user()->name
+            ]);
+
+            Logs::create([
+                'users_id' => auth()->user()->id,
+                'name' => auth()->user()->name,
+                'description' => "Added contribution for {$contribution->user->name}: {$contribution->contributiontype->description} with an amount of ₱ " . number_format($contribution->amount, 2) . " for {$contribution->month}/{$contribution->year}.",
             ]);
         }
 
