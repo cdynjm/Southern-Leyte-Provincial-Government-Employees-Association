@@ -1,6 +1,6 @@
 import { SidebarInset } from '@/components/ui/sidebar';
 import { Link, usePage } from '@inertiajs/react';
-import { HandCoins, Home, UsersIcon, Wallet2Icon } from 'lucide-react';
+import { HandCoins, Home, Landmark, PhilippinePeso, UsersIcon, Wallet2Icon } from 'lucide-react';
 import * as React from 'react';
 
 interface AppContentProps extends React.ComponentProps<'main'> {
@@ -11,6 +11,7 @@ interface NavItem {
     label: string;
     href: string;
     icon: React.ComponentType<{ className?: string }>;
+    permission?: string;
 }
 interface AuthUser {
     role: 'admin' | 'employee';
@@ -19,6 +20,7 @@ interface AuthUser {
 interface PageProps {
     auth: {
         user: AuthUser;
+        permissions: string[];
     };
     [key: string]: unknown;
 }
@@ -38,15 +40,26 @@ export function AppContent({ variant = 'header', children, ...props }: AppConten
     // admin nav
     const adminNavItems: NavItem[] = [
         { label: 'Home', href: route('admin.dashboard'), icon: Home },
-        { label: 'Employees', href: route('admin.employees'), icon: UsersIcon },
-        { label: 'Contributions', href: route('admin.contributions'), icon: Wallet2Icon },
-        { label: 'Contribution Types', href: route('admin.contribution-types'), icon: HandCoins },
+        { label: 'Employees', href: route('admin.employees'), icon: UsersIcon, permission: 'employees' },
+        { label: 'Accounts', href: route('admin.financial-account'), icon: Landmark, permission: 'financial-accounts' },
+        { label: 'Contributions', href: route('admin.contributions'), icon: Wallet2Icon, permission: 'contributions' },
+        { label: 'Types', href: route('admin.contribution-types'), icon: HandCoins, permission: 'contributions-types' },
     ];
 
     // employee nav
-    const employeeNavItems: NavItem[] = [{ label: 'Home', href: route('employee.dashboard'), icon: Home }];
+    const employeeNavItems: NavItem[] = [
+        { label: 'Home', href: route('employee.dashboard'), icon: Home },
+        { label: 'Your Loans', href: route('employee.loans'), icon: PhilippinePeso },
+        { label: 'Unpaid', href: route('employee.unpaid'), icon: Wallet2Icon },
+    ];
 
-    const navItems = auth.user.role === 'admin' ? adminNavItems : employeeNavItems;
+    const navItems =
+        auth.user.role === 'admin'
+            ? adminNavItems.filter((item) => {
+                  if (!item.permission) return true;
+                  return auth.permissions?.includes(item.permission);
+              })
+            : employeeNavItems;
 
     const currentPath = typeof window !== 'undefined' ? window.location.pathname.replace(/\/+$/, '') : normalizeToPathname(String(url || ''));
 
